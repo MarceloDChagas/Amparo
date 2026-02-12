@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Victim {
+  id        String   @id @default(uuid())
+  name      String
+  cpf       String   @unique
+  incidents Occurrence[]
+  createdAt DateTime @default(now())
+}
+
+model Aggressor {
+  id        String   @id @default(uuid())
+  name      String
+  cpf       String   @unique
+  occurrences Occurrence[]
+}
+
+model Occurrence {
+  id          String   @id @default(uuid())
+  description String
+  latitude    Float
+  longitude   Float
+  victimId    String
+  victim      Victim   @relation(fields: [victimId], references: [id])
+  aggressorId String
+  aggressor   Aggressor @relation(fields: [aggressorId], references: [id])
+}
