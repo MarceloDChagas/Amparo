@@ -24,12 +24,12 @@
   },
   "lint-staged": {
     "backend/**/*.ts": [
-      "cd backend && npm run lint",
-      "cd backend && npx prettier --write"
+      "node backend/node_modules/eslint/bin/eslint.js --config backend/eslint.config.mjs --fix",
+      "node backend/node_modules/prettier/bin/prettier.cjs --write"
     ],
     "frontend/**/*.{ts,tsx}": [
-      "cd frontend && npm run lint",
-      "cd frontend && npx prettier --write"
+      "node frontend/node_modules/eslint/bin/eslint.js --config frontend/eslint.config.mjs --fix",
+      "node frontend/node_modules/prettier/bin/prettier.cjs --write"
     ]
   }
 }
