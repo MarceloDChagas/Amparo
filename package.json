@@ -1,0 +1,35 @@
+{
+  "name": "amparo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarceloDChagas/Amparo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarceloDChagas/Amparo/issues"
+  },
+  "homepage": "https://github.com/MarceloDChagas/Amparo#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "backend/**/*.ts": [
+      "cd backend && npm run lint",
+      "cd backend && npx prettier --write"
+    ],
+    "frontend/**/*.{ts,tsx}": [
+      "cd frontend && npm run lint",
+      "cd frontend && npx prettier --write"
+    ]
+  }
+}
