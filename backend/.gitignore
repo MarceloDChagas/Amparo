@@ -41,3 +41,5 @@ npm-debug.log*
 /dist
 /.output
 /public/_nuxt
+
+/generated/prisma
