@@ -1,0 +1,43 @@
+
+# compiled output
+/dist
+/node_modules
+
+# logs
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+
+# dependency directories
+/jspm_packages
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+
+# parcel-bundler cache
+.cache
+
+# next.js build output
+.next
+.nuxt
+
+# nuxt.js build output
+/dist
+/.output
+/public/_nuxt
