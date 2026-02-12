@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { cpf } from "cpf-cnpj-validator";
 import { useForm } from "react-hook-form";
+import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -22,16 +24,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { isValidCPF } from "@/core/utils/validators";
 import { useCreateVictim } from "@/data/hooks/use-create-victim";
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  cpf: z.string().refine((val) => isValidCPF(val), {
-    message: "Invalid CPF.",
-  }),
+  cpf: z
+    .string()
+    .transform((val) => val.replace(/[^\d]+/g, ""))
+    .refine((val) => val.length === 11, "CPF must have 11 digits.")
+    .refine((val) => cpf.isValid(val), "Invalid CPF."),
 });
 
 export function VictimForm() {
@@ -47,7 +50,7 @@ export function VictimForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     mutate(
-      { name: values.name, cpf: values.cpf.replace(/[^\d]+/g, "") },
+      { name: values.name, cpf: values.cpf },
       {
         onSuccess: () => {
           toast.success("Victim created successfully!");
@@ -89,7 +92,13 @@ export function VictimForm() {
                 <FormItem>
                   <FormLabel>CPF</FormLabel>
                   <FormControl>
-                    <Input placeholder="000.000.000-00" {...field} />
+                    <PatternFormat
+                      format="###.###.###-##"
+                      mask="_"
+                      customInput={Input}
+                      placeholder="000.000.000-00"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
