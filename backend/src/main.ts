@@ -7,8 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle("Amparo API")
-    .setDescription("The Amparo API description")
+    .setTitle("Sistema de Proteção - Olinda")
+    .setDescription(
+      "API para Prevenção e Resposta Rápida para Proteção de Mulheres",
+    )
     .setVersion("1.0")
     .build();
   const document = SwaggerModule.createDocument(app, config);
