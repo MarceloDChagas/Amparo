@@ -1,0 +1,9 @@
+import { OccurrenceForm } from "@/presentation/components/forms/occurrence-form";
+
+export default function CreateOccurrencePage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
+      <OccurrenceForm />
+    </div>
+  );
+}
