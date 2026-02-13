@@ -34,6 +34,6 @@ export const emergencyContactService = {
   },
 
   getByVictimId: async (victimId: string): Promise<EmergencyContact[]> => {
-    return apiClient(`/emergency-contacts?victimId=${victimId}`);
+    return apiClient(`/emergency-contacts/victim/${victimId}`);
   },
 };
