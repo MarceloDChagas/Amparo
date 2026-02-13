@@ -32,11 +32,9 @@ export class EmergencyContactController {
   async create(
     @Body() createEmergencyContactDto: CreateEmergencyContactDto,
   ): Promise<EmergencyContact> {
-    const contact = new EmergencyContact({
-      ...createEmergencyContactDto,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as EmergencyContact);
+    const contact = new EmergencyContact(
+      createEmergencyContactDto as EmergencyContact,
+    );
     return this.createEmergencyContactUseCase.execute(contact);
   }
 

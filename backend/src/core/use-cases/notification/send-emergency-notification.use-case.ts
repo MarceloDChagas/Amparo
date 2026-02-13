@@ -103,7 +103,28 @@ export class SendEmergencyNotificationUseCase {
     };
   }
 
+  /**
+   * Escapes HTML special characters to prevent XSS attacks
+   */
+  private escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#x27;",
+      "/": "&#x2F;",
+    };
+    return text.replace(/[&<>"'/]/g, (char) => map[char] || char);
+  }
+
   private buildEmailBody(contactName: string, occurrence: Occurrence): string {
+    // Escape all user-supplied data to prevent XSS
+    const safeContactName = this.escapeHtml(contactName);
+    const safeDescription = this.escapeHtml(occurrence.description);
+    const safeLatitude = this.escapeHtml(occurrence.latitude.toString());
+    const safeLongitude = this.escapeHtml(occurrence.longitude.toString());
+
     return `
       <!DOCTYPE html>
       <html>
@@ -162,7 +183,7 @@ export class SendEmergencyNotificationUseCase {
               <h1>🚨 Emergency Alert</h1>
             </div>
             <div class="content">
-              <p>Hello <strong>${contactName}</strong>,</p>
+              <p>Hello <strong>${safeContactName}</strong>,</p>
               
               <div class="alert-box">
                 <strong>⚠️ This is an emergency notification from Amparo.</strong>
@@ -174,17 +195,17 @@ export class SendEmergencyNotificationUseCase {
               
               <div class="info-row">
                 <span class="label">Description:</span>
-                <p>${occurrence.description}</p>
+                <p>${safeDescription}</p>
               </div>
               
               <div class="info-row">
                 <span class="label">Location:</span>
                 <p>
-                  Latitude: ${occurrence.latitude}<br>
-                  Longitude: ${occurrence.longitude}
+                  Latitude: ${safeLatitude}<br>
+                  Longitude: ${safeLongitude}
                 </p>
                 <p>
-                  <a href="https://www.google.com/maps?q=${occurrence.latitude},${occurrence.longitude}" target="_blank">
+                  <a href="https://www.google.com/maps?q=${safeLatitude},${safeLongitude}" target="_blank" rel="noopener noreferrer">
                     📍 View on Google Maps
                   </a>
                 </p>

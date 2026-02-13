@@ -11,15 +11,12 @@ export class PrismaEmergencyContactRepository implements IEmergencyContactReposi
   async create(contact: EmergencyContact): Promise<EmergencyContact> {
     const createdContact = await this.prisma.emergencyContact.create({
       data: {
-        id: contact.id,
         name: contact.name,
         phone: contact.phone,
         email: contact.email,
         relationship: contact.relationship,
         priority: contact.priority,
         victimId: contact.victimId,
-        createdAt: contact.createdAt,
-        updatedAt: contact.updatedAt,
       },
     });
     return new EmergencyContact({

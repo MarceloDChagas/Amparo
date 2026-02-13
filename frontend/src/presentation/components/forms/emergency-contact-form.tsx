@@ -53,7 +53,7 @@ const formSchema = z.object({
   priority: z.number().int().min(1, {
     message: "Priority must be at least 1.",
   }),
-  victimId: z.string().uuid({
+  victimId: z.string().min(1, "Please select a victim.").uuid({
     message: "Please select a valid victim.",
   }),
 });
@@ -70,7 +70,7 @@ export function EmergencyContactForm() {
       email: "",
       relationship: "",
       priority: 1,
-      victimId: "",
+      victimId: undefined, // Changed from "" to undefined to avoid immediate validation error
     },
   });
 
