@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AggressorModule } from "@/infra/modules/aggressor.module";
+import { DatabaseModule } from "@/infra/modules/database.module";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module";
 import { OccurrenceModule } from "@/infra/modules/occurrence.module";
@@ -11,6 +12,7 @@ import { AppService } from "./app.service";
 
 @Module({
   imports: [
+    DatabaseModule,
     EmailModule,
     AggressorModule,
     VictimModule,
