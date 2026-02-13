@@ -13,7 +13,18 @@ export const apiClient = async <T>(
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
+    let errorMessage = `API Error: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // If parsing JSON fails, use statusText
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();

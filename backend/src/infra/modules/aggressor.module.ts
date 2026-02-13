@@ -4,14 +4,12 @@ import { CreateAggressorUseCase } from "@/core/use-cases/aggressor/create-aggres
 import { DeleteAggressorUseCase } from "@/core/use-cases/aggressor/delete-aggressor.use-case";
 import { GetAggressorUseCase } from "@/core/use-cases/aggressor/get-aggressor.use-case";
 import { UpdateAggressorUseCase } from "@/core/use-cases/aggressor/update-aggressor.use-case";
-import { PrismaService } from "@/infra/database/prisma.service";
 import { PrismaAggressorRepository } from "@/infra/database/repositories/prisma-aggressor.repository";
 import { AggressorController } from "@/infra/http/controllers/aggressor.controller";
 
 @Module({
   controllers: [AggressorController],
   providers: [
-    PrismaService,
     CreateAggressorUseCase,
     GetAggressorUseCase,
     UpdateAggressorUseCase,
