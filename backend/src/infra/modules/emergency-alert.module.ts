@@ -7,9 +7,12 @@ import { PrismaService } from "../database/prisma.service";
 import { PrismaEmergencyAlertRepository } from "../database/prisma/repositories/prisma-emergency-alert-repository";
 import { EmergencyAlertController } from "../http/controllers/emergency-alert.controller";
 import { DatabaseModule } from "./database.module";
+import { EmailModule } from "./email.module";
+import { EmergencyContactModule } from "./emergency-contact.module";
+import { VictimModule } from "./victim.module";
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, EmailModule, EmergencyContactModule, VictimModule],
   controllers: [EmergencyAlertController],
   providers: [
     PrismaService,

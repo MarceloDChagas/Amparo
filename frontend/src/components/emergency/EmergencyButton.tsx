@@ -28,7 +28,12 @@ export function EmergencyButton() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        createAlert({ latitude, longitude });
+        // TODO: Remove hardcoded victimId after auth implementation
+        createAlert({
+          latitude,
+          longitude,
+          victimId: "94d57aca-a2cc-4d46-aa10-37a8010c55ef",
+        });
       },
       (error) => {
         console.error("Erro ao obter localização:", error);

@@ -19,5 +19,6 @@ import { VictimController } from "@/infra/http/controllers/victim.controller";
       useClass: PrismaVictimRepository,
     },
   ],
+  exports: ["IVictimRepository"],
 })
 export class VictimModule {}
