@@ -1,18 +1,43 @@
 import React, { useState } from "react";
 
+import { useCreateEmergencyAlert } from "@/hooks/use-emergency-alert";
 import { colors } from "@/styles/colors";
 
 export function EmergencyButton() {
   const [isPressing, setIsPressing] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
 
+  const { mutate: createAlert, isPending } = useCreateEmergencyAlert();
+
   const handlePressStart = () => {
     setIsPressing(true);
     setShowPulse(true);
+    handleEmergency();
   };
 
   const handlePressEnd = () => {
     setIsPressing(false);
+  };
+
+  const handleEmergency = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocalização não suportada pelo seu navegador.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        createAlert({ latitude, longitude });
+      },
+      (error) => {
+        console.error("Erro ao obter localização:", error);
+        // Fallback or error handling
+        createAlert({ latitude: 0, longitude: 0 }); // Send alert even without precise location? Or maybe ask user.
+        // For now, let's send 0,0 or handle error.
+        // Better to send what we have.
+      },
+    );
   };
 
   return (
