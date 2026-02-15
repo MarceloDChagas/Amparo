@@ -24,11 +24,11 @@
   },
   "lint-staged": {
     "backend/**/*.ts": [
-      "node backend/node_modules/eslint/bin/eslint.js --config backend/eslint.config.mjs --fix --format codeframe",
+      "node backend/node_modules/eslint/bin/eslint.js --config backend/eslint.config.mjs --fix",
       "node backend/node_modules/prettier/bin/prettier.cjs --write"
     ],
     "frontend/**/*.{ts,tsx}": [
-      "node frontend/node_modules/eslint/bin/eslint.js --config frontend/eslint.config.mjs --fix --format codeframe",
+      "node frontend/node_modules/eslint/bin/eslint.js --config frontend/eslint.config.mjs --fix",
       "node frontend/node_modules/prettier/bin/prettier.cjs --write"
     ]
   }

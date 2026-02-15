@@ -10,6 +10,7 @@ export function EmergencyButton() {
   const { mutate: createAlert, isPending } = useCreateEmergencyAlert();
 
   const handlePressStart = () => {
+    if (isPending) return;
     setIsPressing(true);
     setShowPulse(true);
     handleEmergency();
@@ -128,14 +129,19 @@ export function EmergencyButton() {
         style={{
           width: "170px",
           height: "170px",
-          backgroundColor: colors.secondary[300],
+          backgroundColor: isPending
+            ? colors.neutral[300]
+            : colors.secondary[300],
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
           boxShadow: isPressing
             ? "0 0 40px rgba(255, 179, 217, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.1)"
             : "0 10px 30px rgba(0, 0, 0, 0.3)",
+          cursor: isPending ? "not-allowed" : "pointer",
+          opacity: isPending ? 0.7 : 1,
         }}
+        disabled={isPending}
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
         onMouseLeave={handlePressEnd}
@@ -151,7 +157,7 @@ export function EmergencyButton() {
               : "none",
           }}
         >
-          PUSH
+          {isPending ? "SENDING..." : "PUSH"}
         </span>
       </button>
 

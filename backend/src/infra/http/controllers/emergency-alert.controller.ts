@@ -1,19 +1,16 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, UsePipes } from "@nestjs/common";
+import { ZodValidationPipe } from "nestjs-zod";
 
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 
-interface CreateEmergencyAlertDto {
-  latitude: number;
-  longitude: number;
-  address?: string;
-  victimId?: string;
-}
+import { CreateEmergencyAlertDto } from "../schemas/create-emergency-alert.schema";
 
 @Controller("emergency-alerts")
 export class EmergencyAlertController {
   constructor(private createEmergencyAlert: CreateEmergencyAlert) {}
 
   @Post()
+  @UsePipes(ZodValidationPipe)
   async create(@Body() body: CreateEmergencyAlertDto): Promise<void> {
     await this.createEmergencyAlert.execute({
       latitude: body.latitude,
