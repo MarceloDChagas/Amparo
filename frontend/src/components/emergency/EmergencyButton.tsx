@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 import { useCreateEmergencyAlert } from "@/hooks/use-emergency-alert";
+import { useAuth } from "@/presentation/hooks/useAuth";
 import { colors } from "@/styles/colors";
 
 export function EmergencyButton() {
+  const { user } = useAuth();
   const [isPressing, setIsPressing] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
 
@@ -21,27 +24,35 @@ export function EmergencyButton() {
   };
 
   const handleEmergency = () => {
+    if (!user) {
+      toast.error("Você precisa estar logado para enviar um alerta.");
+      return;
+    }
+
     if (!navigator.geolocation) {
-      alert("Geolocalização não suportada pelo seu navegador.");
+      toast.error("Geolocalização não suportada pelo seu navegador.");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        // TODO: Remove hardcoded victimId after auth implementation
         createAlert({
           latitude,
           longitude,
-          victimId: "94d57aca-a2cc-4d46-aa10-37a8010c55ef",
+          victimId: user.id,
         });
       },
       (error) => {
         console.error("Erro ao obter localização:", error);
-        // Fallback or error handling
-        createAlert({ latitude: 0, longitude: 0 }); // Send alert even without precise location? Or maybe ask user.
-        // For now, let's send 0,0 or handle error.
-        // Better to send what we have.
+        toast.error(
+          "Erro ao obter localização. Enviando alerta com localização aproximada.",
+        );
+        createAlert({
+          latitude: 0,
+          longitude: 0,
+          victimId: user.id,
+        });
       },
     );
   };

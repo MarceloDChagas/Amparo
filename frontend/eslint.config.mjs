@@ -1,10 +1,10 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
-import security from "eslint-plugin-security";
-import promise from "eslint-plugin-promise";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
