@@ -44,7 +44,7 @@ export function LoginForm() {
     try {
       await login(values);
       toast.success("Login realizado com sucesso!");
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       toast.error("Erro ao realizar login. Verifique suas credenciais.");
       console.error(error);

@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
 
 export interface LoginParams {
   email: string;
@@ -43,7 +43,9 @@ export const authService = {
     });
 
     if (!response.ok) {
-      throw new Error("Registration failed");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Registration error:", errorData);
+      throw new Error(errorData.message || "Registration failed");
     }
     return response.json();
   },

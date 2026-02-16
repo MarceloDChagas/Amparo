@@ -59,7 +59,11 @@ export function RegisterForm() {
       toast.success("Cadastro realizado com sucesso!");
       router.push("/");
     } catch (error) {
-      toast.error("Erro ao realizar cadastro. Tente novamente.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao realizar cadastro. Tente novamente.";
+      toast.error(message);
       console.error(error);
     } finally {
       setLoading(false);

@@ -20,7 +20,9 @@ ENV NODE_ENV production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
+COPY --from=builder /app/prisma ./prisma
 RUN npm ci --only=production
+RUN npx prisma generate
 
 USER node
 
