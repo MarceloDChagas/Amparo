@@ -42,9 +42,14 @@ export function LoginForm() {
   async function onSubmit(values: LoginFormValues) {
     setLoading(true);
     try {
-      await login(values);
+      const user = await login(values);
       toast.success("Login realizado com sucesso!");
-      router.push("/dashboard");
+
+      if (user.role === "VICTIM") {
+        router.push("/app");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error) {
       toast.error("Erro ao realizar login. Verifique suas credenciais.");
       console.error(error);

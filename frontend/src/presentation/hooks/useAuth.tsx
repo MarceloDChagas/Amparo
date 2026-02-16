@@ -17,7 +17,7 @@ import {
 
 interface AuthContextType {
   user: AuthResponse["user"] | null;
-  login: (credentials: LoginParams) => Promise<void>;
+  login: (credentials: LoginParams) => Promise<AuthResponse["user"]>;
   register: (data: RegisterParams) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("token", data.access_token);
     localStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
+    return data.user;
   };
 
   const register = async (data: RegisterParams) => {

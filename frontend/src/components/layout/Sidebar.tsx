@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  AlertTriangle,
-  FileText,
-  Home,
-  LogOut,
-  Phone,
-  ShieldAlert,
-  Users,
-} from "lucide-react";
+import { FileText, Home, LogOut, ShieldAlert, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -41,23 +33,11 @@ const routes = [
     href: "/occurrences",
     color: "text-orange-500",
   },
-  {
-    label: "Emergência",
-    icon: AlertTriangle,
-    href: "/emergency",
-    color: "text-pink-500",
-  },
-  {
-    label: "Contatos",
-    icon: Phone,
-    href: "/emergency-contacts",
-    color: "text-emerald-500",
-  },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth(); // Assuming useAuth provides logout
+  const { logout } = useAuth();
 
   return (
     <div className="space-y-4 py-4 flex flex-col h-full bg-[#111827] text-white">

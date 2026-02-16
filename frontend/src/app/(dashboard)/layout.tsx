@@ -16,8 +16,12 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/login");
+    if (!isLoading) {
+      if (!user) {
+        router.push("/login");
+      } else if (user.role === "VICTIM") {
+        router.push("/app");
+      }
     }
   }, [user, isLoading, router]);
 
@@ -29,7 +33,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) {
+  if (!user || user.role === "VICTIM") {
     return null; // Will redirect
   }
 

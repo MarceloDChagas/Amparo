@@ -25,7 +25,7 @@ export class RegisterUserUseCase {
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: "USER", // Default role
+      role: "VICTIM", // Enforce VICTIM role for self-registration
     } as Partial<User>);
 
     const createdUser = await this.userRepository.create(newUser);

@@ -1,4 +1,5 @@
 import { Phone, User, Users, Video } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 import { colors } from "@/styles/colors";
@@ -7,22 +8,24 @@ export function ActionButtons() {
   return (
     <div className="w-full max-w-md flex flex-col sm:flex-row gap-3 mb-8 px-4">
       {/* Emergency Contacts Button */}
-      <button
-        className="flex-1 rounded-full py-3 px-4 flex items-center justify-between shadow-lg transition-transform active:scale-95"
-        style={{ backgroundColor: colors.secondary[300] }}
-      >
-        <div className="flex items-center gap-2">
-          <Phone size={18} style={{ color: colors.primary[900] }} />
-          <Users size={18} style={{ color: colors.primary[900] }} />
-          <User size={18} style={{ color: colors.primary[900] }} />
-        </div>
-        <span
-          className="font-semibold text-xs sm:text-sm whitespace-nowrap"
-          style={{ color: colors.primary[900] }}
+      <Link href="/app/contacts" className="flex-1">
+        <button
+          className="w-full rounded-full py-3 px-4 flex items-center justify-between shadow-lg transition-transform active:scale-95"
+          style={{ backgroundColor: colors.secondary[300] }}
         >
-          Contatos de Emergência
-        </span>
-      </button>
+          <div className="flex items-center gap-2">
+            <Phone size={18} style={{ color: colors.primary[900] }} />
+            <Users size={18} style={{ color: colors.primary[900] }} />
+            <User size={18} style={{ color: colors.primary[900] }} />
+          </div>
+          <span
+            className="font-semibold text-xs sm:text-sm whitespace-nowrap"
+            style={{ color: colors.primary[900] }}
+          >
+            Contatos de Emergência
+          </span>
+        </button>
+      </Link>
 
       {/* My Recordings Button */}
       <button
