@@ -6,8 +6,10 @@ import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/g
 import { UpdateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/update-emergency-contact.use-case";
 import { PrismaEmergencyContactRepository } from "@/infra/database/repositories/prisma-emergency-contact.repository";
 import { EmergencyContactController } from "@/infra/http/controllers/emergency-contact.controller";
+import { EncryptionModule } from "@/infra/modules/encryption.module";
 
 @Module({
+  imports: [EncryptionModule],
   controllers: [EmergencyContactController],
   providers: [
     CreateEmergencyContactUseCase,

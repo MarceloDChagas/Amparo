@@ -6,8 +6,10 @@ import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
 import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
 import { PrismaVictimRepository } from "@/infra/database/repositories/prisma-victim.repository";
 import { VictimController } from "@/infra/http/controllers/victim.controller";
+import { EncryptionModule } from "@/infra/modules/encryption.module";
 
 @Module({
+  imports: [EncryptionModule],
   controllers: [VictimController],
   providers: [
     CreateVictimUseCase,

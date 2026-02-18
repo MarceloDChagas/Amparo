@@ -13,7 +13,8 @@ datasource db {
 model Victim {
   id               String             @id @default(uuid())
   name             String
-  cpf              String             @unique
+  cpf              String             // Encrypted
+  cpfHash          String             @unique // Hashed for lookup
   incidents        Occurrence[]
   emergencyContacts EmergencyContact[]
   emergencyAlerts  EmergencyAlert[]
@@ -23,7 +24,8 @@ model Victim {
 model Aggressor {
   id        String   @id @default(uuid())
   name      String
-  cpf       String   @unique
+  cpf       String   // Encrypted
+  cpfHash   String   @unique // Hashed for lookup
   occurrences Occurrence[]
 }
 
@@ -41,8 +43,8 @@ model Occurrence {
 model EmergencyContact {
   id           String   @id @default(uuid())
   name         String
-  phone        String
-  email        String?
+  phone        String   // Encrypted
+  email        String?  // Encrypted
   relationship String
   priority     Int      @default(1)
   victimId     String
