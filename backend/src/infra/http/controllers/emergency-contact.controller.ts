@@ -6,19 +6,25 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UsePipes,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { ZodValidationPipe } from "nestjs-zod";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
+import { Role } from "@/core/domain/enums/role.enum";
 import { CreateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/create-emergency-contact.use-case";
 import { DeleteEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/delete-emergency-contact.use-case";
 import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/get-emergency-contact.use-case";
 import { UpdateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/update-emergency-contact.use-case";
+import { Roles } from "@/infra/http/decorators/roles.decorator";
+import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { CreateEmergencyContactDto } from "@/infra/http/schemas/create-emergency-contact.schema";
 import { UpdateEmergencyContactDto } from "@/infra/http/schemas/update-emergency-contact.schema";
 
 @Controller("emergency-contacts")
+@UseGuards(AuthGuard("jwt"), RolesGuard)
 export class EmergencyContactController {
   constructor(
     private readonly createEmergencyContactUseCase: CreateEmergencyContactUseCase,
@@ -28,6 +34,7 @@ export class EmergencyContactController {
   ) {}
 
   @Post()
+  @Roles(Role.VICTIM)
   @UsePipes(ZodValidationPipe)
   async create(
     @Body() createEmergencyContactDto: CreateEmergencyContactDto,
@@ -39,11 +46,13 @@ export class EmergencyContactController {
   }
 
   @Get()
+  @Roles(Role.VICTIM)
   async findAll(): Promise<EmergencyContact[]> {
     return this.getEmergencyContactUseCase.executeFindAll();
   }
 
   @Get("victim/:victimId")
+  @Roles(Role.VICTIM, Role.ADMIN)
   async findByVictim(
     @Param("victimId") victimId: string,
   ): Promise<EmergencyContact[]> {
@@ -51,11 +60,13 @@ export class EmergencyContactController {
   }
 
   @Get(":id")
+  @Roles(Role.VICTIM)
   async findOne(@Param("id") id: string): Promise<EmergencyContact | null> {
     return this.getEmergencyContactUseCase.execute(id);
   }
 
   @Put(":id")
+  @Roles(Role.VICTIM)
   @UsePipes(ZodValidationPipe)
   async update(
     @Param("id") id: string,
@@ -68,6 +79,7 @@ export class EmergencyContactController {
   }
 
   @Delete(":id")
+  @Roles(Role.VICTIM)
   async remove(@Param("id") id: string): Promise<void> {
     return this.deleteEmergencyContactUseCase.execute(id);
   }

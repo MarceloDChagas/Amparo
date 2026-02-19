@@ -6,15 +6,20 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UsePipes,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { ZodValidationPipe } from "nestjs-zod";
 
 import { Victim } from "@/core/domain/entities/victim.entity";
+import { Role } from "@/core/domain/enums/role.enum";
 import { CreateVictimUseCase } from "@/core/use-cases/victim/create-victim.use-case";
 import { DeleteVictimUseCase } from "@/core/use-cases/victim/delete-victim.use-case";
 import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
 import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
+import { Roles } from "@/infra/http/decorators/roles.decorator";
+import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { CreateVictimDto } from "@/infra/http/schemas/create-victim.schema";
 import { UpdateVictimDto } from "@/infra/http/schemas/update-victim.schema";
 
@@ -38,16 +43,22 @@ export class VictimController {
   }
 
   @Get()
+  @UseGuards(AuthGuard("jwt"), RolesGuard)
+  @Roles(Role.ADMIN)
   async findAll(): Promise<Victim[]> {
     return this.getVictimUseCase.executeFindAll();
   }
 
   @Get(":id")
+  @UseGuards(AuthGuard("jwt"), RolesGuard)
+  @Roles(Role.ADMIN, Role.VICTIM)
   async findOne(@Param("id") id: string): Promise<Victim | null> {
     return this.getVictimUseCase.execute(id);
   }
 
   @Put(":id")
+  @UseGuards(AuthGuard("jwt"), RolesGuard)
+  @Roles(Role.ADMIN, Role.VICTIM)
   @UsePipes(ZodValidationPipe)
   async update(
     @Param("id") id: string,
@@ -57,6 +68,8 @@ export class VictimController {
   }
 
   @Delete(":id")
+  @UseGuards(AuthGuard("jwt"), RolesGuard)
+  @Roles(Role.ADMIN)
   async remove(@Param("id") id: string): Promise<void> {
     return this.deleteVictimUseCase.execute(id);
   }
