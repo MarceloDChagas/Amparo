@@ -1,0 +1,32 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
+
+export interface Occurrence {
+  id: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  victimId: string;
+  aggressorId: string;
+  // Add other fields as needed
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export const occurrenceService = {
+  async getAll(): Promise<Occurrence[]> {
+    const response = await fetch(`${API_URL}/occurrences`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch occurrences");
+    }
+    return response.json();
+  },
+};

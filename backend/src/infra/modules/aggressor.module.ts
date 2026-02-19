@@ -6,8 +6,10 @@ import { GetAggressorUseCase } from "@/core/use-cases/aggressor/get-aggressor.us
 import { UpdateAggressorUseCase } from "@/core/use-cases/aggressor/update-aggressor.use-case";
 import { PrismaAggressorRepository } from "@/infra/database/repositories/prisma-aggressor.repository";
 import { AggressorController } from "@/infra/http/controllers/aggressor.controller";
+import { EncryptionModule } from "@/infra/modules/encryption.module";
 
 @Module({
+  imports: [EncryptionModule],
   controllers: [AggressorController],
   providers: [
     CreateAggressorUseCase,

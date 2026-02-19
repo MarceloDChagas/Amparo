@@ -11,7 +11,7 @@ import {
 } from "@/components/emergency";
 import { colors } from "@/styles/colors";
 
-export default function EmergencyPage() {
+export default function VictimAppPage() {
   return (
     <div
       className="min-h-screen flex flex-col relative overflow-hidden"

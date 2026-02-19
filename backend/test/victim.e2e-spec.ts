@@ -1,8 +1,10 @@
 import { INestApplication } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 
 import { PrismaService } from "@/infra/database/prisma.service";
+import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { VictimModule } from "@/infra/modules/victim.module";
 
 describe("VictimController (e2e)", () => {
@@ -30,6 +32,10 @@ describe("VictimController (e2e)", () => {
       .useValue(mockPrismaService)
       .overrideProvider("IVictimRepository")
       .useValue(mockVictimRepository)
+      .overrideGuard(AuthGuard("jwt"))
+      .useValue({ canActivate: () => true })
+      .overrideGuard(RolesGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -50,11 +56,17 @@ describe("VictimController (e2e)", () => {
     const victimData = {
       name: "John Doe",
       cpf: "12345678901",
-      email: "[EMAIL_ADDRESS]",
+      email: "john.doe@example.com",
       phone: "1234567890",
       address: "123 Main St",
     };
-    const createdVictim = { id: "1", ...victimData };
+    const createdVictim = { id: "1", ...victimData, createdAt: new Date() };
+    const expectedResponse = {
+      id: "1",
+      name: "John Doe",
+      cpf: "123.***.***-01",
+      createdAt: createdVictim.createdAt.toISOString(),
+    };
 
     mockVictimRepository.create.mockResolvedValue(createdVictim);
 
@@ -63,7 +75,7 @@ describe("VictimController (e2e)", () => {
       .post("/victims")
       .send(victimData)
       .expect(201)
-      .expect(createdVictim);
+      .expect(expectedResponse);
   });
 
   it("/victims/:id (GET)", async () => {
@@ -72,9 +84,16 @@ describe("VictimController (e2e)", () => {
       id: victimId,
       name: "John Doe",
       cpf: "12345678901",
-      email: "[EMAIL_ADDRESS]",
+      email: "john.doe@example.com",
       phone: "1234567890",
       address: "123 Main St",
+      createdAt: new Date(),
+    };
+    const expectedResponse = {
+      id: victimId,
+      name: "John Doe",
+      cpf: "123.***.***-01",
+      createdAt: victimData.createdAt.toISOString(),
     };
 
     mockVictimRepository.findById.mockResolvedValue(victimData);
@@ -83,7 +102,7 @@ describe("VictimController (e2e)", () => {
     return request(app.getHttpServer())
       .get(`/victims/${victimId}`)
       .expect(200)
-      .expect(victimData);
+      .expect(expectedResponse);
   });
 
   it("/victims/:id (PUT)", async () => {
@@ -91,11 +110,21 @@ describe("VictimController (e2e)", () => {
     const victimData = {
       name: "Updated Name",
       cpf: "12345678901",
-      email: "[EMAIL_ADDRESS]",
+      email: "john.doe@example.com",
       phone: "1234567890",
       address: "123 Main St",
     };
-    const updatedVictim = { id: victimId, ...victimData };
+    const updatedVictim = {
+      id: victimId,
+      ...victimData,
+      createdAt: new Date(),
+    };
+    const expectedResponse = {
+      id: victimId,
+      name: "Updated Name",
+      cpf: "123.***.***-01",
+      createdAt: updatedVictim.createdAt.toISOString(),
+    };
 
     mockVictimRepository.update.mockResolvedValue(updatedVictim);
 
@@ -104,7 +133,7 @@ describe("VictimController (e2e)", () => {
       .put(`/victims/${victimId}`)
       .send(victimData)
       .expect(200)
-      .expect(updatedVictim);
+      .expect(expectedResponse);
   });
 
   it("/victims/:id (DELETE)", async () => {

@@ -1,7 +1,11 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
+import { AuditInterceptor } from "@/infra/http/interceptors/audit.interceptor";
 import { AggressorModule } from "@/infra/modules/aggressor.module";
+import { AuditModule } from "@/infra/modules/audit.module";
+import { AuthModule } from "@/infra/modules/auth.module";
 import { DatabaseModule } from "@/infra/modules/database.module";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyAlertModule } from "@/infra/modules/emergency-alert.module";
@@ -17,13 +21,21 @@ import { AppService } from "./app.service";
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     EmailModule,
+    AuthModule,
     AggressorModule,
     VictimModule,
     OccurrenceModule,
     EmergencyContactModule,
     EmergencyAlertModule,
+    AuditModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
 export class AppModule {}
