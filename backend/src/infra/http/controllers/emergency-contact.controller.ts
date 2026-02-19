@@ -20,6 +20,7 @@ import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/g
 import { UpdateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/update-emergency-contact.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
+import { EmergencyContactPresenter } from "@/infra/http/presenters/emergency-contact.presenter";
 import { CreateEmergencyContactDto } from "@/infra/http/schemas/create-emergency-contact.schema";
 import { UpdateEmergencyContactDto } from "@/infra/http/schemas/update-emergency-contact.schema";
 
@@ -36,33 +37,36 @@ export class EmergencyContactController {
   @Post()
   @Roles(Role.VICTIM)
   @UsePipes(ZodValidationPipe)
-  async create(
-    @Body() createEmergencyContactDto: CreateEmergencyContactDto,
-  ): Promise<EmergencyContact> {
+  async create(@Body() createEmergencyContactDto: CreateEmergencyContactDto) {
     const contact = new EmergencyContact(
       createEmergencyContactDto as EmergencyContact,
     );
-    return this.createEmergencyContactUseCase.execute(contact);
+    const createdContact =
+      await this.createEmergencyContactUseCase.execute(contact);
+    return EmergencyContactPresenter.toHTTP(createdContact);
   }
 
   @Get()
   @Roles(Role.VICTIM)
-  async findAll(): Promise<EmergencyContact[]> {
-    return this.getEmergencyContactUseCase.executeFindAll();
+  async findAll() {
+    const contacts = await this.getEmergencyContactUseCase.executeFindAll();
+    return contacts.map((contact) => EmergencyContactPresenter.toHTTP(contact));
   }
 
   @Get("victim/:victimId")
   @Roles(Role.VICTIM, Role.ADMIN)
-  async findByVictim(
-    @Param("victimId") victimId: string,
-  ): Promise<EmergencyContact[]> {
-    return this.getEmergencyContactUseCase.executeFindByVictimId(victimId);
+  async findByVictim(@Param("victimId") victimId: string) {
+    const contacts =
+      await this.getEmergencyContactUseCase.executeFindByVictimId(victimId);
+    return contacts.map((contact) => EmergencyContactPresenter.toHTTP(contact));
   }
 
   @Get(":id")
   @Roles(Role.VICTIM)
-  async findOne(@Param("id") id: string): Promise<EmergencyContact | null> {
-    return this.getEmergencyContactUseCase.execute(id);
+  async findOne(@Param("id") id: string) {
+    const contact = await this.getEmergencyContactUseCase.execute(id);
+    if (!contact) return null;
+    return EmergencyContactPresenter.toHTTP(contact);
   }
 
   @Put(":id")
@@ -71,11 +75,12 @@ export class EmergencyContactController {
   async update(
     @Param("id") id: string,
     @Body() updateEmergencyContactDto: UpdateEmergencyContactDto,
-  ): Promise<EmergencyContact> {
-    return this.updateEmergencyContactUseCase.execute(
+  ) {
+    const updatedContact = await this.updateEmergencyContactUseCase.execute(
       id,
       updateEmergencyContactDto,
     );
+    return EmergencyContactPresenter.toHTTP(updatedContact);
   }
 
   @Delete(":id")

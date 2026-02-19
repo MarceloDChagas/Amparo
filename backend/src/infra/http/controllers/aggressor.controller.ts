@@ -20,6 +20,7 @@ import { GetAggressorUseCase } from "@/core/use-cases/aggressor/get-aggressor.us
 import { UpdateAggressorUseCase } from "@/core/use-cases/aggressor/update-aggressor.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
+import { AggressorPresenter } from "@/infra/http/presenters/aggressor.presenter";
 
 import { CreateAggressorDto } from "../schemas/create-aggressor.schema";
 import { UpdateAggressorDto } from "../schemas/update-aggressor.schema";
@@ -37,23 +38,26 @@ export class AggressorController {
   @Post()
   @Roles(Role.ADMIN, Role.VICTIM)
   @UsePipes(ZodValidationPipe)
-  async create(
-    @Body() createAggressorDto: CreateAggressorDto,
-  ): Promise<Aggressor> {
+  async create(@Body() createAggressorDto: CreateAggressorDto) {
     const aggressor = new Aggressor(createAggressorDto as Aggressor);
-    return this.createAggressorUseCase.execute(aggressor);
+    const createdAggressor =
+      await this.createAggressorUseCase.execute(aggressor);
+    return AggressorPresenter.toHTTP(createdAggressor);
   }
 
   @Get()
   @Roles(Role.ADMIN)
-  async findAll(): Promise<Aggressor[]> {
-    return this.getAggressorUseCase.executeFindAll();
+  async findAll() {
+    const aggressors = await this.getAggressorUseCase.executeFindAll();
+    return aggressors.map((aggressor) => AggressorPresenter.toHTTP(aggressor));
   }
 
   @Get(":id")
   @Roles(Role.ADMIN)
-  async findOne(@Param("id") id: string): Promise<Aggressor | null> {
-    return this.getAggressorUseCase.execute(id);
+  async findOne(@Param("id") id: string) {
+    const aggressor = await this.getAggressorUseCase.execute(id);
+    if (!aggressor) return null;
+    return AggressorPresenter.toHTTP(aggressor);
   }
 
   @Put(":id")
@@ -62,8 +66,12 @@ export class AggressorController {
   async update(
     @Param("id") id: string,
     @Body() updateAggressorDto: UpdateAggressorDto,
-  ): Promise<Aggressor> {
-    return this.updateAggressorUseCase.execute(id, updateAggressorDto);
+  ) {
+    const updatedAggressor = await this.updateAggressorUseCase.execute(
+      id,
+      updateAggressorDto,
+    );
+    return AggressorPresenter.toHTTP(updatedAggressor);
   }
 
   @Delete(":id")

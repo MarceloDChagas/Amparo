@@ -20,6 +20,7 @@ import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
 import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
+import { VictimPresenter } from "@/infra/http/presenters/victim.presenter";
 import { CreateVictimDto } from "@/infra/http/schemas/create-victim.schema";
 import { UpdateVictimDto } from "@/infra/http/schemas/update-victim.schema";
 
@@ -34,26 +35,30 @@ export class VictimController {
 
   @Post()
   @UsePipes(ZodValidationPipe)
-  async create(@Body() createVictimDto: CreateVictimDto): Promise<Victim> {
+  async create(@Body() createVictimDto: CreateVictimDto) {
     const victim = new Victim({
       ...createVictimDto,
       createdAt: new Date(),
     } as Victim);
-    return this.createVictimUseCase.execute(victim);
+    const createdVictim = await this.createVictimUseCase.execute(victim);
+    return VictimPresenter.toHTTP(createdVictim);
   }
 
   @Get()
   @UseGuards(AuthGuard("jwt"), RolesGuard)
   @Roles(Role.ADMIN)
-  async findAll(): Promise<Victim[]> {
-    return this.getVictimUseCase.executeFindAll();
+  async findAll() {
+    const victims = await this.getVictimUseCase.executeFindAll();
+    return victims.map((victim) => VictimPresenter.toHTTP(victim));
   }
 
   @Get(":id")
   @UseGuards(AuthGuard("jwt"), RolesGuard)
   @Roles(Role.ADMIN, Role.VICTIM)
-  async findOne(@Param("id") id: string): Promise<Victim | null> {
-    return this.getVictimUseCase.execute(id);
+  async findOne(@Param("id") id: string) {
+    const victim = await this.getVictimUseCase.execute(id);
+    if (!victim) return null;
+    return VictimPresenter.toHTTP(victim);
   }
 
   @Put(":id")
@@ -63,8 +68,12 @@ export class VictimController {
   async update(
     @Param("id") id: string,
     @Body() updateVictimDto: UpdateVictimDto,
-  ): Promise<Victim> {
-    return this.updateVictimUseCase.execute(id, updateVictimDto);
+  ) {
+    const updatedVictim = await this.updateVictimUseCase.execute(
+      id,
+      updateVictimDto,
+    );
+    return VictimPresenter.toHTTP(updatedVictim);
   }
 
   @Delete(":id")
