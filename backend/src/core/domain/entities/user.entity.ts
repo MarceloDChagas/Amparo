@@ -6,6 +6,8 @@ export class User {
   role: string;
   createdAt: Date;
   updatedAt: Date;
+  cpf?: string;
+  cpfHash?: string;
 
   constructor(user: Partial<User>) {
     Object.assign(this, user);
