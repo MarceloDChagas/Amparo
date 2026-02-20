@@ -18,17 +18,30 @@ export class RegisterUserUseCase {
       throw new BadRequestException("User already exists");
     }
 
+    // Check if CPF already exists if provided
+    if (data.cpf) {
+      const existingCpf = await this.userRepository.findByCpf(data.cpf);
+      if (existingCpf) {
+        throw new BadRequestException("CPF already exists");
+      }
+    }
+
     const hashedPassword = await this.authService.hashPassword(data.password);
 
-    // Assuming role is handled default in entity or passed if allowed (for now allow defaults)
     const newUser = new User({
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: "VICTIM", // Enforce VICTIM role for self-registration
+      role: "VICTIM", // Enforce VICTIM role for self-registration or allow from DTO if needed
+      cpf: data.cpf,
     } as Partial<User>);
 
     const createdUser = await this.userRepository.create(newUser);
-    return this.authService.login(createdUser);
+    const { access_token } = this.authService.login(createdUser);
+
+    return {
+      user: createdUser,
+      access_token,
+    };
   }
 }

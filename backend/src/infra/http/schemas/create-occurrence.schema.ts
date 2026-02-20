@@ -5,7 +5,7 @@ export const CreateOccurrenceSchema = z.object({
   description: z.string().min(1),
   latitude: z.number(),
   longitude: z.number(),
-  victimId: z.string().uuid(),
+  userId: z.string().uuid(),
   aggressorId: z.string().uuid(),
 });
 

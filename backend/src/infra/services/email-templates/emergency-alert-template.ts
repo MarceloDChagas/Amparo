@@ -1,12 +1,12 @@
 export interface EmergencyAlertTemplateProps {
-  victimName: string;
+  userName: string;
   locationLink: string;
   time: string;
   address?: string;
 }
 
 export const getEmergencyAlertTemplate = ({
-  victimName,
+  userName,
   locationLink,
   time,
   address,
@@ -101,7 +101,7 @@ export const getEmergencyAlertTemplate = ({
         </div>
         
         <p style="font-size: 16px; margin-bottom: 24px;">
-          <strong>${victimName}</strong> acionou o botão de emergência e precisa de ajuda imediata.
+          <strong>${userName}</strong> acionou o botão de emergência e precisa de ajuda imediata.
         </p>
 
         <div class="info-item">

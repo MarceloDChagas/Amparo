@@ -4,15 +4,15 @@ import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-re
 
 import { CreateEmergencyAlert } from "../../core/use-cases/create-emergency-alert";
 import { PrismaService } from "../database/prisma.service";
-import { PrismaEmergencyAlertRepository } from "../database/prisma/repositories/prisma-emergency-alert-repository";
+import { PrismaEmergencyAlertRepository } from "../database/repositories/prisma-emergency-alert.repository";
 import { EmergencyAlertController } from "../http/controllers/emergency-alert.controller";
 import { DatabaseModule } from "./database.module";
 import { EmailModule } from "./email.module";
 import { EmergencyContactModule } from "./emergency-contact.module";
-import { VictimModule } from "./victim.module";
+import { UserModule } from "./user.module";
 
 @Module({
-  imports: [DatabaseModule, EmailModule, EmergencyContactModule, VictimModule],
+  imports: [DatabaseModule, EmailModule, EmergencyContactModule, UserModule],
   controllers: [EmergencyAlertController],
   providers: [
     PrismaService,

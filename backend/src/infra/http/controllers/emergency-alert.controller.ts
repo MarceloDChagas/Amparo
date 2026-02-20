@@ -22,7 +22,7 @@ export class EmergencyAlertController {
       latitude: body.latitude,
       longitude: body.longitude,
       address: body.address,
-      victimId: body.victimId,
+      userId: body.userId,
     });
   }
 }

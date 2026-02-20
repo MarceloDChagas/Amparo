@@ -10,17 +10,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model Victim {
-  id               String             @id @default(uuid())
-  name             String
-  cpf              String             // Encrypted
-  cpfHash          String             @unique // Hashed for lookup
-  incidents        Occurrence[]
-  emergencyContacts EmergencyContact[]
-  emergencyAlerts  EmergencyAlert[]
-  createdAt        DateTime           @default(now())
-}
-
 model Aggressor {
   id        String   @id @default(uuid())
   name      String
@@ -34,8 +23,8 @@ model Occurrence {
   description String
   latitude    Float
   longitude   Float
-  victimId    String
-  victim      Victim   @relation(fields: [victimId], references: [id])
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
   aggressorId String
   aggressor   Aggressor @relation(fields: [aggressorId], references: [id])
 }
@@ -47,12 +36,12 @@ model EmergencyContact {
   email        String?  // Encrypted
   relationship String
   priority     Int      @default(1)
-  victimId     String
-  victim       Victim   @relation(fields: [victimId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@index([victimId])
+  @@index([userId])
 }
 
 model EmergencyAlert {
@@ -61,11 +50,11 @@ model EmergencyAlert {
   longitude Float
   address   String?
   status    String   @default("PENDING")
-  victimId  String?
-  victim    Victim?  @relation(fields: [victimId], references: [id])
+  userId  String?
+  user    User?  @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-  @@index([victimId])
+  @@index([userId])
 }
 
 model User {
@@ -74,6 +63,15 @@ model User {
   password  String
   name      String
   role      Role     @default(USER)
+  
+  // Victim specific fields (Optional because Admins/Normal Users don't have them)
+  cpf       String?  // Encrypted
+  cpfHash   String?  @unique // Hashed for lookup
+
+  occurrences      Occurrence[]
+  emergencyContacts EmergencyContact[]
+  emergencyAlerts   EmergencyAlert[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -14,7 +14,7 @@ export const CreateEmergencyContactSchema = z.object({
     .transform((val) => (val === "" ? undefined : val)),
   relationship: z.string().min(1, "Relationship is required"),
   priority: z.number().int().min(1).default(1),
-  victimId: z.string().uuid("Invalid victim ID"),
+  userId: z.string().uuid("Invalid user ID"),
 });
 
 export class CreateEmergencyContactDto extends createZodDto(

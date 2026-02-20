@@ -10,7 +10,7 @@ describe("GetEmergencyContactUseCase", () => {
   const mockEmergencyContactRepository = {
     findById: jest.fn(),
     findAll: jest.fn(),
-    findByVictimId: jest.fn(),
+    findByUserId: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe("GetEmergencyContactUseCase", () => {
       email: "maria@example.com",
       relationship: "Mãe",
       priority: 1,
-      victimId: "victim-id",
+      userId: "user-id",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -71,7 +71,7 @@ describe("GetEmergencyContactUseCase", () => {
         phone: "11987654321",
         relationship: "Mãe",
         priority: 1,
-        victimId: "victim-id",
+        userId: "user-id",
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -81,7 +81,7 @@ describe("GetEmergencyContactUseCase", () => {
         phone: "11987654322",
         relationship: "Amigo",
         priority: 2,
-        victimId: "victim-id",
+        userId: "user-id",
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -95,7 +95,7 @@ describe("GetEmergencyContactUseCase", () => {
     expect(result).toEqual(contacts);
   });
 
-  it("should get emergency contacts by victim id", async () => {
+  it("should get emergency contacts by user id", async () => {
     const contacts = [
       new EmergencyContact({
         id: "contact-1",
@@ -103,18 +103,18 @@ describe("GetEmergencyContactUseCase", () => {
         phone: "11987654321",
         relationship: "Mãe",
         priority: 1,
-        victimId: "victim-id",
+        userId: "user-id",
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
     ];
 
-    mockEmergencyContactRepository.findByVictimId.mockResolvedValue(contacts);
+    mockEmergencyContactRepository.findByUserId.mockResolvedValue(contacts);
 
-    const result = await useCase.executeFindByVictimId("victim-id");
+    const result = await useCase.executeFindByUserId("user-id");
 
-    expect(mockEmergencyContactRepository.findByVictimId).toHaveBeenCalledWith(
-      "victim-id",
+    expect(mockEmergencyContactRepository.findByUserId).toHaveBeenCalledWith(
+      "user-id",
     );
     expect(result).toEqual(contacts);
   });

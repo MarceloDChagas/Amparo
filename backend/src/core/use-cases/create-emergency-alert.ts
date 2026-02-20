@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
 import type { IEmergencyContactRepository } from "@/core/domain/repositories/emergency-contact-repository.interface";
-import type { IVictimRepository } from "@/core/domain/repositories/victim-repository.interface";
+import { UserRepository } from "@/core/domain/repositories/user.repository";
 import type { IEmailService } from "@/core/domain/services/email-service.interface";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
 import { getEmergencyAlertTemplate } from "@/infra/services/email-templates/emergency-alert-template";
@@ -11,7 +11,7 @@ interface CreateEmergencyAlertRequest {
   latitude: number;
   longitude: number;
   address?: string;
-  victimId?: string;
+  userId?: string;
 }
 
 @Injectable()
@@ -22,8 +22,8 @@ export class CreateEmergencyAlert {
     private emergencyAlertRepository: EmergencyAlertRepository,
     @Inject("IEmergencyContactRepository")
     private emergencyContactRepository: IEmergencyContactRepository,
-    @Inject("IVictimRepository")
-    private victimRepository: IVictimRepository,
+    @Inject("UserRepository")
+    private userRepository: UserRepository,
     @Inject("IEmailService")
     private emailService: IEmailService,
   ) {}
@@ -33,7 +33,7 @@ export class CreateEmergencyAlert {
       latitude: request.latitude,
       longitude: request.longitude,
       address: request.address,
-      victimId: request.victimId,
+      userId: request.userId,
     });
 
     await this.emergencyAlertRepository.create(alert);
@@ -42,33 +42,33 @@ export class CreateEmergencyAlert {
       `Emergency Alert created: ${alert.id} at [${alert.latitude}, ${alert.longitude}]`,
     );
 
-    const { victimId } = request;
-    if (victimId) {
-      await this.notifyEmergencyContacts(victimId, alert);
+    const { userId } = request;
+    if (userId) {
+      await this.notifyEmergencyContacts(userId, alert);
     }
   }
 
   private async notifyEmergencyContacts(
-    victimId: string,
+    userId: string,
     alert: EmergencyAlert,
   ): Promise<void> {
     try {
       const contacts =
-        await this.emergencyContactRepository.findByVictimId(victimId);
+        await this.emergencyContactRepository.findByUserId(userId);
 
       if (contacts.length === 0) {
-        this.logger.log(`No emergency contacts found for victim ${victimId}`);
+        this.logger.log(`No emergency contacts found for user ${userId}`);
         return;
       }
 
-      const victim = await this.victimRepository.findById(victimId);
-      const victimName = victim ? victim.name : "Alguém";
+      const user = await this.userRepository.findById(userId);
+      const userName = user ? user.name : "Alguém";
 
       const mapLink = `https://www.google.com/maps?q=${alert.latitude},${alert.longitude}`;
       const subject = "ALERTA DE EMERGÊNCIA - AMPARO";
 
       const htmlBody = getEmergencyAlertTemplate({
-        victimName,
+        userName: userName,
         locationLink: mapLink,
         time: alert.createdAt.toLocaleString("pt-BR"),
         address: alert.address || undefined,
@@ -97,7 +97,7 @@ export class CreateEmergencyAlert {
       );
 
       this.logger.log(
-        `Sent notifications to ${contactsWithEmail.length} contacts for victim ${victimId}`,
+        `Sent notifications to ${contactsWithEmail.length} contacts for user ${userId}`,
       );
     } catch (error) {
       if (error instanceof Error) {

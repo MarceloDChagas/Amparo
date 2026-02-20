@@ -18,7 +18,7 @@ export class GetEmergencyContactUseCase {
     return this.emergencyContactRepository.findAll();
   }
 
-  async executeFindByVictimId(victimId: string): Promise<EmergencyContact[]> {
-    return this.emergencyContactRepository.findByVictimId(victimId);
+  async executeFindByUserId(userId: string): Promise<EmergencyContact[]> {
+    return this.emergencyContactRepository.findByUserId(userId);
   }
 }

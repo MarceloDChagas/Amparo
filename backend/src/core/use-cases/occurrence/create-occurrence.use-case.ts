@@ -34,7 +34,7 @@ export class CreateOccurrenceUseCase {
   private async sendNotifications(occurrence: Occurrence): Promise<void> {
     try {
       const result = await this.sendEmergencyNotificationUseCase.execute(
-        occurrence.victimId,
+        occurrence.userId,
         occurrence,
       );
 
