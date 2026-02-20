@@ -68,7 +68,7 @@ export class CreateEmergencyAlert {
       const subject = "ALERTA DE EMERGÊNCIA - AMPARO";
 
       const htmlBody = getEmergencyAlertTemplate({
-        victimName: userName, // Template might still Expect victimName, we can keep key or update template
+        userName: userName,
         locationLink: mapLink,
         time: alert.createdAt.toLocaleString("pt-BR"),
         address: alert.address || undefined,

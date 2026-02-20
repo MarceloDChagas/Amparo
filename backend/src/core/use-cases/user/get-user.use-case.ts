@@ -4,7 +4,7 @@ import { User } from "@/core/domain/entities/user.entity";
 import type { UserRepository } from "@/core/domain/repositories/user.repository";
 
 @Injectable()
-export class GetVictimUseCase {
+export class GetUserUseCase {
   constructor(
     @Inject("UserRepository")
     private userRepository: UserRepository,

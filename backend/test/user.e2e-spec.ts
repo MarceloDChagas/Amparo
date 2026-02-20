@@ -5,14 +5,14 @@ import request from "supertest";
 
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
-import { DeleteVictimUseCase } from "@/core/use-cases/victim/delete-victim.use-case";
-import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
-import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
-import { VictimController } from "@/infra/http/controllers/victim.controller";
+import { DeleteUserUseCase } from "@/core/use-cases/user/delete-user.use-case";
+import { GetUserUseCase } from "@/core/use-cases/user/get-user.use-case";
+import { UpdateUserUseCase } from "@/core/use-cases/user/update-user.use-case";
+import { UserController } from "@/infra/http/controllers/user.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { AuthService } from "@/infra/services/auth.service";
 
-describe("VictimController (e2e)", () => {
+describe("UserController (e2e)", () => {
   let app: INestApplication;
 
   const mockUserRepository = {
@@ -26,18 +26,18 @@ describe("VictimController (e2e)", () => {
   };
 
   const mockAuthService = {
-    login: jest.fn().mockResolvedValue({ access_token: "mock_token" }),
+    login: jest.fn().mockReturnValue({ access_token: "mock_token" }),
     hashPassword: jest.fn().mockResolvedValue("hashed_password"),
   };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [VictimController],
+      controllers: [UserController],
       providers: [
-        // Victim use cases inject "UserRepository" string token
-        GetVictimUseCase,
-        UpdateVictimUseCase,
-        DeleteVictimUseCase,
+        // User use cases inject "UserRepository" string token
+        GetUserUseCase,
+        UpdateUserUseCase,
+        DeleteUserUseCase,
         { provide: "UserRepository", useValue: mockUserRepository },
         // RegisterUserUseCase injects UserRepository (class token) and AuthService (class token)
         RegisterUserUseCase,
@@ -61,13 +61,13 @@ describe("VictimController (e2e)", () => {
     await app.close();
   });
 
-  it("/victims (GET)", async () => {
+  it("/users (GET)", async () => {
     mockUserRepository.findByRole.mockResolvedValue([]);
-    return request(app.getHttpServer()).get("/victims").expect(200).expect([]);
+    return request(app.getHttpServer()).get("/users").expect(200).expect([]);
   });
 
-  it("/victims (POST)", async () => {
-    const victimData = {
+  it("/users (POST)", async () => {
+    const userData = {
       name: "John Doe",
       cpf: "12345678901",
       email: "john.doe@example.com",
@@ -75,7 +75,7 @@ describe("VictimController (e2e)", () => {
     };
     const createdUser = {
       id: "1",
-      ...victimData,
+      ...userData,
       role: "VICTIM",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -93,13 +93,13 @@ describe("VictimController (e2e)", () => {
     mockUserRepository.create.mockResolvedValue(createdUser);
 
     return request(app.getHttpServer())
-      .post("/victims")
-      .send(victimData)
+      .post("/users")
+      .send(userData)
       .expect(201)
       .expect(expectedResponse);
   });
 
-  it("/victims/:id (GET)", async () => {
+  it("/users/:id (GET)", async () => {
     const userId = "1";
     const userData = {
       id: userId,
@@ -121,12 +121,12 @@ describe("VictimController (e2e)", () => {
     mockUserRepository.findById.mockResolvedValue(userData);
 
     return request(app.getHttpServer())
-      .get(`/victims/${userId}`)
+      .get(`/users/${userId}`)
       .expect(200)
       .expect(expectedResponse);
   });
 
-  it("/victims/:id (PUT)", async () => {
+  it("/users/:id (PUT)", async () => {
     const userId = "1";
     const updateData = {
       name: "Updated Name",
@@ -152,19 +152,17 @@ describe("VictimController (e2e)", () => {
     mockUserRepository.update.mockResolvedValue(updatedUser);
 
     return request(app.getHttpServer())
-      .put(`/victims/${userId}`)
+      .put(`/users/${userId}`)
       .send(updateData)
       .expect(200)
       .expect(expectedResponse);
   });
 
-  it("/victims/:id (DELETE)", async () => {
+  it("/users/:id (DELETE)", async () => {
     const userId = "1";
 
     mockUserRepository.delete.mockResolvedValue(undefined);
 
-    return request(app.getHttpServer())
-      .delete(`/victims/${userId}`)
-      .expect(200);
+    return request(app.getHttpServer()).delete(`/users/${userId}`).expect(200);
   });
 });

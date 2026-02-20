@@ -11,7 +11,7 @@ import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyAlertModule } from "@/infra/modules/emergency-alert.module";
 import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module";
 import { OccurrenceModule } from "@/infra/modules/occurrence.module";
-import { VictimModule } from "@/infra/modules/victim.module";
+import { UserModule } from "@/infra/modules/user.module";
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -23,7 +23,7 @@ import { AppService } from "./app.service";
     EmailModule,
     AuthModule,
     AggressorModule,
-    VictimModule,
+    UserModule,
     OccurrenceModule,
     EmergencyContactModule,
     EmergencyAlertModule,

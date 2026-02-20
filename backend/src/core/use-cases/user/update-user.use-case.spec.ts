@@ -2,10 +2,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import { User } from "@/core/domain/entities/user.entity";
 
-import { UpdateVictimUseCase } from "./update-victim.use-case";
+import { UpdateUserUseCase } from "./update-user.use-case";
 
-describe("UpdateVictimUseCase", () => {
-  let useCase: UpdateVictimUseCase;
+describe("UpdateUserUseCase", () => {
+  let useCase: UpdateUserUseCase;
 
   const mockUserRepository = {
     update: jest.fn(),
@@ -14,7 +14,7 @@ describe("UpdateVictimUseCase", () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UpdateVictimUseCase,
+        UpdateUserUseCase,
         {
           provide: "UserRepository",
           useValue: mockUserRepository,
@@ -22,14 +22,14 @@ describe("UpdateVictimUseCase", () => {
       ],
     }).compile();
 
-    useCase = module.get<UpdateVictimUseCase>(UpdateVictimUseCase);
+    useCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
   });
 
   it("should be defined", () => {
     expect(useCase).toBeDefined();
   });
 
-  it("should update a user (victim) successfully", async () => {
+  it("should update a user successfully", async () => {
     const userId = "1";
     const userData: Partial<User> = { name: "Updated Name" };
     const updatedUser = { id: userId, ...userData } as User;

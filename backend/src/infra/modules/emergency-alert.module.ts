@@ -9,10 +9,10 @@ import { EmergencyAlertController } from "../http/controllers/emergency-alert.co
 import { DatabaseModule } from "./database.module";
 import { EmailModule } from "./email.module";
 import { EmergencyContactModule } from "./emergency-contact.module";
-import { VictimModule } from "./victim.module";
+import { UserModule } from "./user.module";
 
 @Module({
-  imports: [DatabaseModule, EmailModule, EmergencyContactModule, VictimModule],
+  imports: [DatabaseModule, EmailModule, EmergencyContactModule, UserModule],
   controllers: [EmergencyAlertController],
   providers: [
     PrismaService,
