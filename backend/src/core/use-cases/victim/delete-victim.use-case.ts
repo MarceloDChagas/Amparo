@@ -1,15 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
 
-import type { IVictimRepository } from "@/core/domain/repositories/victim-repository.interface";
+import type { UserRepository } from "@/core/domain/repositories/user.repository";
 
 @Injectable()
 export class DeleteVictimUseCase {
   constructor(
-    @Inject("IVictimRepository")
-    private victimRepository: IVictimRepository,
+    @Inject("UserRepository")
+    private userRepository: UserRepository,
   ) {}
 
   async execute(id: string): Promise<void> {
-    return this.victimRepository.delete(id);
+    return this.userRepository.delete(id);
   }
 }

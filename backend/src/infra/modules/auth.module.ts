@@ -41,6 +41,6 @@ import { DatabaseModule } from "./database.module";
       useClass: PrismaUserRepository,
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, RegisterUserUseCase],
 })
 export class AuthModule {}

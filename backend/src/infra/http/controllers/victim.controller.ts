@@ -12,9 +12,8 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ZodValidationPipe } from "nestjs-zod";
 
-import { Victim } from "@/core/domain/entities/victim.entity";
 import { Role } from "@/core/domain/enums/role.enum";
-import { CreateVictimUseCase } from "@/core/use-cases/victim/create-victim.use-case";
+import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
 import { DeleteVictimUseCase } from "@/core/use-cases/victim/delete-victim.use-case";
 import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
 import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
@@ -27,7 +26,7 @@ import { UpdateVictimDto } from "@/infra/http/schemas/update-victim.schema";
 @Controller("victims")
 export class VictimController {
   constructor(
-    private readonly createVictimUseCase: CreateVictimUseCase,
+    private readonly registerUserUseCase: RegisterUserUseCase,
     private readonly getVictimUseCase: GetVictimUseCase,
     private readonly updateVictimUseCase: UpdateVictimUseCase,
     private readonly deleteVictimUseCase: DeleteVictimUseCase,
@@ -36,12 +35,10 @@ export class VictimController {
   @Post()
   @UsePipes(ZodValidationPipe)
   async create(@Body() createVictimDto: CreateVictimDto) {
-    const victim = new Victim({
+    const { user } = await this.registerUserUseCase.execute({
       ...createVictimDto,
-      createdAt: new Date(),
-    } as Victim);
-    const createdVictim = await this.createVictimUseCase.execute(victim);
-    return VictimPresenter.toHTTP(createdVictim);
+    });
+    return VictimPresenter.toHTTP(user);
   }
 
   @Get()

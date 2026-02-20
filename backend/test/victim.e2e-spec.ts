@@ -3,35 +3,48 @@ import { AuthGuard } from "@nestjs/passport";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 
-import { PrismaService } from "@/infra/database/prisma.service";
+import { UserRepository } from "@/core/domain/repositories/user.repository";
+import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
+import { DeleteVictimUseCase } from "@/core/use-cases/victim/delete-victim.use-case";
+import { GetVictimUseCase } from "@/core/use-cases/victim/get-victim.use-case";
+import { UpdateVictimUseCase } from "@/core/use-cases/victim/update-victim.use-case";
+import { VictimController } from "@/infra/http/controllers/victim.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
-import { VictimModule } from "@/infra/modules/victim.module";
+import { AuthService } from "@/infra/services/auth.service";
 
 describe("VictimController (e2e)", () => {
   let app: INestApplication;
 
-  const mockPrismaService = {
-    onModuleInit: jest.fn(),
-    $connect: jest.fn(),
-    $disconnect: jest.fn(),
-  };
-
-  const mockVictimRepository = {
+  const mockUserRepository = {
     create: jest.fn(),
-    findAll: jest.fn(),
+    findByRole: jest.fn(),
     findById: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    findByEmail: jest.fn(),
+    findByCpf: jest.fn(),
+  };
+
+  const mockAuthService = {
+    login: jest.fn().mockResolvedValue({ access_token: "mock_token" }),
+    hashPassword: jest.fn().mockResolvedValue("hashed_password"),
   };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [VictimModule],
+      controllers: [VictimController],
+      providers: [
+        // Victim use cases inject "UserRepository" string token
+        GetVictimUseCase,
+        UpdateVictimUseCase,
+        DeleteVictimUseCase,
+        { provide: "UserRepository", useValue: mockUserRepository },
+        // RegisterUserUseCase injects UserRepository (class token) and AuthService (class token)
+        RegisterUserUseCase,
+        { provide: UserRepository, useValue: mockUserRepository },
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     })
-      .overrideProvider(PrismaService)
-      .useValue(mockPrismaService)
-      .overrideProvider("IVictimRepository")
-      .useValue(mockVictimRepository)
       .overrideGuard(AuthGuard("jwt"))
       .useValue({ canActivate: () => true })
       .overrideGuard(RolesGuard)
@@ -40,6 +53,8 @@ describe("VictimController (e2e)", () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    jest.clearAllMocks();
   });
 
   afterAll(async () => {
@@ -47,8 +62,7 @@ describe("VictimController (e2e)", () => {
   });
 
   it("/victims (GET)", async () => {
-    mockVictimRepository.findAll.mockResolvedValue([]);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    mockUserRepository.findByRole.mockResolvedValue([]);
     return request(app.getHttpServer()).get("/victims").expect(200).expect([]);
   });
 
@@ -57,20 +71,27 @@ describe("VictimController (e2e)", () => {
       name: "John Doe",
       cpf: "12345678901",
       email: "john.doe@example.com",
-      phone: "1234567890",
-      address: "123 Main St",
+      password: "password123",
     };
-    const createdVictim = { id: "1", ...victimData, createdAt: new Date() };
+    const createdUser = {
+      id: "1",
+      ...victimData,
+      role: "VICTIM",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     const expectedResponse = {
       id: "1",
       name: "John Doe",
       cpf: "123.***.***-01",
-      createdAt: createdVictim.createdAt.toISOString(),
+      createdAt: createdUser.createdAt.toISOString(),
     };
 
-    mockVictimRepository.create.mockResolvedValue(createdVictim);
+    mockUserRepository.findByEmail.mockResolvedValue(null);
+    mockUserRepository.findByCpf.mockResolvedValue(null);
+    mockUserRepository.create.mockResolvedValue(createdUser);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
       .post("/victims")
       .send(victimData)
@@ -79,72 +100,71 @@ describe("VictimController (e2e)", () => {
   });
 
   it("/victims/:id (GET)", async () => {
-    const victimId = "1";
-    const victimData = {
-      id: victimId,
+    const userId = "1";
+    const userData = {
+      id: userId,
       name: "John Doe",
       cpf: "12345678901",
       email: "john.doe@example.com",
-      phone: "1234567890",
-      address: "123 Main St",
+      password: "hashed_password",
+      role: "VICTIM",
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const expectedResponse = {
-      id: victimId,
+      id: userId,
       name: "John Doe",
       cpf: "123.***.***-01",
-      createdAt: victimData.createdAt.toISOString(),
+      createdAt: userData.createdAt.toISOString(),
     };
 
-    mockVictimRepository.findById.mockResolvedValue(victimData);
+    mockUserRepository.findById.mockResolvedValue(userData);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
-      .get(`/victims/${victimId}`)
+      .get(`/victims/${userId}`)
       .expect(200)
       .expect(expectedResponse);
   });
 
   it("/victims/:id (PUT)", async () => {
-    const victimId = "1";
-    const victimData = {
+    const userId = "1";
+    const updateData = {
+      name: "Updated Name",
+    };
+    const updatedUser = {
+      id: userId,
       name: "Updated Name",
       cpf: "12345678901",
       email: "john.doe@example.com",
-      phone: "1234567890",
-      address: "123 Main St",
-    };
-    const updatedVictim = {
-      id: victimId,
-      ...victimData,
+      password: "hashed_password",
+      role: "VICTIM",
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
+
     const expectedResponse = {
-      id: victimId,
+      id: userId,
       name: "Updated Name",
       cpf: "123.***.***-01",
-      createdAt: updatedVictim.createdAt.toISOString(),
+      createdAt: updatedUser.createdAt.toISOString(),
     };
 
-    mockVictimRepository.update.mockResolvedValue(updatedVictim);
+    mockUserRepository.update.mockResolvedValue(updatedUser);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
-      .put(`/victims/${victimId}`)
-      .send(victimData)
+      .put(`/victims/${userId}`)
+      .send(updateData)
       .expect(200)
       .expect(expectedResponse);
   });
 
   it("/victims/:id (DELETE)", async () => {
-    const victimId = "1";
+    const userId = "1";
 
-    mockVictimRepository.delete.mockResolvedValue({ affected: 1 });
+    mockUserRepository.delete.mockResolvedValue(undefined);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return request(app.getHttpServer())
-      .delete(`/victims/${victimId}`)
-      .expect(200)
-      .expect({ affected: 1 });
+      .delete(`/victims/${userId}`)
+      .expect(200);
   });
 });

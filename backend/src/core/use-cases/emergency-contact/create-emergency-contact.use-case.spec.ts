@@ -35,7 +35,7 @@ describe("CreateEmergencyContactUseCase", () => {
       email: "maria@example.com",
       relationship: "Mãe",
       priority: 1,
-      victimId: "victim-id",
+      userId: "user-id",
       createdAt: new Date(),
       updatedAt: new Date(),
     });

@@ -6,7 +6,7 @@ export class EmergencyAlert {
     public readonly createdAt: Date,
     public readonly status: string,
     public readonly address?: string | null,
-    public readonly victimId?: string | null,
+    public readonly userId?: string | null,
   ) {}
 
   static create(
@@ -22,7 +22,7 @@ export class EmergencyAlert {
       createdAt ?? new Date(),
       status ?? "PENDING",
       props.address,
-      props.victimId,
+      props.userId,
     );
   }
 }

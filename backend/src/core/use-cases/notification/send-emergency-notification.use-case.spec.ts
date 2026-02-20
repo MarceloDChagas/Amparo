@@ -9,7 +9,7 @@ describe("SendEmergencyNotificationUseCase", () => {
   let useCase: SendEmergencyNotificationUseCase;
 
   const mockEmergencyContactRepository = {
-    findByVictimId: jest.fn(),
+    findByUserId: jest.fn(),
   };
 
   const mockEmailService = {
@@ -39,13 +39,13 @@ describe("SendEmergencyNotificationUseCase", () => {
   });
 
   it("should send notifications to all contacts with email addresses", async () => {
-    const victimId = "victim-1";
+    const userId = "user-1";
     const occurrence = new Occurrence({
       id: "occurrence-1",
       description: "Test emergency",
       latitude: -23.5505,
       longitude: -46.6333,
-      victimId,
+      userId,
       aggressorId: "aggressor-1",
     });
 
@@ -57,7 +57,7 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: "contact1@example.com",
         relationship: "Mother",
         priority: 1,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -68,36 +68,36 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: "contact2@example.com",
         relationship: "Father",
         priority: 2,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
     ];
 
-    mockEmergencyContactRepository.findByVictimId.mockResolvedValue(contacts);
+    mockEmergencyContactRepository.findByUserId.mockResolvedValue(contacts);
     mockEmailService.sendEmergencyNotification.mockResolvedValue(undefined);
 
-    const result = await useCase.execute(victimId, occurrence);
+    const result = await useCase.execute(userId, occurrence);
 
     expect(result).toEqual({
       totalContacts: 2,
       emailsSent: 2,
       emailsFailed: 0,
     });
-    expect(mockEmergencyContactRepository.findByVictimId).toHaveBeenCalledWith(
-      victimId,
+    expect(mockEmergencyContactRepository.findByUserId).toHaveBeenCalledWith(
+      userId,
     );
     expect(mockEmailService.sendEmergencyNotification).toHaveBeenCalledTimes(2);
   });
 
   it("should skip contacts without email addresses", async () => {
-    const victimId = "victim-1";
+    const userId = "user-1";
     const occurrence = new Occurrence({
       id: "occurrence-1",
       description: "Test emergency",
       latitude: -23.5505,
       longitude: -46.6333,
-      victimId,
+      userId,
       aggressorId: "aggressor-1",
     });
 
@@ -109,7 +109,7 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: "contact1@example.com",
         relationship: "Mother",
         priority: 1,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -120,16 +120,16 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: undefined, // No email
         relationship: "Father",
         priority: 2,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
     ];
 
-    mockEmergencyContactRepository.findByVictimId.mockResolvedValue(contacts);
+    mockEmergencyContactRepository.findByUserId.mockResolvedValue(contacts);
     mockEmailService.sendEmergencyNotification.mockResolvedValue(undefined);
 
-    const result = await useCase.execute(victimId, occurrence);
+    const result = await useCase.execute(userId, occurrence);
 
     expect(result).toEqual({
       totalContacts: 2,
@@ -140,13 +140,13 @@ describe("SendEmergencyNotificationUseCase", () => {
   });
 
   it("should handle email sending failures gracefully", async () => {
-    const victimId = "victim-1";
+    const userId = "user-1";
     const occurrence = new Occurrence({
       id: "occurrence-1",
       description: "Test emergency",
       latitude: -23.5505,
       longitude: -46.6333,
-      victimId,
+      userId,
       aggressorId: "aggressor-1",
     });
 
@@ -158,7 +158,7 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: "contact1@example.com",
         relationship: "Mother",
         priority: 1,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -169,18 +169,18 @@ describe("SendEmergencyNotificationUseCase", () => {
         email: "contact2@example.com",
         relationship: "Father",
         priority: 2,
-        victimId,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
     ];
 
-    mockEmergencyContactRepository.findByVictimId.mockResolvedValue(contacts);
+    mockEmergencyContactRepository.findByUserId.mockResolvedValue(contacts);
     mockEmailService.sendEmergencyNotification
       .mockResolvedValueOnce(undefined) // First email succeeds
       .mockRejectedValueOnce(new Error("SMTP error")); // Second email fails
 
-    const result = await useCase.execute(victimId, occurrence);
+    const result = await useCase.execute(userId, occurrence);
 
     expect(result).toEqual({
       totalContacts: 2,
@@ -190,19 +190,19 @@ describe("SendEmergencyNotificationUseCase", () => {
   });
 
   it("should return zeros when no contacts are found", async () => {
-    const victimId = "victim-1";
+    const userId = "user-1";
     const occurrence = new Occurrence({
       id: "occurrence-1",
       description: "Test emergency",
       latitude: -23.5505,
       longitude: -46.6333,
-      victimId,
+      userId,
       aggressorId: "aggressor-1",
     });
 
-    mockEmergencyContactRepository.findByVictimId.mockResolvedValue([]);
+    mockEmergencyContactRepository.findByUserId.mockResolvedValue([]);
 
-    const result = await useCase.execute(victimId, occurrence);
+    const result = await useCase.execute(userId, occurrence);
 
     expect(result).toEqual({
       totalContacts: 0,

@@ -10,7 +10,7 @@ export class EmergencyContactPresenter {
       email: contact.email ? MaskingUtils.maskEmail(contact.email) : undefined,
       relationship: contact.relationship,
       priority: contact.priority,
-      victimId: contact.victimId,
+      userId: contact.userId,
       createdAt: contact.createdAt,
       updatedAt: contact.updatedAt,
     };

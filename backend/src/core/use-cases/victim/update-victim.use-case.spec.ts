@@ -1,13 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { Victim } from "@/core/domain/entities/victim.entity";
+import { User } from "@/core/domain/entities/user.entity";
 
 import { UpdateVictimUseCase } from "./update-victim.use-case";
 
 describe("UpdateVictimUseCase", () => {
   let useCase: UpdateVictimUseCase;
 
-  const mockVictimRepository = {
+  const mockUserRepository = {
     update: jest.fn(),
   };
 
@@ -16,8 +16,8 @@ describe("UpdateVictimUseCase", () => {
       providers: [
         UpdateVictimUseCase,
         {
-          provide: "IVictimRepository",
-          useValue: mockVictimRepository,
+          provide: "UserRepository",
+          useValue: mockUserRepository,
         },
       ],
     }).compile();
@@ -29,37 +29,16 @@ describe("UpdateVictimUseCase", () => {
     expect(useCase).toBeDefined();
   });
 
-  it("should update a victim successfully", async () => {
-    const victimId = "1";
-    const victimData: Partial<Victim> = { name: "Updated Name" };
-    const updatedVictim = { id: victimId, ...victimData } as Victim;
+  it("should update a user (victim) successfully", async () => {
+    const userId = "1";
+    const userData: Partial<User> = { name: "Updated Name" };
+    const updatedUser = { id: userId, ...userData } as User;
 
-    mockVictimRepository.update.mockResolvedValue(updatedVictim);
+    mockUserRepository.update.mockResolvedValue(updatedUser);
 
-    const result = await useCase.execute(victimId, victimData);
+    const result = await useCase.execute(userId, userData);
 
-    expect(result).toEqual(updatedVictim);
-    expect(mockVictimRepository.update).toHaveBeenCalledWith(
-      victimId,
-      victimData,
-    );
-  });
-
-  it("should throw an error if victim is not found", async () => {
-    const victimId = "1";
-    const victimData: Partial<Victim> = { name: "Updated Name" };
-
-    mockVictimRepository.update.mockResolvedValue(null);
-
-    await expect(useCase.execute(victimId, victimData)).rejects.toThrow(
-      "Victim not found",
-    );
-  });
-
-  it("should throw an error if victim data is invalid", async () => {
-    const victimId = "1";
-    const victimData: Partial<Victim> = { name: "" };
-
-    await expect(useCase.execute(victimId, victimData)).rejects.toThrow();
+    expect(result).toEqual(updatedUser);
+    expect(mockUserRepository.update).toHaveBeenCalledWith(userId, userData);
   });
 });

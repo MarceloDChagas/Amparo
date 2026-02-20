@@ -1,16 +1,16 @@
 import { Inject, Injectable } from "@nestjs/common";
 
-import { Victim } from "@/core/domain/entities/victim.entity";
-import type { IVictimRepository } from "@/core/domain/repositories/victim-repository.interface";
+import { User } from "@/core/domain/entities/user.entity";
+import type { UserRepository } from "@/core/domain/repositories/user.repository";
 
 @Injectable()
 export class UpdateVictimUseCase {
   constructor(
-    @Inject("IVictimRepository")
-    private victimRepository: IVictimRepository,
+    @Inject("UserRepository")
+    private userRepository: UserRepository,
   ) {}
 
-  async execute(id: string, victim: Partial<Victim>): Promise<Victim> {
-    return this.victimRepository.update(id, victim);
+  async execute(id: string, user: Partial<User>): Promise<User> {
+    return this.userRepository.update(id, user);
   }
 }

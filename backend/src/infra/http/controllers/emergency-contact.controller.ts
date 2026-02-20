@@ -53,11 +53,11 @@ export class EmergencyContactController {
     return contacts.map((contact) => EmergencyContactPresenter.toHTTP(contact));
   }
 
-  @Get("victim/:victimId")
+  @Get("user/:userId")
   @Roles(Role.VICTIM, Role.ADMIN)
-  async findByVictim(@Param("victimId") victimId: string) {
+  async findByUser(@Param("userId") userId: string) {
     const contacts =
-      await this.getEmergencyContactUseCase.executeFindByVictimId(victimId);
+      await this.getEmergencyContactUseCase.executeFindByUserId(userId);
     return contacts.map((contact) => EmergencyContactPresenter.toHTTP(contact));
   }
 

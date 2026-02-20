@@ -22,19 +22,18 @@ export class SendEmergencyNotificationUseCase {
   ) {}
 
   async execute(
-    victimId: string,
+    userId: string,
     occurrence: Occurrence,
   ): Promise<NotificationResult> {
     this.logger.log(
-      `Sending emergency notifications for victim ${victimId}, occurrence ${occurrence.id}`,
+      `Sending emergency notifications for user ${userId}, occurrence ${occurrence.id}`,
     );
 
-    // Fetch all emergency contacts for the victim
-    const contacts =
-      await this.emergencyContactRepository.findByVictimId(victimId);
+    // Fetch all emergency contacts for the user
+    const contacts = await this.emergencyContactRepository.findByUserId(userId);
 
     if (contacts.length === 0) {
-      this.logger.warn(`No emergency contacts found for victim ${victimId}`);
+      this.logger.warn(`No emergency contacts found for user ${userId}`);
       return {
         totalContacts: 0,
         emailsSent: 0,
@@ -47,7 +46,7 @@ export class SendEmergencyNotificationUseCase {
 
     if (contactsWithEmail.length === 0) {
       this.logger.warn(
-        `No emergency contacts with email addresses found for victim ${victimId}`,
+        `No emergency contacts with email addresses found for user ${userId}`,
       );
       return {
         totalContacts: contacts.length,
@@ -115,7 +114,12 @@ export class SendEmergencyNotificationUseCase {
       "'": "&#x27;",
       "/": "&#x2F;",
     };
-    return text.replace(/[&<>"'/]/g, (char) => map[char] || char);
+    return text.replace(
+      /[&<>"'/]/g,
+
+      (char) =>
+        Object.prototype.hasOwnProperty.call(map, char) ? map[char] : char,
+    );
   }
 
   private buildEmailBody(contactName: string, occurrence: Occurrence): string {

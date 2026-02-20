@@ -1,20 +1,20 @@
 import { Inject, Injectable } from "@nestjs/common";
 
-import { Victim } from "@/core/domain/entities/victim.entity";
-import type { IVictimRepository } from "@/core/domain/repositories/victim-repository.interface";
+import { User } from "@/core/domain/entities/user.entity";
+import type { UserRepository } from "@/core/domain/repositories/user.repository";
 
 @Injectable()
 export class GetVictimUseCase {
   constructor(
-    @Inject("IVictimRepository")
-    private victimRepository: IVictimRepository,
+    @Inject("UserRepository")
+    private userRepository: UserRepository,
   ) {}
 
-  async execute(id: string): Promise<Victim | null> {
-    return this.victimRepository.findById(id);
+  async execute(id: string): Promise<User | null> {
+    return this.userRepository.findById(id);
   }
 
-  async executeFindAll(): Promise<Victim[]> {
-    return this.victimRepository.findAll();
+  async executeFindAll(): Promise<User[]> {
+    return this.userRepository.findByRole("VICTIM");
   }
 }

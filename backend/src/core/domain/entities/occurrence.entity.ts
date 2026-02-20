@@ -3,7 +3,7 @@ export class Occurrence {
   description: string;
   latitude: number;
   longitude: number;
-  victimId: string;
+  userId: string;
   aggressorId: string;
 
   constructor(props: Occurrence) {

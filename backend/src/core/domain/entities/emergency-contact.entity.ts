@@ -5,7 +5,7 @@ export class EmergencyContact {
   email?: string;
   relationship: string;
   priority: number;
-  victimId: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 
