@@ -1,14 +1,23 @@
 import { Global, Module } from "@nestjs/common";
 
 import { PrismaService } from "@/infra/database/prisma.service";
+import { PrismaUserRepository } from "@/infra/database/repositories/prisma-user.repository";
+import { EncryptionService } from "@/infra/services/encryption.service";
 
 /**
- * DatabaseModule provides a global PrismaService instance
- * to avoid multiple database connections across the application.
+ * DatabaseModule provides global PrismaService, EncryptionService, and
+ * UserRepository instances to avoid duplication across the application.
  */
 @Global()
 @Module({
-  providers: [PrismaService],
-  exports: [PrismaService],
+  providers: [
+    PrismaService,
+    EncryptionService,
+    {
+      provide: "UserRepository",
+      useClass: PrismaUserRepository,
+    },
+  ],
+  exports: [PrismaService, EncryptionService, "UserRepository"],
 })
 export class DatabaseModule {}
