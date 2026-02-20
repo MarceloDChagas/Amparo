@@ -36,25 +36,28 @@ import { useGetVictims } from "@/data/hooks/use-get-victims";
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "O nome deve ter pelo menos 2 caracteres.",
   }),
   phone: z
     .string()
     .transform((val) => val.replace(/[^\d]+/g, ""))
-    .refine((val) => val.length >= 10, "Phone must have at least 10 digits."),
+    .refine(
+      (val) => val.length >= 10,
+      "Telefone deve ter pelo menos 10 dígitos.",
+    ),
   email: z
     .string()
-    .email("Invalid email address.")
+    .email("Endereço de email inválido.")
     .optional()
     .or(z.literal("")),
   relationship: z.string().min(1, {
-    message: "Relationship is required.",
+    message: "O parentesco é obrigatório.",
   }),
   priority: z.number().int().min(1, {
-    message: "Priority must be at least 1.",
+    message: "A prioridade deve ser pelo menos 1.",
   }),
-  victimId: z.string().min(1, "Please select a victim.").uuid({
-    message: "Please select a valid victim.",
+  victimId: z.string().min(1, "Por favor, selecione uma vítima.").uuid({
+    message: "Por favor, selecione uma vítima válida.",
   }),
 });
 
@@ -86,11 +89,13 @@ export function EmergencyContactForm() {
       },
       {
         onSuccess: () => {
-          toast.success("Emergency contact created successfully!");
+          toast.success("Contato de emergência cadastrado com sucesso!");
           form.reset();
         },
         onError: (error) => {
-          toast.error(`Failed to create emergency contact: ${error.message}`);
+          toast.error(
+            `Erro ao cadastrar contato de emergência: ${error.message}`,
+          );
         },
       },
     );
@@ -99,9 +104,10 @@ export function EmergencyContactForm() {
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>Register Emergency Contact</CardTitle>
+        <CardTitle>Cadastrar Contato de Emergência</CardTitle>
         <CardDescription>
-          Add a trusted contact who will be notified in case of emergency.
+          Adicione um contato de confiança que será notificado em caso de
+          emergência.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -113,7 +119,7 @@ export function EmergencyContactForm() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Nome</FormLabel>
                     <FormControl>
                       <Input placeholder="Maria Silva" {...field} />
                     </FormControl>
@@ -127,23 +133,23 @@ export function EmergencyContactForm() {
                 name="relationship"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Relationship</FormLabel>
+                    <FormLabel>Parentesco / Relação</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select relationship" />
+                          <SelectValue placeholder="Selecione o parentesco" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Mother">Mother</SelectItem>
-                        <SelectItem value="Father">Father</SelectItem>
-                        <SelectItem value="Sibling">Sibling</SelectItem>
-                        <SelectItem value="Friend">Friend</SelectItem>
-                        <SelectItem value="Partner">Partner</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
+                        <SelectItem value="Mother">Mãe</SelectItem>
+                        <SelectItem value="Father">Pai</SelectItem>
+                        <SelectItem value="Sibling">Irmão/Irmã</SelectItem>
+                        <SelectItem value="Friend">Amigo(a)</SelectItem>
+                        <SelectItem value="Partner">Parceiro(a)</SelectItem>
+                        <SelectItem value="Other">Outro</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -156,7 +162,7 @@ export function EmergencyContactForm() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>Telefone</FormLabel>
                     <FormControl>
                       <PatternFormat
                         format="(##) #####-####"
@@ -176,16 +182,16 @@ export function EmergencyContactForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email (Optional)</FormLabel>
+                    <FormLabel>Email (Opcional)</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="maria@example.com"
+                        placeholder="maria@exemplo.com"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      Email is used for emergency notifications
+                      O email é usado para notificações de emergência
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -197,7 +203,7 @@ export function EmergencyContactForm() {
                 name="priority"
                 render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel>Prioridade</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -211,7 +217,7 @@ export function EmergencyContactForm() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Lower numbers = higher priority
+                      Números menores = maior prioridade
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -223,7 +229,7 @@ export function EmergencyContactForm() {
                 name="victimId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Victim</FormLabel>
+                    <FormLabel>Vítima</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -234,8 +240,8 @@ export function EmergencyContactForm() {
                           <SelectValue
                             placeholder={
                               isLoadingVictims
-                                ? "Loading victims..."
-                                : "Select victim"
+                                ? "Carregando vítimas..."
+                                : "Selecione a vítima"
                             }
                           />
                         </SelectTrigger>
@@ -249,7 +255,7 @@ export function EmergencyContactForm() {
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Person this contact is associated with
+                      Pessoa com quem este contato está associado
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -258,7 +264,7 @@ export function EmergencyContactForm() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Creating..." : "Create Emergency Contact"}
+              {isPending ? "Cadastrando..." : "Cadastrar Contato de Emergência"}
             </Button>
           </form>
         </Form>

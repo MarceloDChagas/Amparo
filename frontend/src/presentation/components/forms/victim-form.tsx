@@ -28,13 +28,13 @@ import { useCreateVictim } from "@/data/hooks/use-create-victim";
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "O nome deve ter pelo menos 2 caracteres.",
   }),
   cpf: z
     .string()
     .transform((val) => val.replace(/[^\d]+/g, ""))
-    .refine((val) => val.length === 11, "CPF must have 11 digits.")
-    .refine((val) => cpf.isValid(val), "Invalid CPF."),
+    .refine((val) => val.length === 11, "O CPF deve ter 11 dígitos.")
+    .refine((val) => cpf.isValid(val), "CPF inválido."),
 });
 
 export function VictimForm() {
@@ -53,11 +53,11 @@ export function VictimForm() {
       { name: values.name, cpf: values.cpf },
       {
         onSuccess: () => {
-          toast.success("Victim created successfully!");
+          toast.success("Vítima cadastrada com sucesso!");
           form.reset();
         },
         onError: (error) => {
-          toast.error(`Failed to create victim: ${error.message}`);
+          toast.error(`Erro ao cadastrar vítima: ${error.message}`);
         },
       },
     );
@@ -66,8 +66,8 @@ export function VictimForm() {
   return (
     <Card className="w-[350px]">
       <CardHeader>
-        <CardTitle>Create Victim</CardTitle>
-        <CardDescription>Please enter the victim details.</CardDescription>
+        <CardTitle>Cadastrar Vítima</CardTitle>
+        <CardDescription>Por favor, insira os dados da vítima.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -77,7 +77,7 @@ export function VictimForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="Jane Doe" {...field} />
                   </FormControl>
@@ -105,7 +105,7 @@ export function VictimForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Creating..." : "Create Victim"}
+              {isPending ? "Cadastrando..." : "Cadastrar Vítima"}
             </Button>
           </form>
         </Form>

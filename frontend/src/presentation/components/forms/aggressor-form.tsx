@@ -28,13 +28,13 @@ import { useCreateAggressor } from "@/data/hooks/use-create-aggressor";
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "O nome deve ter pelo menos 2 caracteres.",
   }),
   cpf: z
     .string()
     .transform((val) => val.replace(/[^\d]+/g, ""))
-    .refine((val) => val.length === 11, "CPF must have 11 digits.")
-    .refine((val) => cpf.isValid(val), "Invalid CPF."),
+    .refine((val) => val.length === 11, "O CPF deve ter 11 dígitos.")
+    .refine((val) => cpf.isValid(val), "CPF inválido."),
 });
 
 export function AggressorForm() {
@@ -53,11 +53,11 @@ export function AggressorForm() {
       { name: values.name, cpf: values.cpf },
       {
         onSuccess: () => {
-          toast.success("Aggressor created successfully!");
+          toast.success("Agressor cadastrado com sucesso!");
           form.reset();
         },
         onError: (error) => {
-          toast.error(`Failed to create aggressor: ${error.message}`);
+          toast.error(`Erro ao cadastrar agressor: ${error.message}`);
         },
       },
     );
@@ -66,8 +66,10 @@ export function AggressorForm() {
   return (
     <Card className="w-[350px]">
       <CardHeader>
-        <CardTitle>Create Aggressor</CardTitle>
-        <CardDescription>Please enter the aggressor details.</CardDescription>
+        <CardTitle>Cadastrar Agressor</CardTitle>
+        <CardDescription>
+          Por favor, insira os dados do agressor.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -77,7 +79,7 @@ export function AggressorForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
                   </FormControl>
@@ -105,7 +107,7 @@ export function AggressorForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Creating..." : "Create Aggressor"}
+              {isPending ? "Cadastrando..." : "Cadastrar Agressor"}
             </Button>
           </form>
         </Form>
