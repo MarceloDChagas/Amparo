@@ -1,4 +1,11 @@
+export {
+  AnalyticsCard,
+  SecurityCard,
+  SupportNetworkCard,
+  UnifiedRecordCard,
+} from "./BentoCards";
 export { CTASection } from "./CTASection";
+export { DashboardMockup } from "./DashboardMockup";
 export { FeatureCard } from "./FeatureCard";
 export { FeaturesSection } from "./FeaturesSection";
 export { Footer } from "./Footer";
