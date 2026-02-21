@@ -13,10 +13,16 @@ export class AuthService {
     pass: string,
     user: User | null,
   ): Promise<Omit<User, "password"> | null> {
-    if (user && (await bcrypt.compare(pass, user.password!))) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
+    console.log("Validating user. Exists?", !!user);
+    if (user) {
+      console.log("Checking password for user ID:", user.id);
+      const isMatch = await bcrypt.compare(pass, user.password!);
+      console.log("Bcrypt Match:", isMatch);
+      if (isMatch) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...result } = user;
+        return result;
+      }
     }
     return null;
   }

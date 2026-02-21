@@ -13,7 +13,9 @@ export class LoginUseCase {
   ) {}
 
   async execute(credentials: LoginDto) {
+    console.log("Login lookup for:", credentials.email);
     const user = await this.userRepository.findByEmail(credentials.email);
+    console.log("UserRepository return:", user);
     const validatedUser = await this.authService.validateUser(
       credentials.email,
       credentials.password,
