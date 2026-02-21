@@ -28,7 +28,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
           color: colors.status.error.DEFAULT,
         },
         {
-          label: "Vítimas Ativas",
+          label: "Usuários Ativos",
           value: stats.victims,
           icon: Users,
           color: colors.status.success.DEFAULT,

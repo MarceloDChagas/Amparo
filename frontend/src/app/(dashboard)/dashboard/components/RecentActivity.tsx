@@ -1,8 +1,15 @@
 import React from "react";
 
+import { AuditLog } from "@/services/audit-log-service";
 import { colors } from "@/styles/colors";
 
-export const RecentActivity: React.FC = () => {
+interface RecentActivityProps {
+  activities?: AuditLog[];
+}
+
+export const RecentActivity: React.FC<RecentActivityProps> = ({
+  activities = [],
+}) => {
   return (
     <div
       className="p-6 rounded-2xl border"
@@ -18,63 +25,46 @@ export const RecentActivity: React.FC = () => {
         Atividade Recente
       </div>
       <div className="space-y-4">
-        {[
-          {
-            time: "10 min atrás",
-            message: "Nova ocorrência registrada",
-            status: "pendente",
-          },
-          {
-            time: "45 min atrás",
-            message: "Atualização de status: Em Andamento",
-            status: "sucesso",
-          },
-          {
-            time: "2 horas atrás",
-            message: "Viatura despachada (ID #114)",
-            status: "info",
-          },
-          {
-            time: "3 horas atrás",
-            message: "Novo usuário cadastrado",
-            status: "info",
-          },
-        ].map((activity, i) => (
+        {activities.length === 0 ? (
           <div
-            key={i}
-            className="flex gap-4 p-4 rounded-xl border relative overflow-hidden"
-            style={{
-              backgroundColor: colors.functional.background.tertiary,
-              borderColor: "transparent",
-            }}
+            className="text-sm"
+            style={{ color: colors.functional.text.secondary }}
           >
+            Nenhuma atividade recente no sistema.
+          </div>
+        ) : (
+          activities.map((activity, i) => (
             <div
-              className="w-2 h-2 rounded-full mt-1.5 shrink-0"
+              key={activity.id || i}
+              className="flex gap-4 p-4 rounded-xl border relative overflow-hidden"
               style={{
-                backgroundColor:
-                  activity.status === "sucesso"
-                    ? colors.status.success.DEFAULT
-                    : activity.status === "pendente"
-                      ? colors.status.warning.DEFAULT
-                      : colors.status.info.DEFAULT,
+                backgroundColor: colors.functional.background.tertiary,
+                borderColor: "transparent",
               }}
-            />
-            <div>
+            >
               <div
-                className="text-sm font-medium mb-1"
-                style={{ color: colors.functional.text.primary }}
-              >
-                {activity.message}
-              </div>
-              <div
-                className="text-xs font-semibold"
-                style={{ color: colors.functional.text.tertiary }}
-              >
-                {activity.time}
+                className="w-2 h-2 rounded-full mt-1.5 shrink-0"
+                style={{
+                  backgroundColor: colors.status.info.DEFAULT,
+                }}
+              />
+              <div>
+                <div
+                  className="text-sm font-medium mb-1"
+                  style={{ color: colors.functional.text.primary }}
+                >
+                  {activity.action} - {activity.resource}
+                </div>
+                <div
+                  className="text-xs font-semibold"
+                  style={{ color: colors.functional.text.tertiary }}
+                >
+                  {new Date(activity.createdAt).toLocaleString("pt-BR")}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

@@ -21,4 +21,23 @@ export class PrismaEmergencyAlertRepository implements EmergencyAlertRepository 
       },
     });
   }
+
+  async findActive(): Promise<EmergencyAlert | null> {
+    const alert = await this.prisma.emergencyAlert.findFirst({
+      where: { status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!alert) return null;
+
+    return new EmergencyAlert(
+      alert.id,
+      alert.latitude,
+      alert.longitude,
+      alert.createdAt,
+      alert.status,
+      alert.address,
+      alert.userId,
+    );
+  }
 }

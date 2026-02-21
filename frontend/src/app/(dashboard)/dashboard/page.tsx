@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 
 import { aggressorService } from "@/services/aggressor-service";
+import { AuditLog, auditLogService } from "@/services/audit-log-service";
+import {
+  EmergencyAlert,
+  emergencyAlertService,
+} from "@/services/emergency-alert-service";
 import { occurrenceService } from "@/services/occurrence-service";
 import { victimService } from "@/services/victim-service";
 import { colors } from "@/styles/colors";
@@ -17,25 +22,32 @@ export default function DashboardPage() {
     aggressors: 0,
     occurrences: 0,
   });
+  const [activities, setActivities] = useState<AuditLog[]>([]);
+  const [activeAlert, setActiveAlert] = useState<EmergencyAlert | null>(null);
 
   useEffect(() => {
-    async function loadStats() {
+    async function loadData() {
       try {
-        const [victims, aggressors, occurrences] = await Promise.all([
-          victimService.getAll(),
-          aggressorService.getAll(),
-          occurrenceService.getAll(),
-        ]);
+        const [victims, aggressors, occurrences, recentLogs, alert] =
+          await Promise.all([
+            victimService.getAll(),
+            aggressorService.getAll(),
+            occurrenceService.getAll(),
+            auditLogService.getRecent(),
+            emergencyAlertService.getActive(),
+          ]);
         setStats({
           victims: victims.length,
           aggressors: aggressors.length,
           occurrences: occurrences.length,
         });
+        setActivities(recentLogs);
+        setActiveAlert(alert);
       } catch (error) {
-        console.error("Failed to load dashboard stats", error);
+        console.error("Failed to load dashboard data", error);
       }
     }
-    loadStats();
+    loadData();
   }, []);
 
   return (
@@ -56,10 +68,10 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <DashboardStats stats={stats} />
-            <ProximityAlert />
+            <ProximityAlert alert={activeAlert} />
           </div>
 
-          <RecentActivity />
+          <RecentActivity activities={activities} />
         </div>
       </div>
     </div>

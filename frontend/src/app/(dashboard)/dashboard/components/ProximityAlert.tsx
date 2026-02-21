@@ -1,9 +1,16 @@
 import { ShieldAlert } from "lucide-react";
 import React from "react";
 
+import { EmergencyAlert } from "@/services/emergency-alert-service";
 import { colors } from "@/styles/colors";
 
-export const ProximityAlert: React.FC = () => {
+interface ProximityAlertProps {
+  alert?: EmergencyAlert | null;
+}
+
+export const ProximityAlert: React.FC<ProximityAlertProps> = ({ alert }) => {
+  if (!alert) return null;
+
   return (
     <div
       className="p-6 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden group"
@@ -32,14 +39,15 @@ export const ProximityAlert: React.FC = () => {
             className="font-bold text-lg mb-1"
             style={{ color: colors.status.error.DEFAULT }}
           >
-            Alerta de Proximidade Imediata
+            Alerta de Emergência
           </h4>
           <p
             className="text-sm"
             style={{ color: colors.functional.text.secondary }}
           >
-            Violação de perímetro detectada. Vítima ID #8922 está em risco
-            potencial na Zona Sul.
+            {alert.address
+              ? `Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} necessita de ajuda na localização: ${alert.address}.`
+              : `Alerta recebido do Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} próximos às coordenadas (${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}).`}
           </p>
         </div>
       </div>
@@ -50,7 +58,7 @@ export const ProximityAlert: React.FC = () => {
           color: "white",
         }}
       >
-        Despachar Viaturas
+        Ver Detalhes
       </button>
     </div>
   );
