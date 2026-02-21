@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/presentation/hooks/useAuth";
+import { colors } from "@/styles/colors";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -62,17 +63,21 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-gray-300">Email</FormLabel>
               <FormControl>
-                <Input placeholder="seu@email.com" {...field} />
+                <Input
+                  placeholder="seu@email.com"
+                  className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
@@ -81,28 +86,39 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="text-gray-300">Senha</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="******"
+                    className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button
+          type="submit"
+          className="w-full h-12 rounded-xl font-bold text-md transition-all hover:scale-[1.02] mt-4"
+          disabled={loading}
+          style={{
+            background: colors.gradients.cta,
+            boxShadow: `0 8px 25px ${colors.special.shadow.rose}`,
+            border: "none",
+            color: "#fff",
+          }}
+        >
           {loading ? "Entrando..." : "Entrar"}
         </Button>
       </form>

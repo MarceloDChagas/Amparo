@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/presentation/hooks/useAuth";
+import { colors } from "@/styles/colors";
 
 const registerSchema = z
   .object({
@@ -39,7 +40,6 @@ export function RegisterForm() {
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -81,11 +81,15 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Completo</FormLabel>
+              <FormLabel className="text-gray-300">Nome Completo</FormLabel>
               <FormControl>
-                <Input placeholder="Seu nome" {...field} />
+                <Input
+                  placeholder="Seu nome"
+                  className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
@@ -94,11 +98,15 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-gray-300">Email</FormLabel>
               <FormControl>
-                <Input placeholder="seu@email.com" {...field} />
+                <Input
+                  placeholder="seu@email.com"
+                  className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
@@ -107,24 +115,25 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="text-gray-300">Senha</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="******"
+                    className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
@@ -133,32 +142,39 @@ export function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirmar Senha</FormLabel>
+              <FormLabel className="text-gray-300">Confirmar Senha</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     placeholder="******"
+                    className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
                     {...field}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-[#f95daf]" />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button
+          type="submit"
+          className="w-full h-12 rounded-xl font-bold text-md transition-all hover:scale-[1.02] mt-4"
+          disabled={loading}
+          style={{
+            background: colors.gradients.cta,
+            boxShadow: `0 8px 25px ${colors.special.shadow.rose}`,
+            border: "none",
+            color: "#fff",
+          }}
+        >
           {loading ? "Cadastrando..." : "Cadastrar"}
         </Button>
       </form>
