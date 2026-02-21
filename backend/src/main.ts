@@ -1,6 +1,8 @@
-import { NestFactory } from "@nestjs/core";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
+
+import { GlobalExceptionFilter } from "@/infra/http/filters/global-exception.filter";
 
 import { AppModule } from "./app.module";
 
@@ -8,6 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.useGlobalPipes(new ZodValidationPipe());
+
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
 
   const config = new DocumentBuilder()
     .setTitle("Sistema de Proteção - Olinda")
@@ -21,4 +26,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();
