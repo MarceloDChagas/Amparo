@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cpf } from "cpf-cnpj-validator";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -107,6 +108,7 @@ export function AggressorForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? "Cadastrando..." : "Cadastrar Agressor"}
             </Button>
           </form>

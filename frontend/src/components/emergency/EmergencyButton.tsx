@@ -49,6 +49,7 @@ export function EmergencyButton() {
           victimId: user.id,
         });
       },
+      { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
     );
   }, [user, createAlert]);
 
