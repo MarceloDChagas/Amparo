@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import { QuickExitButton } from "@/components/layout/QuickExitButton";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/presentation/hooks/useAuth";
 
@@ -16,6 +17,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             {children}
+            <QuickExitButton />
             <Toaster />
           </AuthProvider>
         </QueryProvider>

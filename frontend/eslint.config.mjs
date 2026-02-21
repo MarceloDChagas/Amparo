@@ -16,6 +16,11 @@ const eslintConfig = defineConfig([
     plugins: {
       "simple-import-sort": simpleImportSort,
     },
+    settings: {
+      next: {
+        rootDir: "frontend/",
+      },
+    },
     rules: {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",

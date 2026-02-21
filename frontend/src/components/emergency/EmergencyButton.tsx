@@ -1,29 +1,24 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useCreateEmergencyAlert } from "@/hooks/use-emergency-alert";
 import { useAuth } from "@/presentation/hooks/useAuth";
 import { colors } from "@/styles/colors";
 
+const HOLD_DURATION = 2000; // 2 seconds
+const TICK_INTERVAL = 20; // 20ms for smooth animation
+
 export function EmergencyButton() {
   const { user } = useAuth();
   const [isPressing, setIsPressing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [showPulse, setShowPulse] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
 
   const { mutate: createAlert, isPending } = useCreateEmergencyAlert();
 
-  const handlePressStart = () => {
-    if (isPending) return;
-    setIsPressing(true);
-    setShowPulse(true);
-    handleEmergency();
-  };
-
-  const handlePressEnd = () => {
-    setIsPressing(false);
-  };
-
-  const handleEmergency = () => {
+  const handleEmergency = useCallback(() => {
     if (!user) {
       toast.error("Você precisa estar logado para enviar um alerta.");
       return;
@@ -55,7 +50,52 @@ export function EmergencyButton() {
         });
       },
     );
-  };
+  }, [user, createAlert]);
+
+  const handlePressEnd = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsPressing(false);
+    setProgress(0);
+    setShowPulse(false);
+  }, []);
+
+  const handlePressStart = useCallback(() => {
+    if (isPending) return;
+
+    setIsPressing(true);
+    setShowPulse(true);
+    startTimeRef.current = Date.now();
+
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const newProgress = Math.min((elapsed / HOLD_DURATION) * 100, 100);
+
+      setProgress(newProgress);
+
+      if (newProgress >= 100) {
+        handlePressEnd();
+        handleEmergency();
+        // Give haptic feedback if available
+        if ("vibrate" in navigator) {
+          navigator.vibrate([100, 50, 100]);
+        }
+      }
+    }, TICK_INTERVAL);
+  }, [isPending, handleEmergency, handlePressEnd]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  // SVG Progress calculation
+  const radius = 80;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
 
   return (
     <div
@@ -78,34 +118,36 @@ export function EmergencyButton() {
               animation: "pulseWave 1.5s ease-out infinite",
             }}
           />
-          <div
-            className="absolute rounded-full"
-            style={{
-              width: "280px",
-              height: "280px",
-              backgroundColor: "transparent",
-              border: "3px solid rgba(255, 179, 217, 0.4)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "pulseWave 1.5s ease-out 0.3s infinite",
-            }}
-          />
-          <div
-            className="absolute rounded-full"
-            style={{
-              width: "280px",
-              height: "280px",
-              backgroundColor: "transparent",
-              border: "3px solid rgba(255, 179, 217, 0.2)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "pulseWave 1.5s ease-out 0.6s infinite",
-            }}
-          />
         </>
       )}
+
+      {/* Progress Ring (SVG) */}
+      <svg
+        className="absolute z-10 pointer-events-none"
+        width="230"
+        height="230"
+        viewBox="0 0 230 230"
+        style={{ transform: "rotate(-90deg)" }}
+      >
+        <circle
+          cx="115"
+          cy="115"
+          r={radius}
+          fill="transparent"
+          stroke={colors.secondary[300]}
+          strokeWidth="8"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{
+            transition:
+              TICK_INTERVAL === TICK_INTERVAL
+                ? "none"
+                : "stroke-dashoffset 0.1s linear",
+            opacity: progress > 0 ? 1 : 0,
+          }}
+        />
+      </svg>
 
       {/* Outer ring - darkest */}
       <div
@@ -116,8 +158,8 @@ export function EmergencyButton() {
           backgroundColor: "#3d3d6a",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
-          boxShadow: isPressing ? "0 0 30px rgba(255, 179, 217, 0.5)" : "none",
+          transform: `translate(-50%, -50%) ${isPressing ? "scale(1.05)" : "scale(1)"}`,
+          boxShadow: isPressing ? `0 0 40px ${colors.secondary[300]}` : "none",
         }}
       />
 
@@ -130,13 +172,13 @@ export function EmergencyButton() {
           backgroundColor: "#6b5b7b",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
+          transform: `translate(-50%, -50%) ${isPressing ? "scale(1.02)" : "scale(1)"}`,
         }}
       />
 
       {/* Inner circle - pink */}
       <button
-        className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl"
+        className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl z-20"
         style={{
           width: "170px",
           height: "170px",
@@ -160,7 +202,7 @@ export function EmergencyButton() {
         onTouchEnd={handlePressEnd}
       >
         <span
-          className="text-4xl font-bold leading-tight text-center transition-all duration-300"
+          className="text-2xl font-bold leading-tight text-center transition-all duration-300"
           style={{
             color: colors.primary[900],
             textShadow: isPressing
@@ -168,8 +210,19 @@ export function EmergencyButton() {
               : "none",
           }}
         >
-          {isPending ? "SENDING..." : "PUSH"}
+          {isPending ? "ENVIANDO..." : isPressing ? "SEGURE..." : "EMERGÊNCIA"}
         </span>
+        {isPressing && (
+          <span
+            className="text-xs font-bold mt-1"
+            style={{ color: colors.primary[900] }}
+          >
+            {Math.ceil(
+              (HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000,
+            )}
+            s
+          </span>
+        )}
       </button>
 
       {/* CSS Keyframes */}
