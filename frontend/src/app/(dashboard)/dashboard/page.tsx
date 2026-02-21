@@ -1,12 +1,15 @@
 "use client";
 
-import { FileText, ShieldAlert, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { aggressorService } from "@/services/aggressor-service";
 import { occurrenceService } from "@/services/occurrence-service";
 import { victimService } from "@/services/victim-service";
+import { colors } from "@/styles/colors";
+
+import { DashboardStats } from "./components/DashboardStats";
+import { ProximityAlert } from "./components/ProximityAlert";
+import { RecentActivity } from "./components/RecentActivity";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -36,48 +39,28 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-      <p className="text-muted-foreground">
-        Bem-vindo ao sistema de gestão Amparo.
-      </p>
+    <div
+      className="min-h-screen p-6 md:p-10"
+      style={{ backgroundColor: colors.functional.background.primary }}
+    >
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-white">
+            Painel de Controle
+          </h2>
+          <p style={{ color: colors.functional.text.secondary }}>
+            Visão geral do sistema de gestão Amparo.
+          </p>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Vítimas
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.victims}</div>
-          </CardContent>
-        </Card>
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <DashboardStats stats={stats} />
+            <ProximityAlert />
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Agressores
-            </CardTitle>
-            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.aggressors}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Ocorrências
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.occurrences}</div>
-          </CardContent>
-        </Card>
+          <RecentActivity />
+        </div>
       </div>
     </div>
   );
