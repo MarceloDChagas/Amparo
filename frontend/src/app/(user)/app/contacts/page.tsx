@@ -8,7 +8,7 @@ import { BottomNavigation, EmergencyHeader } from "@/components/emergency";
 import { EmergencyContactForm } from "@/presentation/components/forms/emergency-contact-form";
 import { colors } from "@/styles/colors";
 
-export default function VictimContactsPage() {
+export default function UserContactsPage() {
   const router = useRouter();
 
   return (

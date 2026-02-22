@@ -3,8 +3,8 @@ import { apiClient } from "./api-client";
 export interface CreateUserData {
   name: string;
   cpf: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
 }
 
 export interface User {

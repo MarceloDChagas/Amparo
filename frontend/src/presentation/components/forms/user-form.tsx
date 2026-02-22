@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useCreateVictim } from "@/data/hooks/use-create-victim";
+import { useCreateUser } from "@/data/hooks/use-create-user";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -38,8 +38,8 @@ const formSchema = z.object({
     .refine((val) => cpf.isValid(val), "CPF inválido."),
 });
 
-export function VictimForm() {
-  const { mutate, isPending } = useCreateVictim();
+export function UserForm() {
+  const { mutate, isPending } = useCreateUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,11 +54,11 @@ export function VictimForm() {
       { name: values.name, cpf: values.cpf },
       {
         onSuccess: () => {
-          toast.success("Vítima cadastrada com sucesso!");
+          toast.success("Usuário cadastrado com sucesso!");
           form.reset();
         },
         onError: (error) => {
-          toast.error(`Erro ao cadastrar vítima: ${error.message}`);
+          toast.error(`Erro ao cadastrar usuário: ${error.message}`);
         },
       },
     );
@@ -67,8 +67,10 @@ export function VictimForm() {
   return (
     <Card className="w-[350px]">
       <CardHeader>
-        <CardTitle>Cadastrar Vítima</CardTitle>
-        <CardDescription>Por favor, insira os dados da vítima.</CardDescription>
+        <CardTitle>Criar Usuário</CardTitle>
+        <CardDescription>
+          Por favor, insira os dados do usuário.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -107,7 +109,7 @@ export function VictimForm() {
             />
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Cadastrando..." : "Cadastrar Vítima"}
+              {isPending ? "Criando usuário..." : "Criar Usuário"}
             </Button>
           </form>
         </Form>

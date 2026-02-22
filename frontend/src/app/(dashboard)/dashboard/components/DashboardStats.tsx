@@ -7,7 +7,7 @@ interface DashboardStatsProps {
   stats: {
     occurrences: number;
     aggressors: number;
-    victims: number;
+    users: number;
   };
 }
 
@@ -29,7 +29,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
         },
         {
           label: "Usuários Ativos",
-          value: stats.victims,
+          value: stats.users,
           icon: Users,
           color: colors.status.success.DEFAULT,
         },

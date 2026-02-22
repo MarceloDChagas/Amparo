@@ -74,7 +74,7 @@ export default function OccurrencesPage() {
                     <TableCell>
                       {occurrence.latitude}, {occurrence.longitude}
                     </TableCell>
-                    <TableCell>{occurrence.victimId}</TableCell>
+                    <TableCell>{occurrence.userId}</TableCell>
                     <TableCell>{occurrence.aggressorId}</TableCell>
                   </TableRow>
                 ))

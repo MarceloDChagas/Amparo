@@ -18,7 +18,7 @@ const routes = [
   {
     label: "Usuários",
     icon: Users,
-    href: "/victims",
+    href: "/users",
     color: "text-violet-500",
   },
   {
