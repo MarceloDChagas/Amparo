@@ -53,12 +53,13 @@ export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => (
         >
           Entrar
         </a>
-        <button
+        <a
+          href="/register"
           className="hidden sm:block px-5 py-2 text-white text-sm font-semibold rounded-xl shadow-md transition-all hover:scale-105"
           style={{ background: colors.gradients.cta }}
         >
           Criar Conta
-        </button>
+        </a>
       </div>
     </div>
   </nav>

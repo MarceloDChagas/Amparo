@@ -16,7 +16,7 @@ const routes = [
     color: "text-sky-500",
   },
   {
-    label: "Vítimas",
+    label: "Usuários",
     icon: Users,
     href: "/victims",
     color: "text-violet-500",

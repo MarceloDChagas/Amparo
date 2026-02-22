@@ -35,7 +35,7 @@ export function EmergencyButton() {
         createAlert({
           latitude,
           longitude,
-          victimId: user.id,
+          userId: user.id,
         });
       },
       (error) => {
@@ -46,7 +46,7 @@ export function EmergencyButton() {
         createAlert({
           latitude: 0,
           longitude: 0,
-          victimId: user.id,
+          userId: user.id,
         });
       },
       { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
