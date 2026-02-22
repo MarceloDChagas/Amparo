@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
+import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import { DistanceType } from "@/core/domain/enums/distance-type.enum";
+import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
 import { PrismaService } from "@/infra/database/prisma.service";
 
@@ -13,6 +15,7 @@ export class CompleteCheckInUseCase {
   constructor(
     private prisma: PrismaService,
     private checkInValidationService: CheckInValidationService,
+    private auditLogger: AuditLoggerPort,
   ) {}
 
   async execute(request: CompleteCheckInRequest) {
@@ -48,6 +51,15 @@ export class CompleteCheckInUseCase {
         status: resultStatus,
       },
     });
+
+    await this.auditLogger.log(
+      new AuditLog({
+        action: "COMPLETE_CHECK_IN",
+        resource: "CheckIn",
+        resourceId: updatedCheckIn.id,
+        userId: userId,
+      }),
+    );
 
     return updatedCheckIn;
   }

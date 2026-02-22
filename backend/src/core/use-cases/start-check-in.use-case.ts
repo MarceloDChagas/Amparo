@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
+import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import {
   DistanceTolerances,
   DistanceType,
 } from "@/core/domain/enums/distance-type.enum";
+import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
 import { PrismaService } from "@/infra/database/prisma.service";
 
 interface StartCheckInRequest {
@@ -13,7 +15,10 @@ interface StartCheckInRequest {
 
 @Injectable()
 export class StartCheckInUseCase {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditLogger: AuditLoggerPort,
+  ) {}
 
   async execute(request: StartCheckInRequest) {
     const { userId, distanceType } = request;
@@ -48,6 +53,15 @@ export class StartCheckInUseCase {
         status: "ACTIVE",
       },
     });
+
+    await this.auditLogger.log(
+      new AuditLog({
+        action: "START_CHECK_IN",
+        resource: "CheckIn",
+        resourceId: checkIn.id,
+        userId: userId,
+      }),
+    );
 
     return checkIn;
   }
