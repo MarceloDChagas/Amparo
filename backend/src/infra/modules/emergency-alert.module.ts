@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
+import { PrismaNotificationLogRepository } from "@/infra/database/repositories/prisma-notification-log.repository";
 
 import { CreateEmergencyAlert } from "../../core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "../../core/use-cases/get-active-emergency-alert.use-case";
@@ -24,6 +25,11 @@ import { UserModule } from "./user.module";
     {
       provide: EmergencyAlertRepository,
       useClass: PrismaEmergencyAlertRepository,
+    },
+    PrismaNotificationLogRepository,
+    {
+      provide: "INotificationLogRepository",
+      useClass: PrismaNotificationLogRepository,
     },
   ],
 })

@@ -1,7 +1,9 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
+import { NotificationLog } from "@/core/domain/entities/notification-log.entity";
 import type { IEmergencyContactRepository } from "@/core/domain/repositories/emergency-contact-repository.interface";
+import type { INotificationLogRepository } from "@/core/domain/repositories/notification-log-repository.interface";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import type { IEmailService } from "@/core/domain/services/email-service.interface";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
@@ -13,6 +15,9 @@ interface CreateEmergencyAlertRequest {
   address?: string;
   userId?: string;
 }
+
+const MAX_RETRIES = 3;
+const RETRY_BASE_MS = 500;
 
 @Injectable()
 export class CreateEmergencyAlert {
@@ -26,6 +31,8 @@ export class CreateEmergencyAlert {
     private userRepository: UserRepository,
     @Inject("IEmailService")
     private emailService: IEmailService,
+    @Inject("INotificationLogRepository")
+    private notificationLogRepository: INotificationLogRepository,
   ) {}
 
   async execute(request: CreateEmergencyAlertRequest): Promise<void> {
@@ -76,23 +83,15 @@ export class CreateEmergencyAlert {
 
       const contactsWithEmail = contacts.filter((c) => !!c.email);
 
-      // Parallel execution for faster response
       await Promise.all(
         contactsWithEmail.map((contact) =>
-          this.emailService
-            .sendEmergencyNotification(
-              contact.email as string,
-              subject,
-              htmlBody,
-            )
-            .catch((err) => {
-              const errorMessage =
-                err instanceof Error ? err.stack : String(err);
-              this.logger.error(
-                `Failed to send email to ${contact.email}`,
-                errorMessage,
-              );
-            }),
+          this.sendWithRetry(
+            contact.email as string,
+            contact.name,
+            subject,
+            htmlBody,
+            alert.id,
+          ),
         ),
       );
 
@@ -108,6 +107,74 @@ export class CreateEmergencyAlert {
       } else {
         this.logger.error(`Error notifying contacts: ${String(error)}`);
       }
+    }
+  }
+
+  /**
+   * Attempts to send an email with exponential backoff retry.
+   * Logs each attempt to the NotificationLog table.
+   */
+  private async sendWithRetry(
+    email: string,
+    contactName: string,
+    subject: string,
+    htmlBody: string,
+    alertId: string,
+    attempt = 1,
+  ): Promise<void> {
+    try {
+      await this.emailService.sendEmergencyNotification(
+        email,
+        subject,
+        htmlBody,
+      );
+
+      await this.notificationLogRepository.create(
+        new NotificationLog({
+          alertId,
+          contactEmail: email,
+          contactName,
+          channel: "EMAIL",
+          status: "SENT",
+          attempt,
+        }),
+      );
+
+      this.logger.log(`Email sent to ${email} (attempt ${attempt})`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      this.logger.error(
+        `Failed to send email to ${email} (attempt ${attempt}): ${errorMessage}`,
+      );
+
+      if (attempt < MAX_RETRIES) {
+        const delay = RETRY_BASE_MS * Math.pow(2, attempt - 1);
+        this.logger.log(
+          `Retrying email to ${email} in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return this.sendWithRetry(
+          email,
+          contactName,
+          subject,
+          htmlBody,
+          alertId,
+          attempt + 1,
+        );
+      }
+
+      // All retries exhausted — log as FAILED
+      await this.notificationLogRepository.create(
+        new NotificationLog({
+          alertId,
+          contactEmail: email,
+          contactName,
+          channel: "EMAIL",
+          status: "FAILED",
+          errorMessage,
+          attempt,
+        }),
+      );
     }
   }
 }
