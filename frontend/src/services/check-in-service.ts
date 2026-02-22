@@ -13,6 +13,13 @@ export interface CheckIn {
   actualArrivalTime: string | null;
   distanceType: DistanceType;
   status: string;
+  user?: {
+    id: string;
+    name: string;
+    phone: string;
+    cpf?: string | null;
+  };
+  userCheckInCount?: number;
 }
 
 function getAuthHeaders() {
@@ -68,7 +75,44 @@ export const checkInService = {
 
       const text = await response.text();
       return text ? JSON.parse(text) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  async getAllActive(): Promise<CheckIn[]> {
+    try {
+      const response = await fetch(`${API_URL}/check-ins/all-active`, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch all active check-ins");
+      }
+
+      const text = await response.text();
+      return text ? JSON.parse(text) : [];
     } catch (error) {
+      console.error(error);
+      return [];
+    }
+  },
+
+  async getById(id: string): Promise<CheckIn | null> {
+    try {
+      const response = await fetch(`${API_URL}/check-ins/${id}`, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) return null;
+        throw new Error("Failed to fetch check-in details");
+      }
+
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
+    } catch (error) {
+      console.error(error);
       return null;
     }
   },

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import {
@@ -32,7 +32,7 @@ export class StartCheckInUseCase {
     });
 
     if (existingCheckIn) {
-      throw new Error("User already has an active check-in");
+      throw new BadRequestException("User already has an active check-in");
     }
 
     // eslint-disable-next-line security/detect-object-injection

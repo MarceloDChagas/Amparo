@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -11,9 +13,11 @@ import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
 
+import { Role } from "@/core/domain/enums/role.enum";
 import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 import { PrismaService } from "@/infra/database/prisma.service";
+import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { StartCheckInDto } from "@/infra/http/dtos/check-in.dto";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
@@ -60,5 +64,51 @@ export class CheckInController {
     });
 
     return checkIn || null;
+  }
+
+  @Get("all-active")
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: "Get all active check-ins for the dashboard" })
+  async getAllActive() {
+    return this.prisma.checkIn.findMany({
+      where: {
+        status: "ACTIVE",
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  @Get(":id")
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: "Get detailed check-in by ID including user history count",
+  })
+  async getById(@Param("id") id: string) {
+    const checkIn = await this.prisma.checkIn.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!checkIn) {
+      throw new NotFoundException("Check-in not found");
+    }
+
+    const historyCount = await this.prisma.checkIn.count({
+      where: {
+        userId: checkIn.userId,
+        status: {
+          in: ["ON_TIME", "LATE"],
+        },
+      },
+    });
+
+    return {
+      ...checkIn,
+      userCheckInCount: historyCount,
+    };
   }
 }

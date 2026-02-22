@@ -85,30 +85,36 @@ export function CheckInActive({
         />
 
         {/* Inner circle - lighter green */}
-        <button
-          onClick={onComplete}
-          disabled={isPending}
-          className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl z-20 hover:scale-105 active:scale-95"
+        <div
+          className="absolute z-20"
           style={{
             width: "170px",
             height: "170px",
-            backgroundColor: isPending ? "#86efac" : "#4ade80",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-            cursor: isPending ? "not-allowed" : "pointer",
           }}
         >
-          <span
-            className="text-2xl font-bold leading-tight text-center transition-all duration-300 px-4"
+          <button
+            onClick={onComplete}
+            disabled={isPending}
+            className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
             style={{
-              color: "#14532d",
+              backgroundColor: isPending ? "#86efac" : "#4ade80",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+              cursor: isPending ? "not-allowed" : "pointer",
             }}
           >
-            {isPending ? "FINALIZANDO..." : "MARCAR CHEGADA"}
-          </span>
-        </button>
+            <span
+              className="text-2xl font-bold leading-tight text-center transition-all duration-300 px-4"
+              style={{
+                color: "#14532d",
+              }}
+            >
+              {isPending ? "FINALIZANDO..." : "MARCAR CHEGADA"}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
