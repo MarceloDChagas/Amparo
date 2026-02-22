@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateEmergencyContact } from "@/data/hooks/use-create-emergency-contact";
+import { useGetEmergencyContacts } from "@/data/hooks/use-get-emergency-contacts";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 const formSchema = z.object({
@@ -61,6 +62,9 @@ const formSchema = z.object({
 export function EmergencyContactForm() {
   const { mutate, isPending } = useCreateEmergencyContact();
   const { user } = useAuth();
+  const { data: contacts } = useGetEmergencyContacts();
+
+  const isLimitReached = contacts ? contacts.length >= 3 : false;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,6 +78,11 @@ export function EmergencyContactForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isLimitReached) {
+      toast.error("Limite máximo de 3 contatos atingido.");
+      return;
+    }
+
     mutate(
       {
         name: values.name,
@@ -107,123 +116,147 @@ export function EmergencyContactForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {isLimitReached && (
+          <div className="mb-6 rounded-md bg-red-950/50 border border-red-900 p-4">
+            <p className="text-sm text-red-200">
+              <strong>Limite atingido:</strong> Você já alcançou o limite máximo
+              de 3 contatos de confiança. Para adicionar um novo contato, remova
+              um dos contatos existentes.
+            </p>
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Maria Silva" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="relationship"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Parentesco / Relação</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+            <fieldset
+              disabled={isLimitReached || isPending}
+              className="space-y-6"
+            >
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o parentesco" />
-                        </SelectTrigger>
+                        <Input placeholder="Maria Silva" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Mother">Mãe</SelectItem>
-                        <SelectItem value="Father">Pai</SelectItem>
-                        <SelectItem value="Sibling">Irmão/Irmã</SelectItem>
-                        <SelectItem value="Friend">Amigo(a)</SelectItem>
-                        <SelectItem value="Partner">Parceiro(a)</SelectItem>
-                        <SelectItem value="Other">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone</FormLabel>
-                    <FormControl>
-                      <PatternFormat
-                        format="(##) #####-####"
-                        mask="_"
-                        customInput={Input}
-                        placeholder="(11) 98765-4321"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="relationship"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Parentesco / Relação</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isLimitReached || isPending}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o parentesco" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Mother">Mãe</SelectItem>
+                          <SelectItem value="Father">Pai</SelectItem>
+                          <SelectItem value="Sibling">Irmão/Irmã</SelectItem>
+                          <SelectItem value="Friend">Amigo(a)</SelectItem>
+                          <SelectItem value="Partner">Parceiro(a)</SelectItem>
+                          <SelectItem value="Other">Outro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email (Opcional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="maria@exemplo.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      O email é usado para notificações de emergência
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <PatternFormat
+                          format="(##) #####-####"
+                          mask="_"
+                          customInput={Input}
+                          placeholder="(11) 98765-4321"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormLabel>Prioridade</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        placeholder="1"
-                        value={value}
-                        onChange={(e) =>
-                          onChange(parseInt(e.target.value, 10) || 1)
-                        }
-                        {...fieldProps}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Números menores = maior prioridade
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email (Opcional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="maria@exemplo.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        O email é usado para notificações de emergência
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Cadastrando..." : "Cadastrar Contato de Emergência"}
-            </Button>
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
+                    <FormItem>
+                      <FormLabel>Prioridade</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="1"
+                          value={value}
+                          onChange={(e) =>
+                            onChange(parseInt(e.target.value, 10) || 1)
+                          }
+                          {...fieldProps}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Números menores = maior prioridade
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLimitReached || isPending}
+              >
+                {isLimitReached
+                  ? "Limite máximo alcançado"
+                  : isPending
+                    ? "Cadastrando..."
+                    : "Cadastrar Contato de Emergência"}
+              </Button>
+            </fieldset>
           </form>
         </Form>
       </CardContent>
