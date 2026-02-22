@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
+import { AlertEventType, EventSource } from "@prisma/client";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
 import { NotificationLog } from "@/core/domain/entities/notification-log.entity";
@@ -7,6 +8,7 @@ import type { INotificationLogRepository } from "@/core/domain/repositories/noti
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import type { IEmailService } from "@/core/domain/services/email-service.interface";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
+import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
 import { getEmergencyAlertTemplate } from "@/infra/services/email-templates/emergency-alert-template";
 
 interface CreateEmergencyAlertRequest {
@@ -33,6 +35,7 @@ export class CreateEmergencyAlert {
     private emailService: IEmailService,
     @Inject("INotificationLogRepository")
     private notificationLogRepository: INotificationLogRepository,
+    private recordAlertEvent: RecordAlertEventUseCase,
   ) {}
 
   async execute(request: CreateEmergencyAlertRequest): Promise<void> {
@@ -44,6 +47,21 @@ export class CreateEmergencyAlert {
     });
 
     await this.emergencyAlertRepository.create(alert);
+
+    // Record CREATED event
+    await this.recordAlertEvent.execute({
+      alertId: alert.id,
+      type: AlertEventType.CREATED,
+      source: EventSource.USER,
+      message: request.userId
+        ? "Chamado originado pelo usuário"
+        : "Chamado originado anonimamente",
+      metadata: JSON.stringify({
+        latitude: request.latitude,
+        longitude: request.longitude,
+        address: request.address,
+      }),
+    });
 
     this.logger.log(
       `Emergency Alert created: ${alert.id} at [${alert.latitude}, ${alert.longitude}]`,
@@ -139,6 +157,19 @@ export class CreateEmergencyAlert {
           attempt,
         }),
       );
+
+      await this.recordAlertEvent.execute({
+        alertId,
+        type: AlertEventType.NOTIFICATION_SENT,
+        source: EventSource.SYSTEM,
+        message: `Notificação enviada para ${contactName}`,
+        metadata: JSON.stringify({
+          email,
+          contactName,
+          channel: "EMAIL",
+          attempt,
+        }),
+      });
 
       this.logger.log(`Email sent to ${email} (attempt ${attempt})`);
     } catch (err) {
