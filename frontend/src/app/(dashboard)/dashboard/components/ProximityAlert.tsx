@@ -1,4 +1,5 @@
 import { ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 import { EmergencyAlert } from "@/services/emergency-alert-service";
@@ -51,15 +52,16 @@ export const ProximityAlert: React.FC<ProximityAlertProps> = ({ alert }) => {
           </p>
         </div>
       </div>
-      <button
-        className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold shadow-lg transition-transform hover:scale-105 relative z-10 whitespace-nowrap"
+      <Link
+        href={`/alerts/${alert.id}`}
+        className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold shadow-lg transition-transform hover:scale-105 relative z-10 whitespace-nowrap text-center"
         style={{
           backgroundColor: colors.status.error.DEFAULT,
           color: "white",
         }}
       >
         Ver Detalhes
-      </button>
+      </Link>
     </div>
   );
 };

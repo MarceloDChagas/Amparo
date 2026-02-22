@@ -32,4 +32,18 @@ export const emergencyAlertService = {
     const text = await response.text();
     return text ? JSON.parse(text) : null;
   },
+
+  async getById(id: string): Promise<EmergencyAlert | null> {
+    const response = await fetch(`${API_URL}/emergency-alerts/${id}`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`Failed to fetch emergency alert ${id}`);
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+  },
 };
