@@ -13,6 +13,7 @@ import { ZodValidationPipe } from "nestjs-zod";
 import { Role } from "@/core/domain/enums/role.enum";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emergency-alert.use-case";
+import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
@@ -26,6 +27,7 @@ export class EmergencyAlertController {
     private createEmergencyAlert: CreateEmergencyAlert,
     private getActiveEmergencyAlert: GetActiveEmergencyAlertUseCase,
     private getEmergencyAlertById: GetEmergencyAlertByIdUseCase,
+    private getAlertHistory: GetAlertHistoryUseCase,
   ) {}
 
   @Get("active")
@@ -38,6 +40,12 @@ export class EmergencyAlertController {
   @Roles(Role.ADMIN)
   async getById(@Param("id") id: string) {
     return this.getEmergencyAlertById.execute(id);
+  }
+
+  @Get(":id/events")
+  @Roles(Role.ADMIN)
+  async getEvents(@Param("id") id: string) {
+    return this.getAlertHistory.execute({ alertId: id });
   }
 
   @Post()

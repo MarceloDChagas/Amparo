@@ -6,27 +6,35 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
+  AlertEvent,
   EmergencyAlert,
   emergencyAlertService,
 } from "@/services/emergency-alert-service";
 import { colors } from "@/styles/colors";
+
+import { AlertTimeline } from "./components/AlertTimeline";
 
 export default function EmergencyAlertDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const alertId = params.id as string;
   const [alertData, setAlertData] = useState<EmergencyAlert | null>(null);
+  const [eventsData, setEventsData] = useState<AlertEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadAlert() {
       try {
-        const data = await emergencyAlertService.getById(alertId);
+        const [data, events] = await Promise.all([
+          emergencyAlertService.getById(alertId),
+          emergencyAlertService.getEvents(alertId),
+        ]);
         if (!data) {
           router.push("/dashboard");
           return;
         }
         setAlertData(data);
+        setEventsData(events);
       } catch (error) {
         console.error("Failed to load emergency alert data", error);
       } finally {
@@ -181,6 +189,20 @@ export default function EmergencyAlertDetailsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Timeline do Prontuário */}
+        <div
+          className="p-6 rounded-2xl border"
+          style={{
+            backgroundColor: colors.functional.background.secondary,
+            borderColor: colors.functional.border.DEFAULT,
+          }}
+        >
+          <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-4 mb-6">
+            Prontuário Digital (Histórico de Eventos)
+          </h3>
+          <AlertTimeline events={eventsData} />
         </div>
       </div>
     </div>
