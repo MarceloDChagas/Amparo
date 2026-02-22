@@ -120,6 +120,7 @@ model User {
   emergencyContacts EmergencyContact[]
   emergencyAlerts   EmergencyAlert[]
   notifications     Notification[]
+  checkIns          CheckIn[]
 
 
   createdAt DateTime @default(now())
@@ -167,4 +168,21 @@ model Notification {
   @@index([read])
   @@index([category])
 }
+
+model CheckIn {
+  id                  String   @id @default(uuid())
+  startTime           DateTime @default(now())
+  expectedArrivalTime DateTime
+  actualArrivalTime   DateTime?
+  distanceType        String   // SHORT | MEDIUM | LONG
+  status              String   @default("ACTIVE") // ACTIVE | ON_TIME | LATE | CANCELLED
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
 

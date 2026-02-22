@@ -6,6 +6,7 @@ import { AuditInterceptor } from "@/infra/http/interceptors/audit.interceptor";
 import { AggressorModule } from "@/infra/modules/aggressor.module";
 import { AuditModule } from "@/infra/modules/audit.module";
 import { AuthModule } from "@/infra/modules/auth.module";
+import { CheckInModule } from "@/infra/modules/check-in.module";
 import { DatabaseModule } from "@/infra/modules/database.module";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyAlertModule } from "@/infra/modules/emergency-alert.module";
@@ -30,6 +31,7 @@ import { AppService } from "./app.service";
     EmergencyAlertModule,
     AuditModule,
     NotificationModule,
+    CheckInModule,
   ],
   controllers: [AppController],
   providers: [
