@@ -1,4 +1,5 @@
 "use client";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 import {
@@ -49,15 +50,24 @@ export default function UserAppPage() {
         </div>
       </div>
 
-      {activeTab === "EMERGENCY" && (
-        <main className="flex-1 flex flex-col items-center justify-start px-4 pt-4">
-          <EmergencyButton />
-          <InstructionalCard />
-          <ActionButtons />
-        </main>
-      )}
+      <AnimatePresence mode="wait">
+        {activeTab === "EMERGENCY" && (
+          <motion.main
+            key="emergency"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex flex-col items-center justify-start px-4 pt-4"
+          >
+            <EmergencyButton />
+            <InstructionalCard />
+            <ActionButtons />
+          </motion.main>
+        )}
 
-      {activeTab === "CHECKIN" && <CheckInTab />}
+        {activeTab === "CHECKIN" && <CheckInTab key="checkin" />}
+      </AnimatePresence>
 
       <BottomNavigation />
     </div>
