@@ -10,6 +10,7 @@ import { DatabaseModule } from "@/infra/modules/database.module";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyAlertModule } from "@/infra/modules/emergency-alert.module";
 import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module";
+import { NotificationModule } from "@/infra/modules/notification.module";
 import { OccurrenceModule } from "@/infra/modules/occurrence.module";
 import { UserModule } from "@/infra/modules/user.module";
 
@@ -28,6 +29,7 @@ import { AppService } from "./app.service";
     EmergencyContactModule,
     EmergencyAlertModule,
     AuditModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [
