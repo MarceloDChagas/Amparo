@@ -1,7 +1,6 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,22 +13,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Victim, victimService } from "@/services/victim-service";
+import { User, userService } from "@/services/user-service";
 
-export default function VictimsPage() {
-  const [victims, setVictims] = useState<Victim[]>([]);
+export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadVictims();
+    loadUsers();
   }, []);
 
-  async function loadVictims() {
+  async function loadUsers() {
     try {
-      const data = await victimService.getAll();
-      setVictims(data);
+      const data = await userService.getAll();
+      setUsers(data);
     } catch (error) {
-      toast.error("Erro ao carregar vítimas.");
+      toast.error("Erro ao carregar usuários.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -37,14 +36,14 @@ export default function VictimsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Tem certeza que deseja excluir esta vítima?")) return;
+    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
     try {
-      await victimService.delete(id);
-      toast.success("Vítima excluída com sucesso.");
-      loadVictims();
+      await userService.delete(id);
+      toast.success("Usuário excluído com sucesso.");
+      loadUsers();
     } catch (error) {
-      toast.error("Erro ao excluir vítima.");
+      toast.error("Erro ao excluir usuário.");
       console.error(error);
     }
   }
@@ -52,12 +51,9 @@ export default function VictimsPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Vítimas</h2>
-        <Link href="/victims/create">
-          <Button>Nova Vítima</Button>
-        </Link>
+        <h2 className="text-3xl font-bold tracking-tight">Usuários</h2>
       </div>
-      <p className="text-muted-foreground">Listagem de vítimas cadastradas.</p>
+      <p className="text-muted-foreground">Listagem de usuários cadastrados.</p>
 
       {loading ? (
         <div>Carregando...</div>
@@ -72,22 +68,22 @@ export default function VictimsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {victims.length === 0 ? (
+              {users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center h-24">
-                    Nenhuma vítima encontrada.
+                    Nenhum usuário encontrado.
                   </TableCell>
                 </TableRow>
               ) : (
-                victims.map((victim) => (
-                  <TableRow key={victim.id}>
-                    <TableCell>{victim.name}</TableCell>
-                    <TableCell>{victim.cpf}</TableCell>
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.cpf}</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(victim.id)}
+                        onClick={() => handleDelete(user.id)}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>

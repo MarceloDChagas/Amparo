@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import { useAuth } from "@/presentation/hooks/useAuth";
 
-export default function VictimLayout({
+export default function UserLayout({
   children,
 }: {
   children: React.ReactNode;

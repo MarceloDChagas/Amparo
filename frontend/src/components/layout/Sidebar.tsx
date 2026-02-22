@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Home, LogOut, ShieldAlert, Users } from "lucide-react";
+import { Bell, FileText, Home, LogOut, ShieldAlert, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -18,7 +18,7 @@ const routes = [
   {
     label: "Usuários",
     icon: Users,
-    href: "/victims",
+    href: "/users",
     color: "text-violet-500",
   },
   {
@@ -32,6 +32,12 @@ const routes = [
     icon: FileText,
     href: "/occurrences",
     color: "text-orange-500",
+  },
+  {
+    label: "Notificações",
+    icon: Bell,
+    href: "/notifications",
+    color: "text-pink-400",
   },
 ];
 

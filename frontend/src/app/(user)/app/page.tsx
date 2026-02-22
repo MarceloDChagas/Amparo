@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 import {
   ActionButtons,
   BottomNavigation,
@@ -11,7 +9,7 @@ import {
 } from "@/components/emergency";
 import { colors } from "@/styles/colors";
 
-export default function VictimAppPage() {
+export default function UserAppPage() {
   return (
     <div
       className="min-h-screen flex flex-col relative overflow-hidden"

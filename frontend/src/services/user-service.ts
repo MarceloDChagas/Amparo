@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
 
-export interface Victim {
+export interface User {
   id: string;
   name: string;
   cpf: string;
@@ -15,14 +15,14 @@ function getAuthHeaders() {
   };
 }
 
-export const victimService = {
-  async getAll(): Promise<Victim[]> {
+export const userService = {
+  async getAll(): Promise<User[]> {
     const response = await fetch(`${API_URL}/users`, {
       headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch victims");
+      throw new Error("Failed to fetch users");
     }
     return response.json();
   },
@@ -34,7 +34,7 @@ export const victimService = {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to delete victim");
+      throw new Error("Failed to delete user");
     }
   },
 };

@@ -9,7 +9,7 @@ import {
   emergencyAlertService,
 } from "@/services/emergency-alert-service";
 import { occurrenceService } from "@/services/occurrence-service";
-import { victimService } from "@/services/victim-service";
+import { userService } from "@/services/user-service";
 import { colors } from "@/styles/colors";
 
 import { DashboardStats } from "./components/DashboardStats";
@@ -18,7 +18,7 @@ import { RecentActivity } from "./components/RecentActivity";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
-    victims: 0,
+    users: 0,
     aggressors: 0,
     occurrences: 0,
   });
@@ -28,16 +28,16 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [victims, aggressors, occurrences, recentLogs, alert] =
+        const [users, aggressors, occurrences, recentLogs, alert] =
           await Promise.all([
-            victimService.getAll(),
+            userService.getAll(),
             aggressorService.getAll(),
             occurrenceService.getAll(),
             auditLogService.getRecent(),
             emergencyAlertService.getActive(),
           ]);
         setStats({
-          victims: victims.length,
+          users: users.length,
           aggressors: aggressors.length,
           occurrences: occurrences.length,
         });

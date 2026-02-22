@@ -5,9 +5,15 @@ export interface Occurrence {
   description: string;
   latitude: number;
   longitude: number;
-  victimId: string;
+  userId: string;
   aggressorId: string;
   // Add other fields as needed
+}
+
+export interface CreateOccurrenceData {
+  title: string;
+  description: string;
+  userId: string;
 }
 
 function getAuthHeaders() {

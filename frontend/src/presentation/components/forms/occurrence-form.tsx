@@ -32,7 +32,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateOccurrence } from "@/data/hooks/use-create-occurrence";
 import { useGetAggressors } from "@/data/hooks/use-get-aggressors";
-import { useGetVictims } from "@/data/hooks/use-get-victims";
+import { useGetUsers } from "@/data/hooks/use-get-users";
 
 const formSchema = z.object({
   description: z.string().min(1, "Description is required."),
@@ -42,13 +42,13 @@ const formSchema = z.object({
   longitude: z
     .string()
     .refine((val) => !isNaN(Number(val)), "Longitude must be a valid number."),
-  victimId: z.string().uuid("Please select a victim."),
+  userId: z.string().uuid("Please select a user."),
   aggressorId: z.string().uuid("Please select an aggressor."),
 });
 
 export function OccurrenceForm() {
   const { mutate, isPending } = useCreateOccurrence();
-  const { data: victims, isLoading: isLoadingVictims } = useGetVictims();
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers();
   const { data: aggressors, isLoading: isLoadingAggressors } =
     useGetAggressors();
 
@@ -58,7 +58,7 @@ export function OccurrenceForm() {
       description: "",
       latitude: "0",
       longitude: "0",
-      victimId: "",
+      userId: "",
       aggressorId: "",
     },
   });
@@ -139,28 +139,28 @@ export function OccurrenceForm() {
 
             <FormField
               control={form.control}
-              name="victimId"
+              name="userId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Victim</FormLabel>
+                  <FormLabel>User</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a victim" />
+                        <SelectValue placeholder="Select a user" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoadingVictims ? (
+                      {isLoadingUsers ? (
                         <SelectItem value="loading" disabled>
                           Loading...
                         </SelectItem>
                       ) : (
-                        victims?.map((victim) => (
-                          <SelectItem key={victim.id} value={victim.id}>
-                            {victim.name} ({victim.cpf})
+                        users?.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({user.cpf})
                           </SelectItem>
                         ))
                       )}

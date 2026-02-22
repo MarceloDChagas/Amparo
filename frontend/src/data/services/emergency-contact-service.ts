@@ -6,7 +6,7 @@ export interface CreateEmergencyContactData {
   email?: string;
   relationship: string;
   priority: number;
-  victimId: string;
+  userId: string;
 }
 
 export interface EmergencyContact {
@@ -16,7 +16,7 @@ export interface EmergencyContact {
   email?: string;
   relationship: string;
   priority: number;
-  victimId: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,7 +33,7 @@ export const emergencyContactService = {
     return apiClient("/emergency-contacts");
   },
 
-  getByVictimId: async (victimId: string): Promise<EmergencyContact[]> => {
-    return apiClient(`/emergency-contacts/victim/${victimId}`);
+  getByUserId: async (userId: string): Promise<EmergencyContact[]> => {
+    return apiClient(`/emergency-contacts/user/${userId}`);
   },
 };
