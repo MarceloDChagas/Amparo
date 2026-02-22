@@ -53,9 +53,27 @@ model EmergencyAlert {
   userId  String?
   user    User?  @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  notificationLogs NotificationLog[]
 
   @@index([userId])
 }
+
+model NotificationLog {
+  id            String   @id @default(uuid())
+  alertId       String
+  alert         EmergencyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  contactEmail  String?
+  contactName   String
+  channel       String   @default("EMAIL") // EMAIL | PUSH
+  status        String   // SENT | FAILED
+  errorMessage  String?
+  attempt       Int      @default(1)
+  createdAt     DateTime @default(now())
+
+  @@index([alertId])
+  @@index([status])
+}
+
 
 model User {
   id        String   @id @default(uuid())
