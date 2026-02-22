@@ -4,7 +4,7 @@ export interface CreateOccurrenceData {
   description: string;
   latitude: number;
   longitude: number;
-  victimId: string;
+  userId: string;
   aggressorId: string;
 }
 
