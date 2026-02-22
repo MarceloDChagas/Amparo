@@ -54,9 +54,11 @@ model EmergencyAlert {
   user    User?  @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   notificationLogs NotificationLog[]
+  events    AlertEvent[]
 
   @@index([userId])
 }
+
 
 model NotificationLog {
   id            String   @id @default(uuid())
@@ -72,6 +74,34 @@ model NotificationLog {
 
   @@index([alertId])
   @@index([status])
+}
+
+enum AlertEventType {
+  LOCATION_UPDATE
+  NOTIFICATION_SENT
+  STATUS_CHANGE
+  COMMENT
+  CREATED
+}
+
+enum EventSource {
+  SYSTEM
+  ADMIN
+  USER
+}
+
+model AlertEvent {
+  id        String         @id @default(uuid())
+  alertId   String
+  alert     EmergencyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  type      AlertEventType
+  source    EventSource    @default(SYSTEM)
+  message   String
+  metadata  String?        // Extra data stringified
+  createdAt DateTime       @default(now())
+
+  @@index([alertId])
+  @@index([type])
 }
 
 
