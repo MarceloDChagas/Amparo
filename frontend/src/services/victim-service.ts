@@ -17,7 +17,7 @@ function getAuthHeaders() {
 
 export const victimService = {
   async getAll(): Promise<Victim[]> {
-    const response = await fetch(`${API_URL}/victims`, {
+    const response = await fetch(`${API_URL}/users`, {
       headers: getAuthHeaders(),
     });
 
@@ -28,7 +28,7 @@ export const victimService = {
   },
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${API_URL}/victims/${id}`, {
+    const response = await fetch(`${API_URL}/users/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });

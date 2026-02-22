@@ -4,7 +4,7 @@ export interface CreateEmergencyAlertRequest {
   latitude: number;
   longitude: number;
   address?: string;
-  victimId?: string;
+  userId?: string;
 }
 
 export const EmergencyAlertService = {
