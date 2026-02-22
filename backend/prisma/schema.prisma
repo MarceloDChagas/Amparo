@@ -115,16 +115,26 @@ model AuditLog {
   @@index([resource])
 }
 
+enum NotificationCategory {
+  ALERT
+  SUCCESS
+  WARNING
+  INFO
+  MAINTENANCE
+}
+
 model Notification {
-  id        String   @id @default(uuid())
+  id        String               @id @default(uuid())
   title     String
   body      String
-  targetId  String?  // null = broadcast to all VICTIM users
-  target    User?    @relation(fields: [targetId], references: [id], onDelete: Cascade)
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  category  NotificationCategory @default(INFO)
+  targetId  String?              // null = broadcast to all VICTIM users
+  target    User?                @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  read      Boolean              @default(false)
+  createdAt DateTime             @default(now())
 
   @@index([targetId])
   @@index([read])
+  @@index([category])
 }
 

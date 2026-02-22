@@ -19,17 +19,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CATEGORY_OPTIONS } from "@/data/constants/notification-config";
 import { useGetUsers } from "@/data/hooks/use-get-users";
 import { useSendNotification } from "@/data/hooks/use-notifications";
+import { NotificationCategory } from "@/data/services/notification-service";
 import { colors } from "@/styles/colors";
 
 const schema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   body: z.string().min(1, "Mensagem é obrigatória"),
+  category: z.enum([
+    "ALERT",
+    "SUCCESS",
+    "WARNING",
+    "INFO",
+    "MAINTENANCE",
+  ] as const),
   targetId: z.string().optional(),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = {
+  title: string;
+  body: string;
+  category: NotificationCategory;
+  targetId?: string;
+};
 
 export default function NotificationsPage() {
   const { mutate: send, isPending } = useSendNotification();
@@ -38,7 +52,7 @@ export default function NotificationsPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: "", body: "", targetId: "" },
+    defaultValues: { title: "", body: "", category: "INFO", targetId: "" },
   });
 
   const onSubmit = (values: FormValues) => {
@@ -47,6 +61,7 @@ export default function NotificationsPage() {
       {
         title: values.title,
         body: values.body,
+        category: values.category,
         targetId: values.targetId || null,
       },
       {
@@ -110,6 +125,30 @@ export default function NotificationsPage() {
                         className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Category */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Categoria</FormLabel>
+                    <FormControl>
+                      <select
+                        className="w-full rounded-md px-3 py-2 text-sm border bg-[#1f2138] border-[#3d3d4e] text-white"
+                        {...field}
+                      >
+                        {CATEGORY_OPTIONS.map((c) => (
+                          <option key={c.value} value={c.value}>
+                            {c.label}
+                          </option>
+                        ))}
+                      </select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

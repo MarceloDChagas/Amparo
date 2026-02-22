@@ -1,9 +1,17 @@
 import { apiClient } from "./api-client";
 
+export type NotificationCategory =
+  | "ALERT"
+  | "SUCCESS"
+  | "WARNING"
+  | "INFO"
+  | "MAINTENANCE";
+
 export interface AppNotification {
   id: string;
   title: string;
   body: string;
+  category: NotificationCategory;
   targetId: string | null;
   read: boolean;
   createdAt: string;
@@ -12,6 +20,7 @@ export interface AppNotification {
 export interface SendNotificationData {
   title: string;
   body: string;
+  category?: NotificationCategory;
   targetId?: string | null;
 }
 

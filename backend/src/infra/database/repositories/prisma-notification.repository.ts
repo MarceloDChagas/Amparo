@@ -13,6 +13,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
       data: {
         title: notification.title,
         body: notification.body,
+        category: notification.category,
         targetId: notification.targetId ?? null,
         read: notification.read,
       },
@@ -21,6 +22,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
       id: created.id,
       title: created.title,
       body: created.body,
+      category: created.category as Notification["category"],
       targetId: created.targetId,
       read: created.read,
       createdAt: created.createdAt,
@@ -45,6 +47,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
           id: r.id,
           title: r.title,
           body: r.body,
+          category: r.category as Notification["category"],
           targetId: r.targetId,
           read: r.read,
           createdAt: r.createdAt,

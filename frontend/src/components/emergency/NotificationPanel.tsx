@@ -2,40 +2,56 @@
 
 import { Bell, X } from "lucide-react";
 
-import { AppNotification } from "@/data/services/notification-service";
+import { CATEGORY_CONFIG } from "@/data/constants/notification-config";
+import {
+  AppNotification,
+  NotificationCategory,
+} from "@/data/services/notification-service";
 import { colors } from "@/styles/colors";
 
-interface NotificationPanelProps {
-  notifications: AppNotification[] | undefined;
-  onClose: () => void;
+function CategoryBadge({ category }: { category: NotificationCategory }) {
+  const cfg = CATEGORY_CONFIG[category];
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+      style={{ backgroundColor: cfg.bg, color: cfg.color }}
+    >
+      {cfg.label}
+    </span>
+  );
 }
 
 function NotificationItem({ n }: { n: AppNotification }) {
+  const cfg = CATEGORY_CONFIG[n.category ?? "INFO"];
   return (
     <div
       className="px-4 py-3"
       style={{
-        backgroundColor: n.read ? "transparent" : colors.overlay.light,
+        backgroundColor: n.read ? "transparent" : "rgba(255,255,255,0.03)",
         borderBottom: `1px solid ${colors.functional.border.light}`,
+        borderLeft: `3px solid ${n.read ? "transparent" : cfg.color}`,
       }}
     >
       <div className="flex items-start gap-2">
         {!n.read && (
           <div
             className="w-2 h-2 rounded-full mt-1.5 shrink-0"
-            style={{ backgroundColor: colors.secondary[400] }}
+            style={{ backgroundColor: cfg.color }}
           />
         )}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">{n.title}</p>
+        <div className="flex-1 min-w-0 space-y-1">
+          <CategoryBadge category={n.category ?? "INFO"} />
+          <p className="text-sm font-medium text-white leading-snug">
+            {n.title}
+          </p>
           <p
-            className="text-xs mt-0.5 leading-snug"
+            className="text-xs leading-snug"
             style={{ color: colors.functional.text.secondary }}
           >
             {n.body}
           </p>
           <p
-            className="text-xs mt-1"
+            className="text-xs"
             style={{ color: colors.functional.text.tertiary }}
           >
             {new Date(n.createdAt).toLocaleString("pt-BR", {
@@ -51,13 +67,18 @@ function NotificationItem({ n }: { n: AppNotification }) {
   );
 }
 
+interface NotificationPanelProps {
+  notifications: AppNotification[] | undefined;
+  onClose: () => void;
+}
+
 export function NotificationPanel({
   notifications,
   onClose,
 }: NotificationPanelProps) {
   return (
     <div
-      className="absolute right-0 top-10 w-72 rounded-2xl shadow-2xl z-50 overflow-hidden"
+      className="absolute right-0 top-10 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden"
       style={{
         backgroundColor: colors.functional.background.secondary,
         border: `1px solid ${colors.functional.border.light}`,
@@ -78,7 +99,7 @@ export function NotificationPanel({
       </div>
 
       {/* List */}
-      <div className="max-h-72 overflow-y-auto">
+      <div className="max-h-80 overflow-y-auto">
         {!notifications || notifications.length === 0 ? (
           <div className="px-4 py-8 flex flex-col items-center gap-2">
             <Bell size={28} color={colors.functional.text.tertiary} />

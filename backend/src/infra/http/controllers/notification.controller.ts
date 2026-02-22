@@ -21,6 +21,9 @@ import { RolesGuard } from "@/infra/http/guards/roles.guard";
 const sendNotificationSchema = z.object({
   title: z.string().min(1),
   body: z.string().min(1),
+  category: z
+    .enum(["ALERT", "SUCCESS", "WARNING", "INFO", "MAINTENANCE"])
+    .default("INFO"),
   targetId: z.string().uuid().optional().nullable(),
 });
 
@@ -42,6 +45,7 @@ export class NotificationController {
     const notification = await this.sendNotificationUseCase.execute({
       title: dto.title,
       body: dto.body,
+      category: dto.category,
       targetId: dto.targetId ?? null,
     });
     return notification;
