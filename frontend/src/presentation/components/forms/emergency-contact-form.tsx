@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateEmergencyContact } from "@/data/hooks/use-create-emergency-contact";
-import { useGetUsers } from "@/data/hooks/use-get-users";
+import { useAuth } from "@/presentation/hooks/useAuth";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -56,14 +56,11 @@ const formSchema = z.object({
   priority: z.number().int().min(1, {
     message: "A prioridade deve ser pelo menos 1.",
   }),
-  userId: z.string().min(1, "Por favor, selecione um usuário.").uuid({
-    message: "Por favor, selecione um usuário válido.",
-  }),
 });
 
 export function EmergencyContactForm() {
   const { mutate, isPending } = useCreateEmergencyContact();
-  const { data: users, isLoading: isLoadingUsers } = useGetUsers();
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,7 +70,6 @@ export function EmergencyContactForm() {
       email: "",
       relationship: "",
       priority: 1,
-      userId: undefined, // Changed to undefined to avoid immediate validation error
     },
   });
 
@@ -85,7 +81,7 @@ export function EmergencyContactForm() {
         email: values.email || undefined,
         relationship: values.relationship,
         priority: values.priority,
-        userId: values.userId,
+        userId: user?.id ?? "",
       },
       {
         onSuccess: () => {
@@ -218,44 +214,6 @@ export function EmergencyContactForm() {
                     </FormControl>
                     <FormDescription>
                       Números menores = maior prioridade
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="userId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usuário</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={isLoadingUsers}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={
-                              isLoadingUsers
-                                ? "Carregando usuários..."
-                                : "Selecione o usuário"
-                            }
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {users?.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Pessoa com quem este contato está associado
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
