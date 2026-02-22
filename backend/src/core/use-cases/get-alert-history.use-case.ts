@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { AlertEvent } from "../domain/entities/alert-event";
-import { AlertEventRepository } from "../repositories/alert-event-repository";
+import { AlertEvent } from "@/core/domain/entities/alert-event";
+import { AlertEventRepository } from "@/core/repositories/alert-event-repository";
 
 interface GetAlertHistoryRequest {
   alertId: string;

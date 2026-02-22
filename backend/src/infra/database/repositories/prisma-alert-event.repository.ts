@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
-import { AlertEvent } from "../../../core/domain/entities/alert-event";
-import { AlertEventRepository } from "../../../core/repositories/alert-event-repository";
-import { PrismaService } from "../prisma.service";
+import { AlertEvent } from "@/core/domain/entities/alert-event";
+import { AlertEventRepository } from "@/core/repositories/alert-event-repository";
+import { PrismaService } from "@/infra/database/prisma.service";
 
 @Injectable()
 export class PrismaAlertEventRepository implements AlertEventRepository {

@@ -1,4 +1,4 @@
-import { AlertEvent } from "../domain/entities/alert-event";
+import { AlertEvent } from "@/core/domain/entities/alert-event";
 
 export abstract class AlertEventRepository {
   abstract save(event: AlertEvent): Promise<AlertEvent>;
