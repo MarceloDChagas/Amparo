@@ -42,5 +42,6 @@ import { UserModule } from "./user.module";
       useClass: PrismaNotificationLogRepository,
     },
   ],
+  exports: [CreateEmergencyAlert],
 })
 export class EmergencyAlertModule {}

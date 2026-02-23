@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_INTERCEPTOR } from "@nestjs/core";
+import { ScheduleModule } from "@nestjs/schedule";
 
 import { AuditInterceptor } from "@/infra/http/interceptors/audit.interceptor";
 import { AggressorModule } from "@/infra/modules/aggressor.module";
@@ -21,6 +22,7 @@ import { AppService } from "./app.service";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     EmailModule,
     AuthModule,

@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
-import { DistanceType } from "@/core/domain/enums/distance-type.enum";
+import {
+  CheckInStatus,
+  DistanceType,
+} from "@/core/domain/enums/distance-type.enum";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
+import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { PrismaService } from "@/infra/database/prisma.service";
 
 interface CompleteCheckInRequest {
@@ -18,6 +22,7 @@ export class CompleteCheckInUseCase {
     private prisma: PrismaService,
     private checkInValidationService: CheckInValidationService,
     private auditLogger: AuditLoggerPort,
+    private createEmergencyAlert: CreateEmergencyAlert,
   ) {}
 
   async execute(request: CompleteCheckInRequest) {
@@ -55,6 +60,18 @@ export class CompleteCheckInUseCase {
         status: resultStatus,
       },
     });
+
+    if (resultStatus === CheckInStatus.LATE) {
+      const lat = finalLatitude ?? checkIn.startLatitude ?? 0;
+      const lng = finalLongitude ?? checkIn.startLongitude ?? 0;
+
+      await this.createEmergencyAlert.execute({
+        userId,
+        latitude: lat,
+        longitude: lng,
+        address: "Última localização reportada no Check-in Atrasado",
+      });
+    }
 
     await this.auditLogger.log(
       new AuditLog({
