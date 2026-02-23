@@ -11,6 +11,8 @@ import { PrismaService } from "@/infra/database/prisma.service";
 interface StartCheckInRequest {
   userId: string;
   distanceType: DistanceType;
+  startLatitude?: number;
+  startLongitude?: number;
 }
 
 @Injectable()
@@ -21,7 +23,7 @@ export class StartCheckInUseCase {
   ) {}
 
   async execute(request: StartCheckInRequest) {
-    const { userId, distanceType } = request;
+    const { userId, distanceType, startLatitude, startLongitude } = request;
 
     // Check if user already has an ACTIVE check-in
     const existingCheckIn = await this.prisma.checkIn.findFirst({
@@ -50,6 +52,8 @@ export class StartCheckInUseCase {
         distanceType,
         startTime: now,
         expectedArrivalTime,
+        startLatitude,
+        startLongitude,
         status: "ACTIVE",
       },
     });

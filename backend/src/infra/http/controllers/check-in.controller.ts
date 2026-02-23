@@ -18,7 +18,10 @@ import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-c
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 import { PrismaService } from "@/infra/database/prisma.service";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
-import { StartCheckInDto } from "@/infra/http/dtos/check-in.dto";
+import {
+  CompleteCheckInDto,
+  StartCheckInDto,
+} from "@/infra/http/dtos/check-in.dto";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
 @ApiTags("Check-in")
@@ -40,15 +43,20 @@ export class CheckInController {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       userId: req.user.id,
       distanceType: body.distanceType,
+      startLatitude: body.startLatitude,
+      startLongitude: body.startLongitude,
     });
   }
 
   @Post("complete")
   @ApiOperation({ summary: "Complete an active check-in" })
-  async complete(@Request() req) {
+  @UsePipes(ZodValidationPipe)
+  async complete(@Request() req, @Body() body: CompleteCheckInDto) {
     return this.completeCheckInUseCase.execute({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       userId: req.user.id,
+      finalLatitude: body.finalLatitude,
+      finalLongitude: body.finalLongitude,
     });
   }
 

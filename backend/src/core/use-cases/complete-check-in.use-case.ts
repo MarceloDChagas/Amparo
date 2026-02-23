@@ -8,6 +8,8 @@ import { PrismaService } from "@/infra/database/prisma.service";
 
 interface CompleteCheckInRequest {
   userId: string;
+  finalLatitude?: number;
+  finalLongitude?: number;
 }
 
 @Injectable()
@@ -19,7 +21,7 @@ export class CompleteCheckInUseCase {
   ) {}
 
   async execute(request: CompleteCheckInRequest) {
-    const { userId } = request;
+    const { userId, finalLatitude, finalLongitude } = request;
 
     // Find the active check-in for the user
     const checkIn = await this.prisma.checkIn.findFirst({
@@ -48,6 +50,8 @@ export class CompleteCheckInUseCase {
       where: { id: checkIn.id },
       data: {
         actualArrivalTime,
+        finalLatitude,
+        finalLongitude,
         status: resultStatus,
       },
     });

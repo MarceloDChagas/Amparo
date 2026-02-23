@@ -22,11 +22,44 @@ export function CheckInTab() {
   const completeCheckIn = useCompleteCheckIn();
 
   const handleStart = () => {
-    startCheckIn.mutate(selectedDistance);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          startCheckIn.mutate({
+            distanceType: selectedDistance,
+            startLatitude: position.coords.latitude,
+            startLongitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.warn("Geolocation error/denied:", error);
+          startCheckIn.mutate({ distanceType: selectedDistance });
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+      );
+    } else {
+      startCheckIn.mutate({ distanceType: selectedDistance });
+    }
   };
 
   const handleComplete = () => {
-    completeCheckIn.mutate();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          completeCheckIn.mutate({
+            finalLatitude: position.coords.latitude,
+            finalLongitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.warn("Geolocation error/denied:", error);
+          completeCheckIn.mutate({});
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+      );
+    } else {
+      completeCheckIn.mutate({});
+    }
   };
 
   if (isLoading) {

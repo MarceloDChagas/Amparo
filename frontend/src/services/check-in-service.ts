@@ -11,6 +11,10 @@ export interface CheckIn {
   startTime: string;
   expectedArrivalTime: string;
   actualArrivalTime: string | null;
+  startLatitude?: number;
+  startLongitude?: number;
+  finalLatitude?: number;
+  finalLongitude?: number;
   distanceType: DistanceType;
   status: string;
   user?: {
@@ -31,11 +35,15 @@ function getAuthHeaders() {
 }
 
 export const checkInService = {
-  async startCheckIn(distanceType: DistanceType): Promise<CheckIn> {
+  async startCheckIn(
+    distanceType: DistanceType,
+    startLatitude?: number,
+    startLongitude?: number,
+  ): Promise<CheckIn> {
     const response = await fetch(`${API_URL}/check-ins/start`, {
       method: "POST",
       headers: getAuthHeaders(),
-      body: JSON.stringify({ distanceType }),
+      body: JSON.stringify({ distanceType, startLatitude, startLongitude }),
     });
 
     if (!response.ok) {
@@ -47,10 +55,14 @@ export const checkInService = {
     return JSON.parse(text);
   },
 
-  async completeCheckIn(): Promise<CheckIn> {
+  async completeCheckIn(
+    finalLatitude?: number,
+    finalLongitude?: number,
+  ): Promise<CheckIn> {
     const response = await fetch(`${API_URL}/check-ins/complete`, {
       method: "POST",
       headers: getAuthHeaders(),
+      body: JSON.stringify({ finalLatitude, finalLongitude }),
     });
 
     if (!response.ok) {

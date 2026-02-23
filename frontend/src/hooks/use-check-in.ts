@@ -14,8 +14,16 @@ export const useStartCheckIn = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (distanceType: DistanceType) =>
-      checkInService.startCheckIn(distanceType),
+    mutationFn: ({
+      distanceType,
+      startLatitude,
+      startLongitude,
+    }: {
+      distanceType: DistanceType;
+      startLatitude?: number;
+      startLongitude?: number;
+    }) =>
+      checkInService.startCheckIn(distanceType, startLatitude, startLongitude),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["active-check-in"] });
       toast.success("Check-in iniciado com sucesso!");
@@ -31,7 +39,13 @@ export const useCompleteCheckIn = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => checkInService.completeCheckIn(),
+    mutationFn: ({
+      finalLatitude,
+      finalLongitude,
+    }: {
+      finalLatitude?: number;
+      finalLongitude?: number;
+    } = {}) => checkInService.completeCheckIn(finalLatitude, finalLongitude),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["active-check-in"] });
       if (data.status === "ON_TIME") {
