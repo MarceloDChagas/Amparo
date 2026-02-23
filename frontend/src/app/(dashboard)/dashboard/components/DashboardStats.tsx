@@ -1,4 +1,4 @@
-import { Activity, AlertCircle, Users } from "lucide-react";
+import { Activity, AlertCircle, MapPin, Users } from "lucide-react";
 import React from "react";
 
 import { colors } from "@/styles/colors";
@@ -8,12 +8,13 @@ interface DashboardStatsProps {
     occurrences: number;
     aggressors: number;
     users: number;
+    activeCheckIns: number;
   };
 }
 
 export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {[
         {
           label: "Ocorrências",
@@ -32,6 +33,12 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
           value: stats.users,
           icon: Users,
           color: colors.status.success.DEFAULT,
+        },
+        {
+          label: "Em Deslocamento",
+          value: stats.activeCheckIns,
+          icon: MapPin,
+          color: "#f59e0b", // Custom orange/warning color for active trips
         },
       ].map((stat, i) => (
         <div
