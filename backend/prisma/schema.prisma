@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  engineType    = "library"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -11,33 +11,34 @@ datasource db {
 }
 
 model Aggressor {
-  id        String   @id @default(uuid())
-  name      String
-  cpf       String   // Encrypted
-  cpfHash   String   @unique // Hashed for lookup
+  id          String       @id @default(uuid())
+  name        String
+  cpf         String // Encrypted
+  cpfHash     String       @unique // Hashed for lookup
   occurrences Occurrence[]
 }
 
 model Occurrence {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   description String
   latitude    Float
   longitude   Float
-  userId    String
-  user      User   @relation(fields: [userId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
   aggressorId String
   aggressor   Aggressor @relation(fields: [aggressorId], references: [id])
+  notes       Note[]
 }
 
 model EmergencyContact {
   id           String   @id @default(uuid())
   name         String
-  phone        String   // Encrypted
-  email        String?  // Encrypted
+  phone        String // Encrypted
+  email        String? // Encrypted
   relationship String
   priority     Int      @default(1)
-  userId     String
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -45,32 +46,31 @@ model EmergencyContact {
 }
 
 model EmergencyAlert {
-  id        String   @id @default(uuid())
-  latitude  Float
-  longitude Float
-  address   String?
-  status    String   @default("PENDING")
-  userId  String?
-  user    User?  @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  id               String            @id @default(uuid())
+  latitude         Float
+  longitude        Float
+  address          String?
+  status           String            @default("PENDING")
+  userId           String?
+  user             User?             @relation(fields: [userId], references: [id])
+  createdAt        DateTime          @default(now())
   notificationLogs NotificationLog[]
-  events    AlertEvent[]
+  events           AlertEvent[]
 
   @@index([userId])
 }
 
-
 model NotificationLog {
-  id            String   @id @default(uuid())
-  alertId       String
-  alert         EmergencyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
-  contactEmail  String?
-  contactName   String
-  channel       String   @default("EMAIL") // EMAIL | PUSH
-  status        String   // SENT | FAILED
-  errorMessage  String?
-  attempt       Int      @default(1)
-  createdAt     DateTime @default(now())
+  id           String         @id @default(uuid())
+  alertId      String
+  alert        EmergencyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  contactEmail String?
+  contactName  String
+  channel      String         @default("EMAIL") // EMAIL | PUSH
+  status       String // SENT | FAILED
+  errorMessage String?
+  attempt      Int            @default(1)
+  createdAt    DateTime       @default(now())
 
   @@index([alertId])
   @@index([status])
@@ -97,31 +97,30 @@ model AlertEvent {
   type      AlertEventType
   source    EventSource    @default(SYSTEM)
   message   String
-  metadata  String?        // Extra data stringified
+  metadata  String? // Extra data stringified
   createdAt DateTime       @default(now())
 
   @@index([alertId])
   @@index([type])
 }
 
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(USER)
-  
-  // Victim specific fields (Optional because Admins/Normal Users don't have them)
-  cpf       String?  // Encrypted
-  cpfHash   String?  @unique // Hashed for lookup
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+  name     String
+  role     Role   @default(USER)
 
-  occurrences      Occurrence[]
+  // Victim specific fields (Optional because Admins/Normal Users don't have them)
+  cpf     String? // Encrypted
+  cpfHash String? @unique // Hashed for lookup
+
+  occurrences       Occurrence[]
   emergencyContacts EmergencyContact[]
   emergencyAlerts   EmergencyAlert[]
   notifications     Notification[]
   checkIns          CheckIn[]
-
+  notes             Note[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -159,7 +158,7 @@ model Notification {
   title     String
   body      String
   category  NotificationCategory @default(INFO)
-  targetId  String?              // null = broadcast to all VICTIM users
+  targetId  String? // null = broadcast to all VICTIM users
   target    User?                @relation(fields: [targetId], references: [id], onDelete: Cascade)
   read      Boolean              @default(false)
   createdAt DateTime             @default(now())
@@ -170,23 +169,39 @@ model Notification {
 }
 
 model CheckIn {
-  id                  String   @id @default(uuid())
-  startTime           DateTime @default(now())
+  id                  String    @id @default(uuid())
+  startTime           DateTime  @default(now())
   expectedArrivalTime DateTime
   actualArrivalTime   DateTime?
   startLatitude       Float?
   startLongitude      Float?
   finalLatitude       Float?
   finalLongitude      Float?
-  distanceType        String   // SHORT | MEDIUM | LONG
-  status              String   @default("ACTIVE") // ACTIVE | ON_TIME | LATE | CANCELLED
+  distanceType        String // SHORT | MEDIUM | LONG
+  status              String    @default("ACTIVE") // ACTIVE | ON_TIME | LATE | CANCELLED
   userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([userId])
   @@index([status])
 }
 
+model Note {
+  id      String  @id @default(uuid())
+  title   String?
+  content String
 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  occurrenceId String?
+  occurrence   Occurrence? @relation(fields: [occurrenceId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([occurrenceId])
+}

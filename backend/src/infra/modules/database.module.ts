@@ -1,6 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 
 import { PrismaService } from "@/infra/database/prisma.service";
+import { PrismaNoteRepository } from "@/infra/database/repositories/prisma-note.repository";
 import { PrismaUserRepository } from "@/infra/database/repositories/prisma-user.repository";
 import { EncryptionService } from "@/infra/services/encryption.service";
 
@@ -17,7 +18,16 @@ import { EncryptionService } from "@/infra/services/encryption.service";
       provide: "UserRepository",
       useClass: PrismaUserRepository,
     },
+    {
+      provide: "NoteRepository",
+      useClass: PrismaNoteRepository,
+    },
   ],
-  exports: [PrismaService, EncryptionService, "UserRepository"],
+  exports: [
+    PrismaService,
+    EncryptionService,
+    "UserRepository",
+    "NoteRepository",
+  ],
 })
 export class DatabaseModule {}
