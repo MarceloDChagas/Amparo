@@ -1,6 +1,7 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ import {
 import { User, userService } from "@/services/user-service";
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +81,14 @@ export default function UsersPage() {
                   <TableRow key={user.id}>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.cpf}</TableCell>
-                    <TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => router.push(`/users/${user.id}`)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" /> Detalhes
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

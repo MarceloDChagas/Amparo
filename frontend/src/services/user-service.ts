@@ -27,6 +27,17 @@ export const userService = {
     return response.json();
   },
 
+  async getById(id: string): Promise<User> {
+    const response = await fetch(`${API_URL}/users/${id}`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user");
+    }
+    return response.json();
+  },
+
   async delete(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/users/${id}`, {
       method: "DELETE",
