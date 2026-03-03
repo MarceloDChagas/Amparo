@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { DocumentsSection } from "@/components/documents/DocumentsSection";
 import { NotesSection } from "@/components/notes/NotesSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,7 @@ export default function UserDetailsPage() {
 
   useEffect(() => {
     if (!userId) return;
-    loadUserDetails();
+    void loadUserDetails();
   }, [userId]);
 
   async function loadUserDetails() {
@@ -67,9 +68,9 @@ export default function UserDetailsPage() {
         </h2>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* User Info Card */}
-        <Card className="md:col-span-1 h-fit">
+        <Card className="lg:col-span-1 h-fit">
           <CardHeader className="flex flex-row items-center gap-4 space-y-0">
             <UserCircle2 className="h-10 w-10 text-muted-foreground" />
             <div>
@@ -80,15 +81,19 @@ export default function UserDetailsPage() {
           <CardContent className="space-y-4">
             <div>
               <p className="font-semibold text-sm text-muted-foreground">CPF</p>
-              <p>{user.cpf || "Não informado"}</p>
+              <p>{user.cpf ?? "Não informado"}</p>
             </div>
-            {/* Adicione outros campos de User aqui conforme o backend retorne (Email, Telefone, etc) */}
           </CardContent>
         </Card>
 
         {/* Notes Section */}
-        <div className="md:col-span-1">
+        <div className="lg:col-span-1">
           <NotesSection userId={user.id} />
+        </div>
+
+        {/* Documents Section */}
+        <div className="lg:col-span-1">
+          <DocumentsSection userId={user.id} />
         </div>
       </div>
     </div>
