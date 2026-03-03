@@ -15,6 +15,7 @@ import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module
 import { NotesModule } from "@/infra/modules/notes.module";
 import { NotificationModule } from "@/infra/modules/notification.module";
 import { OccurrenceModule } from "@/infra/modules/occurrence.module";
+import { StorageModule } from "@/infra/modules/storage.module";
 import { UserModule } from "@/infra/modules/user.module";
 
 import { AppController } from "./app.controller";
@@ -36,6 +37,7 @@ import { AppService } from "./app.service";
     NotificationModule,
     CheckInModule,
     NotesModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [
