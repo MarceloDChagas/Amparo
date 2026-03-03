@@ -9,6 +9,7 @@ import { AuditModule } from "@/infra/modules/audit.module";
 import { AuthModule } from "@/infra/modules/auth.module";
 import { CheckInModule } from "@/infra/modules/check-in.module";
 import { DatabaseModule } from "@/infra/modules/database.module";
+import { DocumentsModule } from "@/infra/modules/documents.module";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyAlertModule } from "@/infra/modules/emergency-alert.module";
 import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module";
@@ -38,6 +39,7 @@ import { AppService } from "./app.service";
     CheckInModule,
     NotesModule,
     StorageModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [

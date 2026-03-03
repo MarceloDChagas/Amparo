@@ -121,6 +121,7 @@ model User {
   notifications     Notification[]
   checkIns          CheckIn[]
   notes             Note[]
+  documents         Document[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -204,4 +205,21 @@ model Note {
 
   @@index([userId])
   @@index([occurrenceId])
+}
+
+model Document {
+  id          String  @id @default(uuid())
+  fileName    String
+  contentType String
+  storageKey  String  @unique
+  sizeBytes   Int?
+
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  uploadedBy String? // ID do admin que fez o upload
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
