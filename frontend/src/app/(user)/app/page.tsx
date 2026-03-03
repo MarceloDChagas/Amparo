@@ -10,12 +10,13 @@ import {
   InstructionalCard,
 } from "@/components/emergency";
 import { CheckInTab } from "@/components/emergency/CheckInTab";
+import { DocumentsTab } from "@/components/emergency/DocumentsTab";
 import { colors } from "@/styles/colors";
 
 export default function UserAppPage() {
-  const [activeTab, setActiveTab] = useState<"EMERGENCY" | "CHECKIN">(
-    "EMERGENCY",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "EMERGENCY" | "CHECKIN" | "DOCUMENTS"
+  >("EMERGENCY");
 
   return (
     <div
@@ -26,10 +27,10 @@ export default function UserAppPage() {
 
       {/* Tabs Switcher */}
       <div className="mt-4 px-4 flex justify-center w-full">
-        <div className="bg-white/10 p-1 rounded-xl flex max-w-xs w-full">
+        <div className="bg-white/10 p-1 rounded-xl flex w-full">
           <button
             onClick={() => setActiveTab("EMERGENCY")}
-            className={`flex-1 py-3 text-sm font-medium rounded-lg transition-all ${
+            className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
               activeTab === "EMERGENCY"
                 ? "bg-white text-primary shadow-sm"
                 : "text-white/80 hover:text-white"
@@ -39,13 +40,23 @@ export default function UserAppPage() {
           </button>
           <button
             onClick={() => setActiveTab("CHECKIN")}
-            className={`flex-1 py-3 text-sm font-medium rounded-lg transition-all ${
+            className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
               activeTab === "CHECKIN"
                 ? "bg-white text-primary shadow-sm"
                 : "text-white/80 hover:text-white"
             }`}
           >
             Deslocamento
+          </button>
+          <button
+            onClick={() => setActiveTab("DOCUMENTS")}
+            className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
+              activeTab === "DOCUMENTS"
+                ? "bg-white text-primary shadow-sm"
+                : "text-white/80 hover:text-white"
+            }`}
+          >
+            Documentos
           </button>
         </div>
       </div>
@@ -67,6 +78,8 @@ export default function UserAppPage() {
         )}
 
         {activeTab === "CHECKIN" && <CheckInTab key="checkin" />}
+
+        {activeTab === "DOCUMENTS" && <DocumentsTab key="documents" />}
       </AnimatePresence>
 
       <BottomNavigation />
