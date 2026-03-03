@@ -10,7 +10,7 @@ export class StorageService implements OnModuleInit {
 
   constructor(private readonly configService: ConfigService) {
     this.client = new Minio.Client({
-      endPoint: this.configService.get<string>("MINIO_ENDPOINT", "minio"),
+      endPoint: this.configService.get<string>("MINIO_ENDPOINT", "127.0.0.1"),
       port: parseInt(this.configService.get<string>("MINIO_PORT", "9000"), 10),
       useSSL:
         this.configService.get<string>("MINIO_USE_SSL", "false") === "true",
@@ -34,13 +34,31 @@ export class StorageService implements OnModuleInit {
     await this.ensureBucketExists();
   }
 
-  async ensureBucketExists(): Promise<void> {
-    const exists = await this.client.bucketExists(this.bucket);
-    if (!exists) {
-      await this.client.makeBucket(this.bucket);
-      this.logger.log(`Bucket "${this.bucket}" criado com sucesso.`);
-    } else {
-      this.logger.log(`Bucket "${this.bucket}" já existe.`);
+  async ensureBucketExists(retries = 5, delayMs = 2000): Promise<void> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const exists = await this.client.bucketExists(this.bucket);
+        if (!exists) {
+          await this.client.makeBucket(this.bucket);
+          this.logger.log(`Bucket "${this.bucket}" criado com sucesso.`);
+        } else {
+          this.logger.log(`Bucket "${this.bucket}" já existe.`);
+        }
+        return;
+      } catch (error) {
+        this.logger.warn(
+          `Tentativa ${attempt}/${retries} de conexão com MinIO falhou. Aguardando ${delayMs}ms...`,
+        );
+        if (attempt === retries) {
+          this.logger.error(
+            "Não foi possível conectar ao MinIO após todas as tentativas.",
+            error,
+          );
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        delayMs *= 2;
+      }
     }
   }
 

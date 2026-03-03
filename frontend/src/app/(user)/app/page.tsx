@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import {
   ActionButtons,
@@ -15,8 +16,22 @@ import { DocumentsTab } from "@/components/emergency/DocumentsTab";
 import { colors } from "@/styles/colors";
 
 export default function UserAppPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   // Main Tab (Bottom Hub): HOME or DOCUMENTS
-  const [activeMainTab, setActiveMainTab] = useState<MainTabType>("HOME");
+  // Sync with query params for navigation from other pages
+  const activeMainTab = useMemo(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "DOCUMENTS") return "DOCUMENTS";
+    return "HOME";
+  }, [searchParams]);
+
+  const handleMainTabChange = (tab: MainTabType) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`?${params.toString()}`);
+  };
 
   // Secondary Tab (Top Switcher - only when main is HOME)
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<
@@ -112,7 +127,7 @@ export default function UserAppPage() {
 
       <BottomNavigation
         activeMainTab={activeMainTab}
-        onTabChange={setActiveMainTab}
+        onTabChange={handleMainTabChange}
       />
     </div>
   );

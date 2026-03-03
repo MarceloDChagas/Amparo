@@ -4,12 +4,24 @@ import { ArrowLeft, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import { BottomNavigation, EmergencyHeader } from "@/components/emergency";
+import {
+  BottomNavigation,
+  EmergencyHeader,
+  MainTabType,
+} from "@/components/emergency";
 import { EmergencyContactForm } from "@/presentation/components/forms/emergency-contact-form";
 import { colors } from "@/styles/colors";
 
 export default function UserContactsPage() {
   const router = useRouter();
+
+  const handleTabChange = (tab: MainTabType) => {
+    if (tab === "DOCUMENTS") {
+      router.push("/app?tab=DOCUMENTS");
+    } else {
+      router.push("/app");
+    }
+  };
 
   return (
     <div
@@ -99,7 +111,7 @@ export default function UserContactsPage() {
         </div>
       </main>
 
-      <BottomNavigation />
+      <BottomNavigation activeMainTab="HOME" onTabChange={handleTabChange} />
     </div>
   );
 }

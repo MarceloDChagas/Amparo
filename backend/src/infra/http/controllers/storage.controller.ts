@@ -32,7 +32,7 @@ export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
   @Post("upload-url")
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   @HttpCode(HttpStatus.OK)
   @UsePipes(ZodValidationPipe)
   async getUploadUrl(@Body() body: UploadUrlDto) {
@@ -46,7 +46,7 @@ export class StorageController {
   }
 
   @Get("download-url")
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   async getDownloadUrl(@Query("key") key: string) {
     const url = await this.storageService.getPresignedDownloadUrl(key);
     return { url };

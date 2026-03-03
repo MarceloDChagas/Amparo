@@ -46,7 +46,7 @@ export class DocumentsController {
    * Registra os metadados de um documento após upload bem-sucedido para o MinIO.
    */
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ZodValidationPipe)
   async create(@Body() body: CreateDocumentDto) {
@@ -59,7 +59,7 @@ export class DocumentsController {
    * Lista todos os documentos de um usuário.
    */
   @Get("user/:userId")
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   async listByUser(@Param("userId") userId: string) {
     const documents = await this.listDocumentsUseCase.execute({ userId });
     return { documents: documents.map((d) => this.toResponse(d)) };
@@ -70,7 +70,7 @@ export class DocumentsController {
    * Remove o metadado do banco e o arquivo do MinIO.
    */
   @Delete(":id")
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param("id") id: string) {
     await this.deleteDocumentUseCase.execute({ id });
