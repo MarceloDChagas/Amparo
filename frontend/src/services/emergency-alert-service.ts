@@ -29,6 +29,20 @@ function getAuthHeaders() {
 }
 
 export const emergencyAlertService = {
+  async getAll(): Promise<EmergencyAlert[]> {
+    const response = await fetch(`${API_URL}/emergency-alerts/all`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return [];
+      throw new Error("Failed to fetch all emergency alerts");
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : [];
+  },
+
   async getActive(): Promise<EmergencyAlert | null> {
     const response = await fetch(`${API_URL}/emergency-alerts/active`, {
       headers: getAuthHeaders(),

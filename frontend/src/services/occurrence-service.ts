@@ -6,14 +6,16 @@ export interface Occurrence {
   latitude: number;
   longitude: number;
   userId: string;
-  aggressorId: string;
+  aggressorId?: string | null;
   // Add other fields as needed
 }
 
 export interface CreateOccurrenceData {
-  title: string;
   description: string;
+  latitude: number;
+  longitude: number;
   userId: string;
+  aggressorId?: string;
 }
 
 function getAuthHeaders() {
@@ -32,6 +34,19 @@ export const occurrenceService = {
 
     if (!response.ok) {
       throw new Error("Failed to fetch occurrences");
+    }
+    return response.json();
+  },
+
+  async create(data: CreateOccurrenceData): Promise<Occurrence> {
+    const response = await fetch(`${API_URL}/occurrences`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create occurrence");
     }
     return response.json();
   },

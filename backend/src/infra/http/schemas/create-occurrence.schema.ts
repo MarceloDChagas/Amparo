@@ -6,7 +6,7 @@ export const CreateOccurrenceSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   userId: z.string().uuid(),
-  aggressorId: z.string().uuid(),
+  aggressorId: z.string().uuid().optional(),
 });
 
 export class CreateOccurrenceDto extends createZodDto(CreateOccurrenceSchema) {}
