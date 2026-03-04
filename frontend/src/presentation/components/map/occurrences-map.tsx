@@ -3,7 +3,7 @@
 import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
@@ -76,26 +76,66 @@ interface OccurrencesMapProps {
   viewMode: "cluster" | "heatmap";
 }
 
+function MapUpdater({
+  center,
+  zoom,
+}: {
+  center: [number, number];
+  zoom: number;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+}
+
 export default function OccurrencesMap({
   occurrences,
   viewMode,
 }: OccurrencesMapProps) {
-  // Center roughly on Brazil or a default center if no data
-  const center: [number, number] =
-    occurrences.length > 0 &&
-    occurrences[0].latitude &&
-    occurrences[0].longitude
-      ? [occurrences[0].latitude, occurrences[0].longitude]
-      : [-14.235, -51.925]; // Brazil approx center
+  const [center, setCenter] = useState<[number, number]>([-14.235, -51.925]);
+  const [zoom, setZoom] = useState(4);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCenter([position.coords.latitude, position.coords.longitude]);
+          setZoom(13);
+        },
+        (error) => {
+          console.error("Error getting location: ", error);
+          if (
+            occurrences.length > 0 &&
+            occurrences[0].latitude &&
+            occurrences[0].longitude
+          ) {
+            setCenter([occurrences[0].latitude, occurrences[0].longitude]);
+            setZoom(12);
+          }
+        },
+      );
+    } else if (
+      occurrences.length > 0 &&
+      occurrences[0].latitude &&
+      occurrences[0].longitude
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCenter([occurrences[0].latitude, occurrences[0].longitude]);
+      setZoom(12);
+    }
+  }, [occurrences]);
 
   return (
     <div className="h-[600px] w-full rounded-md border shadow-sm overflow-hidden z-0 relative">
       <MapContainer
         center={center}
-        zoom={occurrences.length > 0 ? 12 : 4}
+        zoom={zoom}
         scrollWheelZoom={true}
         style={{ height: "100%", width: "100%", zIndex: 0 }}
       >
+        <MapUpdater center={center} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
