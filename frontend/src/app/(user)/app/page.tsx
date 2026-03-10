@@ -19,21 +19,39 @@ export default function UserAppPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Main Tab (Bottom Hub): HOME or DOCUMENTS
-  // Sync with query params for navigation from other pages
   const activeMainTab = useMemo(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "DOCUMENTS") return "DOCUMENTS";
+    if (tabParam === "REGISTERS" || tabParam === "DOCUMENTS") {
+      return "REGISTERS";
+    }
+
     return "HOME";
   }, [searchParams]);
 
   const handleMainTabChange = (tab: MainTabType) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    router.replace(`?${params.toString()}`);
+    if (tab === "HOME") {
+      router.push("/app");
+      return;
+    }
+
+    if (tab === "REGISTERS") {
+      router.push("/app?tab=REGISTERS");
+      return;
+    }
+
+    if (tab === "SUPPORT") {
+      router.push("/app/contacts");
+      return;
+    }
+
+    if (tab === "MESSAGES") {
+      router.push("/app/messages");
+      return;
+    }
+
+    router.push("/app/security");
   };
 
-  // Secondary Tab (Top Switcher - only when main is HOME)
   const [activeSecondaryTab, setActiveSecondaryTab] = useState<
     "EMERGENCY" | "CHECKIN"
   >("EMERGENCY");
@@ -45,7 +63,6 @@ export default function UserAppPage() {
     >
       <EmergencyHeader />
 
-      {/* Tabs Switcher - Only visible on HOME */}
       <AnimatePresence>
         {activeMainTab === "HOME" && (
           <motion.div
@@ -112,7 +129,7 @@ export default function UserAppPage() {
             </motion.div>
           ) : (
             <motion.div
-              key="documents-view"
+              key="records-view"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}

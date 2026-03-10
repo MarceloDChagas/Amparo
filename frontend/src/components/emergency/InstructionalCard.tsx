@@ -3,17 +3,17 @@ import React from "react";
 export function InstructionalCard() {
   return (
     <div
-      className="w-full max-w-md rounded-3xl p-6 mb-6 backdrop-blur-sm"
+      className="mb-4 w-full max-w-sm rounded-2xl p-4 backdrop-blur-sm"
       style={{
         backgroundColor: "rgba(61, 61, 106, 0.7)",
-        marginTop: "20px",
+        marginTop: "12px",
       }}
     >
-      <p className="text-white text-center text-sm leading-relaxed">
-        Pressione o botão de ajuda para enviar uma mensagem de alerta gratuita
-        com sua localização para seus contatos de emergência e avisá-los que
-        você está em perigo.
-      </p>
+      <div className="text-center text-white">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
+          Cuidado contínuo
+        </p>
+      </div>
     </div>
   );
 }

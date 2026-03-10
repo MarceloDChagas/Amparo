@@ -17,11 +17,27 @@ export default function UserContactsPage() {
   const router = useRouter();
 
   const handleTabChange = (tab: MainTabType) => {
-    if (tab === "DOCUMENTS") {
-      router.push("/app?tab=DOCUMENTS");
-    } else {
+    if (tab === "HOME") {
       router.push("/app");
+      return;
     }
+
+    if (tab === "REGISTERS") {
+      router.push("/app?tab=REGISTERS");
+      return;
+    }
+
+    if (tab === "SUPPORT") {
+      router.push("/app/contacts");
+      return;
+    }
+
+    if (tab === "MESSAGES") {
+      router.push("/app/messages");
+      return;
+    }
+
+    router.push("/app/security");
   };
 
   return (
@@ -44,7 +60,7 @@ export default function UserContactsPage() {
         </div>
       </main>
 
-      <BottomNavigation activeMainTab="HOME" onTabChange={handleTabChange} />
+      <BottomNavigation activeMainTab="SUPPORT" onTabChange={handleTabChange} />
     </div>
   );
 }

@@ -17,12 +17,27 @@ export default function UserNotesPage() {
   const { user } = useAuth();
 
   const handleTabChange = (tab: MainTabType) => {
-    if (tab === "DOCUMENTS") {
-      router.push("/app?tab=DOCUMENTS");
+    if (tab === "HOME") {
+      router.push("/app");
       return;
     }
 
-    router.push("/app");
+    if (tab === "REGISTERS") {
+      router.push("/app?tab=REGISTERS");
+      return;
+    }
+
+    if (tab === "SUPPORT") {
+      router.push("/app/contacts");
+      return;
+    }
+
+    if (tab === "MESSAGES") {
+      router.push("/app/messages");
+      return;
+    }
+
+    router.push("/app/security");
   };
 
   if (!user) {
@@ -134,7 +149,10 @@ export default function UserNotesPage() {
         </div>
       </main>
 
-      <BottomNavigation activeMainTab="HOME" onTabChange={handleTabChange} />
+      <BottomNavigation
+        activeMainTab="REGISTERS"
+        onTabChange={handleTabChange}
+      />
     </div>
   );
 }

@@ -1,9 +1,20 @@
-import { FileText, Grid, MessageCircle, Shield } from "lucide-react";
+import {
+  FileText,
+  House,
+  MessageCircle,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "@/components/landing/gov-theme";
 
-export type MainTabType = "HOME" | "DOCUMENTS";
+export type MainTabType =
+  | "HOME"
+  | "REGISTERS"
+  | "SUPPORT"
+  | "MESSAGES"
+  | "PROFILE";
 
 interface BottomNavigationProps {
   activeMainTab: MainTabType;
@@ -14,95 +25,65 @@ export function BottomNavigation({
   activeMainTab,
   onTabChange,
 }: BottomNavigationProps) {
+  const tabs: Array<{
+    id: MainTabType;
+    label: string;
+    icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  }> = [
+    { id: "HOME", label: "Início", icon: House },
+    { id: "REGISTERS", label: "Registros", icon: FileText },
+    { id: "SUPPORT", label: "Rede de apoio", icon: Users },
+    { id: "MESSAGES", label: "Mensagens", icon: MessageCircle },
+    { id: "PROFILE", label: "Perfil e segurança", icon: ShieldCheck },
+  ];
+
   return (
     <nav
-      className="bg-white rounded-t-3xl shadow-2xl px-4 py-3 pb-6 relative"
-      style={{ boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.1)" }}
+      className="rounded-t-[28px] border-t px-2 py-3 pb-6"
+      style={{
+        backgroundColor: "rgba(255,255,255,0.96)",
+        borderColor: "rgba(168, 184, 203, 0.45)",
+        boxShadow: "0 -12px 32px rgba(15, 23, 42, 0.08)",
+        backdropFilter: "blur(12px)",
+      }}
     >
-      {/* Center HELP Button - positioned above the nav bar */}
-      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-        <button
-          className="rounded-full w-16 h-16 flex items-center justify-center shadow-2xl active:scale-95 transition-transform"
-          style={{ backgroundColor: colors.accent[600] }}
-          onClick={() => onTabChange("HOME")}
-        >
-          <span className="font-bold text-xs text-white">AJUDA</span>
-        </button>
-      </div>
+      <div className="mx-auto flex max-w-3xl items-start justify-between gap-1">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeMainTab === tab.id;
 
-      <div className="flex items-center justify-between pt-2">
-        {/* Home / Emergency */}
-        <button
-          onClick={() => onTabChange("HOME")}
-          className="flex flex-col items-center gap-1 flex-1 transition-colors"
-        >
-          <Shield
-            size={24}
-            style={{
-              color:
-                activeMainTab === "HOME"
-                  ? colors.primary[600]
-                  : colors.neutral[400],
-            }}
-          />
-          <span
-            className="text-[10px] font-medium"
-            style={{
-              color:
-                activeMainTab === "HOME"
-                  ? colors.primary[600]
-                  : colors.neutral[400],
-            }}
-          >
-            Início
-          </span>
-        </button>
-
-        {/* Documents - Replaces "Rede" */}
-        <button
-          onClick={() => onTabChange("DOCUMENTS")}
-          className="flex flex-col items-center gap-1 flex-1 transition-colors"
-        >
-          <FileText
-            size={24}
-            style={{
-              color:
-                activeMainTab === "DOCUMENTS"
-                  ? colors.primary[600]
-                  : colors.neutral[400],
-            }}
-          />
-          <span
-            className="text-[10px] font-medium"
-            style={{
-              color:
-                activeMainTab === "DOCUMENTS"
-                  ? colors.primary[600]
-                  : colors.neutral[400],
-            }}
-          >
-            Documentos
-          </span>
-        </button>
-
-        {/* Spacer for center button */}
-        <div className="flex-1" />
-
-        {/* Messages - Placeholder */}
-        <button className="flex flex-col items-center gap-1 flex-1 opacity-40 cursor-not-allowed">
-          <MessageCircle size={24} style={{ color: colors.neutral[400] }} />
-          <span className="text-[10px]" style={{ color: colors.neutral[400] }}>
-            Mensagens
-          </span>
-        </button>
-
-        {/* Menu - Placeholder */}
-        <button className="flex flex-col items-center gap-1 flex-1 opacity-40 cursor-not-allowed">
-          <Grid size={24} style={{ color: colors.neutral[400] }} />
-          <span className="text-[10px]" style={{ color: colors.neutral[400] }}>
-            Menu
-          </span>
-        </button>
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className="flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl px-2 py-2 transition-colors"
+              style={{
+                backgroundColor: isActive
+                  ? govTheme.brand.blueSurface
+                  : "transparent",
+              }}
+            >
+              <Icon
+                size={22}
+                style={{
+                  color: isActive
+                    ? govTheme.brand.blueStrong
+                    : govTheme.text.muted,
+                }}
+              />
+              <span
+                className="text-center text-[10px] font-medium leading-tight"
+                style={{
+                  color: isActive
+                    ? govTheme.brand.blueStrong
+                    : govTheme.text.muted,
+                }}
+              >
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
