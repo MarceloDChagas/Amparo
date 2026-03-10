@@ -110,11 +110,10 @@ export function LoginForm() {
         />
         <Button
           type="submit"
-          className="w-full h-12 rounded-xl font-bold text-md transition-all hover:scale-[1.02] mt-4"
+          className="w-full h-12 rounded-lg font-semibold text-sm mt-4 transition-opacity hover:opacity-90"
           disabled={loading}
           style={{
-            background: colors.gradients.cta,
-            boxShadow: `0 8px 25px ${colors.special.shadow.rose}`,
+            backgroundColor: colors.accent[600],
             border: "none",
             color: "#fff",
           }}

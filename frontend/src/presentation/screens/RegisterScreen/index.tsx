@@ -12,27 +12,13 @@ export function RegisterScreen() {
       {/* Left Column: Branding / Marketing */}
       <div
         className="relative hidden lg:flex flex-col justify-center items-start p-16 overflow-hidden"
-        style={{ background: colors.gradients.darkRadial }}
+        style={{ backgroundColor: colors.functional.background.secondary }}
       >
-        {/* Decorative Glow */}
-        <div
-          className="absolute top-0 right-0 w-full h-[500px] mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, ${colors.accent[900]}, transparent)`,
-          }}
-        />
-
         <div className="relative z-10 w-full max-w-lg mx-auto">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 mb-12 group transition-transform hover:scale-105"
-          >
+          <Link href="/" className="inline-flex items-center gap-3 mb-12">
             <div
-              className="p-3 rounded-2xl"
-              style={{
-                background: colors.gradients.cta,
-                boxShadow: `0 0 20px ${colors.special.shadow.rose}`,
-              }}
+              className="p-2.5 rounded-xl"
+              style={{ backgroundColor: colors.accent[600] }}
             >
               <Shield size={32} className="text-white" />
             </div>
@@ -86,12 +72,12 @@ export function RegisterScreen() {
             <div className="lg:hidden flex justify-center mb-10">
               <Link href="/" className="inline-flex items-center gap-3">
                 <div
-                  className="p-2.5 rounded-xl"
-                  style={{ background: colors.gradients.cta }}
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: colors.accent[600] }}
                 >
-                  <Shield size={24} className="text-white" />
+                  <Shield size={20} className="text-white" />
                 </div>
-                <span className="text-2xl font-extrabold text-white tracking-tight">
+                <span className="text-xl font-bold text-white tracking-tight">
                   Amparo
                 </span>
               </Link>
@@ -113,7 +99,7 @@ export function RegisterScreen() {
             <Link
               href="/login"
               className="font-semibold transition-colors hover:opacity-80"
-              style={{ color: colors.secondary[300] }}
+              style={{ color: colors.accent[400] }}
             >
               Entrar
             </Link>

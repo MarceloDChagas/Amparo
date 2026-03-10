@@ -31,7 +31,7 @@ export default function UserContactsPage() {
       {/* Background decoration */}
       <div
         className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 blur-3xl pointer-events-none"
-        style={{ backgroundColor: colors.secondary[500] }}
+        style={{ backgroundColor: colors.accent[500] }}
       />
       <div
         className="absolute bottom-24 left-0 w-48 h-48 rounded-full opacity-10 blur-3xl pointer-events-none"
@@ -74,7 +74,7 @@ export default function UserContactsPage() {
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: colors.gradients.cta }}
+            style={{ backgroundColor: colors.accent[600] }}
           >
             <Users size={18} color="white" />
           </div>
@@ -95,7 +95,7 @@ export default function UserContactsPage() {
           <div className="flex items-center gap-2 mb-4">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: colors.gradients.cta }}
+              style={{ backgroundColor: colors.accent[600] }}
             >
               <Plus size={16} color="white" />
             </div>
@@ -105,7 +105,7 @@ export default function UserContactsPage() {
           </div>
 
           {/* Override the form's default card wrapper with a transparent shell */}
-          <div className="[&_.card]:bg-transparent [&_.card]:shadow-none [&_.card]:border-0 [&_label]:text-gray-300 [&_input]:bg-[#1f2138] [&_input]:border-[#3d3d4e] [&_input]:text-white [&_input::placeholder]:text-gray-500 [&_button[type=submit]]:bg-gradient-to-r [&_button[type=submit]]:from-violet-700 [&_button[type=submit]]:to-pink-600 [&_button[type=submit]]:border-0 [&_button[type=submit]]:text-white [&_select]:bg-[#1f2138] [&_select]:border-[#3d3d4e] [&_select]:text-white [&_[role=combobox]]:bg-[#1f2138] [&_[role=combobox]]:border-[#3d3d4e] [&_[role=combobox]]:text-white [&_p.text-muted-foreground]:text-gray-500">
+          <div className="[&_.card]:bg-transparent [&_.card]:shadow-none [&_.card]:border-0 [&_label]:text-gray-300 [&_input]:bg-[#1f2138] [&_input]:border-[#3d3d4e] [&_input]:text-white [&_input::placeholder]:text-gray-500 [&_button[type=submit]]:bg-violet-700 [&_button[type=submit]]:border-0 [&_button[type=submit]]:text-white [&_select]:bg-[#1f2138] [&_select]:border-[#3d3d4e] [&_select]:text-white [&_[role=combobox]]:bg-[#1f2138] [&_[role=combobox]]:border-[#3d3d4e] [&_[role=combobox]]:text-white [&_p.text-muted-foreground]:text-gray-500">
             <EmergencyContactForm />
           </div>
         </div>
