@@ -88,10 +88,7 @@ export default function NotificationsPage() {
         {/* Page header */}
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <Bell
-              className="w-8 h-8"
-              style={{ color: colors.secondary[300] }}
-            />
+            <Bell className="w-8 h-8" style={{ color: colors.accent[400] }} />
             Notificações
           </h2>
           <p
@@ -213,23 +210,19 @@ export default function NotificationsPage() {
               <div
                 className="flex items-center gap-2 rounded-xl px-4 py-3"
                 style={{
-                  backgroundColor: isBroadcast
-                    ? "rgba(124, 58, 237, 0.15)"
-                    : "rgba(230, 56, 144, 0.12)",
-                  border: `1px solid ${isBroadcast ? colors.accent[700] : colors.secondary[700]}`,
+                  backgroundColor: "rgba(124, 58, 237, 0.15)",
+                  border: `1px solid ${colors.accent[700]}`,
                 }}
               >
                 {isBroadcast ? (
                   <Users size={16} style={{ color: colors.accent[400] }} />
                 ) : (
-                  <Bell size={16} style={{ color: colors.secondary[400] }} />
+                  <Bell size={16} style={{ color: colors.accent[400] }} />
                 )}
                 <span
                   className="text-sm font-medium"
                   style={{
-                    color: isBroadcast
-                      ? colors.accent[300]
-                      : colors.secondary[300],
+                    color: colors.accent[300],
                   }}
                 >
                   {isBroadcast
@@ -244,7 +237,7 @@ export default function NotificationsPage() {
                 disabled={isPending}
                 className="w-full font-semibold"
                 style={{
-                  background: colors.gradients.cta,
+                  backgroundColor: colors.accent[600],
                   color: "white",
                   border: "none",
                 }}

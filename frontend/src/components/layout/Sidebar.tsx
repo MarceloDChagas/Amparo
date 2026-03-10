@@ -37,7 +37,7 @@ const routes = [
     label: "Notificações",
     icon: Bell,
     href: "/notifications",
-    color: "text-pink-400",
+    color: "text-violet-400",
   },
 ];
 
