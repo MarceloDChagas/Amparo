@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -63,6 +65,8 @@ export function EmergencyContactForm() {
   const { mutate, isPending } = useCreateEmergencyContact();
   const { user } = useAuth();
   const { data: contacts } = useGetEmergencyContacts();
+  const inputClassName =
+    "h-13 rounded-[14px] border border-[#b9c8d8] bg-[#f8fbff] px-4 text-[15px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] placeholder:text-slate-500 focus-visible:border-[#244b7a] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.14)]";
 
   const isLimitReached = contacts ? contacts.length >= 3 : false;
 
@@ -107,18 +111,31 @@ export function EmergencyContactForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl">
-      <CardHeader>
-        <CardTitle>Cadastrar Contato de Emergência</CardTitle>
-        <CardDescription>
+    <Card className="w-full max-w-none border-0 bg-transparent shadow-none">
+      <CardHeader className="px-0 pt-0">
+        <CardTitle style={{ color: govTheme.text.primary }}>
+          Cadastrar Contato de Emergência
+        </CardTitle>
+        <CardDescription style={{ color: govTheme.text.secondary }}>
           Adicione um contato de confiança que será notificado em caso de
           emergência.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0 pb-0">
         {isLimitReached && (
-          <div className="mb-6 rounded-md bg-red-950/50 border border-red-900 p-4">
-            <p className="text-sm text-red-200">
+          <div
+            className="mb-6 flex items-start gap-3 rounded-[18px] border px-4 py-4"
+            style={{
+              backgroundColor: govTheme.status.dangerSoft,
+              borderColor: "rgba(166, 60, 60, 0.28)",
+            }}
+          >
+            <AlertTriangle
+              size={18}
+              className="mt-0.5 shrink-0"
+              style={{ color: govTheme.status.danger }}
+            />
+            <p className="text-sm" style={{ color: govTheme.status.danger }}>
               <strong>Limite atingido:</strong> Você já alcançou o limite máximo
               de 3 contatos de confiança. Para adicionar um novo contato, remova
               um dos contatos existentes.
@@ -137,12 +154,25 @@ export function EmergencyContactForm() {
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel
+                        className="text-sm font-semibold"
+                        style={{ color: govTheme.text.primary }}
+                      >
+                        Nome
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Maria Silva" {...field} />
+                        <Input
+                          placeholder="Maria Silva"
+                          className={inputClassName}
+                          style={{ color: govTheme.text.primary }}
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage
+                        className="text-sm"
+                        style={{ color: govTheme.status.danger }}
+                      />
                     </FormItem>
                   )}
                 />
@@ -151,15 +181,23 @@ export function EmergencyContactForm() {
                   control={form.control}
                   name="relationship"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Parentesco / Relação</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel
+                        className="text-sm font-semibold"
+                        style={{ color: govTheme.text.primary }}
+                      >
+                        Parentesco / Relação
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         disabled={isLimitReached || isPending}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger
+                            className={inputClassName}
+                            style={{ color: govTheme.text.primary }}
+                          >
                             <SelectValue placeholder="Selecione o parentesco" />
                           </SelectTrigger>
                         </FormControl>
@@ -172,7 +210,10 @@ export function EmergencyContactForm() {
                           <SelectItem value="Other">Outro</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage
+                        className="text-sm"
+                        style={{ color: govTheme.status.danger }}
+                      />
                     </FormItem>
                   )}
                 />
@@ -181,18 +222,28 @@ export function EmergencyContactForm() {
                   control={form.control}
                   name="phone"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Telefone</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel
+                        className="text-sm font-semibold"
+                        style={{ color: govTheme.text.primary }}
+                      >
+                        Telefone
+                      </FormLabel>
                       <FormControl>
                         <PatternFormat
                           format="(##) #####-####"
                           mask="_"
                           customInput={Input}
                           placeholder="(11) 98765-4321"
+                          className={inputClassName}
+                          style={{ color: govTheme.text.primary }}
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage
+                        className="text-sm"
+                        style={{ color: govTheme.status.danger }}
+                      />
                     </FormItem>
                   )}
                 />
@@ -201,19 +252,29 @@ export function EmergencyContactForm() {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email (Opcional)</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel
+                        className="text-sm font-semibold"
+                        style={{ color: govTheme.text.primary }}
+                      >
+                        Email (Opcional)
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="maria@exemplo.com"
+                          className={inputClassName}
+                          style={{ color: govTheme.text.primary }}
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription style={{ color: govTheme.text.muted }}>
                         O email é usado para notificações de emergência
                       </FormDescription>
-                      <FormMessage />
+                      <FormMessage
+                        className="text-sm"
+                        style={{ color: govTheme.status.danger }}
+                      />
                     </FormItem>
                   )}
                 />
@@ -222,13 +283,20 @@ export function EmergencyContactForm() {
                   control={form.control}
                   name="priority"
                   render={({ field: { value, onChange, ...fieldProps } }) => (
-                    <FormItem>
-                      <FormLabel>Prioridade</FormLabel>
+                    <FormItem className="space-y-2.5">
+                      <FormLabel
+                        className="text-sm font-semibold"
+                        style={{ color: govTheme.text.primary }}
+                      >
+                        Prioridade
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min="1"
                           placeholder="1"
+                          className={inputClassName}
+                          style={{ color: govTheme.text.primary }}
                           value={value}
                           onChange={(e) =>
                             onChange(parseInt(e.target.value, 10) || 1)
@@ -236,10 +304,13 @@ export function EmergencyContactForm() {
                           {...fieldProps}
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription style={{ color: govTheme.text.muted }}>
                         Números menores = maior prioridade
                       </FormDescription>
-                      <FormMessage />
+                      <FormMessage
+                        className="text-sm"
+                        style={{ color: govTheme.status.danger }}
+                      />
                     </FormItem>
                   )}
                 />
@@ -247,8 +318,15 @@ export function EmergencyContactForm() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="mt-2 h-13 w-full rounded-[14px] text-[15px] font-semibold shadow-[0_12px_24px_rgba(31,58,95,0.18)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(31,58,95,0.22)] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.18)]"
                 disabled={isLimitReached || isPending}
+                style={{
+                  backgroundColor: isLimitReached
+                    ? "#93a6bb"
+                    : govTheme.brand.blueStrong,
+                  border: "none",
+                  color: govTheme.text.inverse,
+                }}
               >
                 {isLimitReached
                   ? "Limite máximo alcançado"

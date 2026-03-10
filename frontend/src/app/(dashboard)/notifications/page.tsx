@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,7 +24,6 @@ import { CATEGORY_OPTIONS } from "@/data/constants/notification-config";
 import { useGetUsers } from "@/data/hooks/use-get-users";
 import { useSendNotification } from "@/data/hooks/use-notifications";
 import { NotificationCategory } from "@/data/services/notification-service";
-import { colors } from "@/styles/colors";
 
 const schema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
@@ -82,22 +82,19 @@ export default function NotificationsPage() {
   return (
     <div
       className="min-h-screen p-6 md:p-10"
-      style={{ backgroundColor: colors.functional.background.primary }}
+      style={{ backgroundColor: govTheme.background.page }}
     >
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Page header */}
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <Bell
-              className="w-8 h-8"
-              style={{ color: colors.secondary[300] }}
-            />
+          <h2
+            className="flex items-center gap-3 text-3xl font-bold tracking-tight"
+            style={{ color: govTheme.text.primary }}
+          >
+            <Bell className="h-8 w-8" style={{ color: govTheme.brand.blue }} />
             Notificações
           </h2>
-          <p
-            className="mt-1"
-            style={{ color: colors.functional.text.secondary }}
-          >
+          <p className="mt-1" style={{ color: govTheme.text.secondary }}>
             Envie avisos e alertas para os usuários do aplicativo.
           </p>
         </div>
@@ -106,8 +103,9 @@ export default function NotificationsPage() {
         <div
           className="rounded-2xl p-6 space-y-6"
           style={{
-            backgroundColor: colors.functional.background.secondary,
-            border: `1px solid ${colors.functional.border.light}`,
+            backgroundColor: govTheme.background.section,
+            border: `1px solid ${govTheme.border.subtle}`,
+            boxShadow: govTheme.shadow.card,
           }}
         >
           <Form {...form}>
@@ -118,11 +116,18 @@ export default function NotificationsPage() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Título</FormLabel>
+                    <FormLabel style={{ color: govTheme.text.primary }}>
+                      Título
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Ex: Aviso importante"
-                        className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500"
+                        className="border bg-white"
+                        style={{
+                          borderColor: govTheme.border.subtle,
+                          color: govTheme.text.primary,
+                          backgroundColor: govTheme.background.section,
+                        }}
                         {...field}
                       />
                     </FormControl>
@@ -137,10 +142,17 @@ export default function NotificationsPage() {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Categoria</FormLabel>
+                    <FormLabel style={{ color: govTheme.text.primary }}>
+                      Categoria
+                    </FormLabel>
                     <FormControl>
                       <select
-                        className="w-full rounded-md px-3 py-2 text-sm border bg-[#1f2138] border-[#3d3d4e] text-white"
+                        className="w-full rounded-md border px-3 py-2 text-sm"
+                        style={{
+                          borderColor: govTheme.border.subtle,
+                          color: govTheme.text.primary,
+                          backgroundColor: govTheme.background.section,
+                        }}
                         {...field}
                       >
                         {CATEGORY_OPTIONS.map((c) => (
@@ -161,12 +173,19 @@ export default function NotificationsPage() {
                 name="body"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Mensagem</FormLabel>
+                    <FormLabel style={{ color: govTheme.text.primary }}>
+                      Mensagem
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Escreva o conteúdo da notificação..."
                         rows={4}
-                        className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 resize-none"
+                        className="resize-none border bg-white"
+                        style={{
+                          borderColor: govTheme.border.subtle,
+                          color: govTheme.text.primary,
+                          backgroundColor: govTheme.background.section,
+                        }}
                         {...field}
                       />
                     </FormControl>
@@ -181,10 +200,17 @@ export default function NotificationsPage() {
                 name="targetId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Destinatário</FormLabel>
+                    <FormLabel style={{ color: govTheme.text.primary }}>
+                      Destinatário
+                    </FormLabel>
                     <FormControl>
                       <select
-                        className="w-full rounded-md px-3 py-2 text-sm border bg-[#1f2138] border-[#3d3d4e] text-white"
+                        className="w-full rounded-md border px-3 py-2 text-sm"
+                        style={{
+                          borderColor: govTheme.border.subtle,
+                          color: govTheme.text.primary,
+                          backgroundColor: govTheme.background.section,
+                        }}
                         {...field}
                       >
                         <option value="">
@@ -197,9 +223,7 @@ export default function NotificationsPage() {
                         ))}
                       </select>
                     </FormControl>
-                    <FormDescription
-                      style={{ color: colors.functional.text.tertiary }}
-                    >
+                    <FormDescription style={{ color: govTheme.text.muted }}>
                       {isBroadcast
                         ? "A notificação será enviada a todos os usuários."
                         : "A notificação será enviada apenas para o usuário selecionado."}
@@ -213,24 +237,18 @@ export default function NotificationsPage() {
               <div
                 className="flex items-center gap-2 rounded-xl px-4 py-3"
                 style={{
-                  backgroundColor: isBroadcast
-                    ? "rgba(124, 58, 237, 0.15)"
-                    : "rgba(230, 56, 144, 0.12)",
-                  border: `1px solid ${isBroadcast ? colors.accent[700] : colors.secondary[700]}`,
+                  backgroundColor: govTheme.brand.blueSurface,
+                  border: `1px solid ${govTheme.border.strong}`,
                 }}
               >
                 {isBroadcast ? (
-                  <Users size={16} style={{ color: colors.accent[400] }} />
+                  <Users size={16} style={{ color: govTheme.brand.blue }} />
                 ) : (
-                  <Bell size={16} style={{ color: colors.secondary[400] }} />
+                  <Bell size={16} style={{ color: govTheme.brand.blue }} />
                 )}
                 <span
                   className="text-sm font-medium"
-                  style={{
-                    color: isBroadcast
-                      ? colors.accent[300]
-                      : colors.secondary[300],
-                  }}
+                  style={{ color: govTheme.brand.blueStrong }}
                 >
                   {isBroadcast
                     ? `Broadcast — ${users?.length ?? "?"} usuário(s)`
@@ -244,8 +262,8 @@ export default function NotificationsPage() {
                 disabled={isPending}
                 className="w-full font-semibold"
                 style={{
-                  background: colors.gradients.cta,
-                  color: "white",
+                  backgroundColor: govTheme.brand.blue,
+                  color: govTheme.text.inverse,
                   border: "none",
                 }}
               >
@@ -260,7 +278,10 @@ export default function NotificationsPage() {
               </Button>
 
               {sent && (
-                <div className="flex items-center gap-2 text-green-400 text-sm justify-center">
+                <div
+                  className="flex items-center justify-center gap-2 text-sm"
+                  style={{ color: govTheme.brand.green }}
+                >
                   <CheckCircle size={16} />
                   Notificação enviada com sucesso!
                 </div>

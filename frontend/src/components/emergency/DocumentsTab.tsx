@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { Download, FileText, Loader2, Trash2, Upload } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -110,6 +111,20 @@ export function DocumentsTab() {
       transition={{ duration: 0.3 }}
       className="flex-1 flex flex-col items-center justify-start w-full max-w-md mx-auto relative px-4 mt-2 mb-20"
     >
+      <div className="mb-4 w-full rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
+        <h3 className="text-base font-semibold text-white">Registros</h3>
+        <p className="mt-1 text-sm leading-relaxed text-white/70">
+          Reúna documentos, comprovantes e anotações importantes para manter o
+          histórico do seu acompanhamento sempre acessível.
+        </p>
+        <Link
+          href="/app/notes"
+          className="mt-3 inline-flex text-sm font-semibold text-white underline decoration-white/30 underline-offset-4"
+        >
+          Abrir minhas notas
+        </Link>
+      </div>
+
       {/* Upload trigger card */}
       <div
         onClick={() => !uploading && fileInputRef.current?.click()}
@@ -124,10 +139,10 @@ export function DocumentsTab() {
         </div>
         <div className="text-center">
           <h3 className="text-white font-semibold text-lg">
-            {uploading ? "Enviando arquivo..." : "Enviar Documento"}
+            {uploading ? "Enviando arquivo..." : "Adicionar documento"}
           </h3>
           <p className="text-white/60 text-sm">
-            Tire uma foto ou anexe um PDF (B.O., Laudos, etc)
+            Envie evidências, laudos, comprovantes ou PDFs relevantes
           </p>
         </div>
         <input
@@ -140,7 +155,7 @@ export function DocumentsTab() {
       </div>
 
       <div className="w-full mt-6 space-y-4">
-        <h4 className="text-white/90 font-medium px-1">Seus Documentos</h4>
+        <h4 className="px-1 font-medium text-white/90">Seus documentos</h4>
 
         {loading ? (
           <div className="flex justify-center p-8">

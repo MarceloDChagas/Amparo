@@ -23,8 +23,7 @@ export const Step: React.FC<StepProps> = ({ number, title, description }) => (
       <div
         className="w-14 h-14 rounded-2xl text-white flex items-center justify-center font-bold text-xl mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1"
         style={{
-          background: colors.gradients.card,
-          boxShadow: `0 10px 30px -10px ${colors.special.glow.violet}`,
+          backgroundColor: colors.accent[600],
           border: `1px solid ${colors.functional.border.light}`,
         }}
       >

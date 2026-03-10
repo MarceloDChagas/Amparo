@@ -1,0 +1,172 @@
+"use client";
+
+import "leaflet/dist/leaflet.css";
+
+import L from "leaflet";
+import React, { useEffect, useRef, useState } from "react";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+
+import { Occurrence } from "@/services/occurrence-service";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+// A component to render the Heatmap layer using Leaflet.heat
+function HeatmapLayer({ occurrences }: { occurrences: Occurrence[] }) {
+  const map = useMap();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heatLayerRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Only import the heatmap plugin on the client
+    import("leaflet.heat")
+      .then(() => {
+        // Map occurrences to [lat, lng, intensity]
+        const points = occurrences
+          .filter((o) => o.latitude != null && o.longitude != null)
+          .map((o) => [o.latitude, o.longitude, 1] as [number, number, number]);
+
+        if (points.length > 0) {
+          if (heatLayerRef.current) {
+            map.removeLayer(heatLayerRef.current);
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          heatLayerRef.current = (L as any)
+            .heatLayer(points, {
+              radius: 25,
+              blur: 15,
+              maxZoom: 17,
+              gradient: {
+                0.4: "blue",
+                0.6: "cyan",
+                0.7: "lime",
+                0.8: "yellow",
+                1.0: "red",
+              },
+            })
+            .addTo(map);
+        }
+        return null;
+      })
+      .catch((err) => {
+        console.error("Failed to load leaflet.heat plugin", err);
+      });
+
+    return () => {
+      if (heatLayerRef.current && map) {
+        map.removeLayer(heatLayerRef.current);
+      }
+    };
+  }, [map, occurrences]);
+
+  return null;
+}
+
+interface OccurrencesMapProps {
+  occurrences: Occurrence[];
+  viewMode: "cluster" | "heatmap";
+}
+
+function MapUpdater({
+  center,
+  zoom,
+}: {
+  center: [number, number];
+  zoom: number;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+}
+
+export default function OccurrencesMap({
+  occurrences,
+  viewMode,
+}: OccurrencesMapProps) {
+  const [center, setCenter] = useState<[number, number]>([-14.235, -51.925]);
+  const [zoom, setZoom] = useState(4);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCenter([position.coords.latitude, position.coords.longitude]);
+          setZoom(13);
+        },
+        (error) => {
+          console.error("Error getting location: ", error);
+          if (
+            occurrences.length > 0 &&
+            occurrences[0].latitude &&
+            occurrences[0].longitude
+          ) {
+            setCenter([occurrences[0].latitude, occurrences[0].longitude]);
+            setZoom(12);
+          }
+        },
+      );
+    } else if (
+      occurrences.length > 0 &&
+      occurrences[0].latitude &&
+      occurrences[0].longitude
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCenter([occurrences[0].latitude, occurrences[0].longitude]);
+      setZoom(12);
+    }
+  }, [occurrences]);
+
+  return (
+    <div className="h-[600px] w-full rounded-md border shadow-sm overflow-hidden z-0 relative">
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        scrollWheelZoom={true}
+        style={{ height: "100%", width: "100%", zIndex: 0 }}
+      >
+        <MapUpdater center={center} zoom={zoom} />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {viewMode === "cluster" && (
+          <MarkerClusterGroup chunkedLoading>
+            {occurrences.map((occ) => {
+              if (occ.latitude == null || occ.longitude == null) return null;
+              return (
+                <Marker key={occ.id} position={[occ.latitude, occ.longitude]}>
+                  <Popup>
+                    <div className="p-2 space-y-2">
+                      <h3 className="font-bold text-sm">Ocorrência</h3>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {occ.description}
+                      </p>
+                      <div className="text-xs">
+                        <strong>Lat:</strong> {occ.latitude.toFixed(4)} <br />
+                        <strong>Lng:</strong> {occ.longitude.toFixed(4)}
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
+
+        {viewMode === "heatmap" && <HeatmapLayer occurrences={occurrences} />}
+      </MapContainer>
+    </div>
+  );
+}

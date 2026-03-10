@@ -1,74 +1,101 @@
-import { ExternalLink } from "lucide-react";
+import { BarChart3, FolderOpen, Lock, Siren } from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
-import {
-  AnalyticsCard,
-  SecurityCard,
-  SupportNetworkCard,
-  UnifiedRecordCard,
-} from "./BentoCards";
+const features = [
+  {
+    icon: FolderOpen,
+    title: "Prontuário unificado",
+    description:
+      "Histórico psicossocial, jurídico e de ocorrências reunido em um mesmo ambiente, com acesso restrito a profissionais autorizados.",
+  },
+  {
+    icon: Lock,
+    title: "Privacidade e LGPD",
+    description:
+      "Criptografia, trilha de auditoria e controle por perfil para tratar dados sensíveis com rigor desde a arquitetura.",
+  },
+  {
+    icon: Siren,
+    title: "Alerta de emergência",
+    description:
+      "Em situação de risco iminente, o sistema facilita acionamentos e notificações para reduzir tempo de resposta da rede.",
+  },
+  {
+    icon: BarChart3,
+    title: "Leitura territorial e indicadores",
+    description:
+      "Indicadores públicos e operacionais ajudam gestores a acompanhar demanda, risco e continuidade do serviço com base em evidências.",
+  },
+];
 
-export const FeaturesSection: React.FC = () => {
-  return (
-    <section
-      id="features"
-      className="py-32 relative overflow-hidden"
-      style={{ backgroundColor: colors.functional.background.tertiary }}
-    >
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#3d3d4e] to-transparent" />
+export const FeaturesSection: React.FC = () => (
+  <section
+    id="features"
+    className="py-24"
+    style={{ backgroundColor: govTheme.background.page }}
+  >
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="mb-14">
+        <p
+          className="text-sm font-semibold tracking-widest uppercase mb-3"
+          style={{ color: govTheme.brand.blue }}
+        >
+          Estrutura do serviço
+        </p>
+        <h2
+          className="text-3xl font-bold"
+          style={{ color: govTheme.text.primary }}
+        >
+          Recursos pensados para a rede pública atuar com mais consistência
+        </h2>
+        <p
+          className="mt-4 max-w-2xl text-base leading-7"
+          style={{ color: govTheme.text.secondary }}
+        >
+          Em vez de uma vitrine comercial, a página apresenta de forma direta os
+          pilares que sustentam acolhimento, proteção de dados e gestão pública
+          responsável.
+        </p>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-6">
-          <div className="max-w-3xl">
-            <div
-              className="text-sm font-bold tracking-widest mb-4"
-              style={{ color: colors.accent[400] }}
-            >
-              CAPACIDADES DO SISTEMA
-            </div>
-            <h2
-              className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
-              style={{ color: colors.functional.text.primary }}
-            >
-              Tecnologia a serviço da vida
-            </h2>
-            <p
-              className="text-xl leading-relaxed"
-              style={{ color: colors.functional.text.secondary }}
-            >
-              Ferramentas desenhadas para oferecer agilidade no atendimento e
-              precisão na gestão pública de casos de violência.
-            </p>
-          </div>
-          <button
-            className="flex items-center gap-2 font-bold hover:gap-3 transition-all px-6 py-3 rounded-xl"
+      <div
+        className="grid gap-4 sm:grid-cols-2"
+        style={{
+          borderRadius: "1rem",
+        }}
+      >
+        {features.map((feature) => (
+          <div
+            key={feature.title}
+            className="rounded-3xl border p-8"
             style={{
-              color: colors.secondary[300],
-              backgroundColor: `${colors.secondary[900]}33`,
-              border: `1px solid ${colors.secondary[900]}`,
+              backgroundColor: govTheme.background.section,
+              borderColor: govTheme.border.subtle,
+              boxShadow: govTheme.shadow.card,
             }}
           >
-            Explorar documentação <ExternalLink size={18} />
-          </button>
-        </div>
-
-        {/* Bento Box Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[340px]">
-          {/* Card 1: Prontuário Unificado (Large) */}
-          <UnifiedRecordCard />
-
-          {/* Card 2: Segurança de Dados (Tall) */}
-          <SecurityCard />
-
-          {/* Card 3: Rede de Apoio (Standard) */}
-          <SupportNetworkCard />
-
-          {/* Card 4: Inteligência (Large) */}
-          <AnalyticsCard />
-        </div>
+            <feature.icon
+              size={22}
+              className="mb-5"
+              style={{ color: govTheme.brand.blue }}
+            />
+            <h3
+              className="text-base font-semibold mb-2"
+              style={{ color: govTheme.text.primary }}
+            >
+              {feature.title}
+            </h3>
+            <p
+              className="text-sm leading-relaxed"
+              style={{ color: govTheme.text.secondary }}
+            >
+              {feature.description}
+            </p>
+          </div>
+        ))}
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);

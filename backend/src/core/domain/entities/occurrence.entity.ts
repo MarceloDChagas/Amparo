@@ -4,7 +4,7 @@ export class Occurrence {
   latitude: number;
   longitude: number;
   userId: string;
-  aggressorId: string;
+  aggressorId?: string | null;
 
   constructor(props: Occurrence) {
     Object.assign(this, props);

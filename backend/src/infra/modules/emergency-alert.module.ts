@@ -5,6 +5,7 @@ import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-re
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emergency-alert.use-case";
 import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
+import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
 import { PrismaService } from "@/infra/database/prisma.service";
@@ -25,6 +26,7 @@ import { UserModule } from "./user.module";
     PrismaService,
     CreateEmergencyAlert,
     GetActiveEmergencyAlertUseCase,
+    GetAllEmergencyAlertsUseCase,
     GetEmergencyAlertByIdUseCase,
     RecordAlertEventUseCase,
     GetAlertHistoryUseCase,

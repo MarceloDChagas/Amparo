@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { Occurrence as PrismaOccurrence } from "@prisma/client";
+import { Occurrence as PrismaOccurrence, Prisma } from "@prisma/client";
 
 import { Occurrence } from "@/core/domain/entities/occurrence.entity";
 import { IOccurrenceRepository } from "@/core/domain/repositories/occurrence-repository.interface";
@@ -21,14 +21,16 @@ export class PrismaOccurrenceRepository implements IOccurrenceRepository {
   }
 
   async create(occurrence: Occurrence): Promise<Occurrence> {
+    const data: Prisma.OccurrenceUncheckedCreateInput = {
+      description: occurrence.description,
+      latitude: occurrence.latitude,
+      longitude: occurrence.longitude,
+      userId: occurrence.userId,
+      aggressorId: occurrence.aggressorId || null,
+    };
+
     const created = await this.prisma.occurrence.create({
-      data: {
-        description: occurrence.description,
-        latitude: occurrence.latitude,
-        longitude: occurrence.longitude,
-        userId: occurrence.userId,
-        aggressorId: occurrence.aggressorId,
-      },
+      data,
     });
     return this.mapToEntity(created);
   }

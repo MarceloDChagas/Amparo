@@ -33,6 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateOccurrence } from "@/data/hooks/use-create-occurrence";
 import { useGetAggressors } from "@/data/hooks/use-get-aggressors";
 import { useGetUsers } from "@/data/hooks/use-get-users";
+import { EmergencyAlert } from "@/services/emergency-alert-service";
 
 const formSchema = z.object({
   description: z.string().min(1, "Description is required."),
@@ -43,10 +44,14 @@ const formSchema = z.object({
     .string()
     .refine((val) => !isNaN(Number(val)), "Longitude must be a valid number."),
   userId: z.string().uuid("Please select a user."),
-  aggressorId: z.string().uuid("Please select an aggressor."),
+  aggressorId: z.string().optional(),
 });
 
-export function OccurrenceForm() {
+interface OccurrenceFormProps {
+  selectedAlert?: EmergencyAlert;
+}
+
+export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
   const { mutate, isPending } = useCreateOccurrence();
   const { data: users, isLoading: isLoadingUsers } = useGetUsers();
   const { data: aggressors, isLoading: isLoadingAggressors } =
@@ -56,37 +61,44 @@ export function OccurrenceForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
-      latitude: "0",
-      longitude: "0",
-      userId: "",
-      aggressorId: "",
+      latitude: selectedAlert ? String(selectedAlert.latitude) : "0",
+      longitude: selectedAlert ? String(selectedAlert.longitude) : "0",
+      userId: selectedAlert?.userId || "",
+      aggressorId: "none",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    mutate(
-      {
-        ...values,
-        latitude: Number(values.latitude),
-        longitude: Number(values.longitude),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const submitData: any = {
+      description: values.description,
+      userId: values.userId,
+      latitude: Number(values.latitude),
+      longitude: Number(values.longitude),
+    };
+
+    if (values.aggressorId && values.aggressorId !== "none") {
+      submitData.aggressorId = values.aggressorId;
+    }
+
+    mutate(submitData, {
+      onSuccess: () => {
+        toast.success("Occurrence created successfully!");
+        form.reset();
       },
-      {
-        onSuccess: () => {
-          toast.success("Occurrence created successfully!");
-          form.reset();
-        },
-        onError: (error) => {
-          toast.error(`Failed to create occurrence: ${error.message}`);
-        },
+      onError: (error) => {
+        toast.error(`Failed to create occurrence: ${error.message}`);
       },
-    );
+    });
   }
 
   return (
     <Card className="w-[450px]">
       <CardHeader>
-        <CardTitle>Register Occurrence</CardTitle>
-        <CardDescription>Record details of the incident.</CardDescription>
+        <CardTitle>Registrar Ocorrência</CardTitle>
+        <CardDescription>
+          Registre os detalhes do incidente com base no chamado selecionado.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -116,7 +128,7 @@ export function OccurrenceForm() {
                   <FormItem>
                     <FormLabel>Latitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" {...field} />
+                      <Input type="number" step="any" disabled {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,7 +141,7 @@ export function OccurrenceForm() {
                   <FormItem>
                     <FormLabel>Longitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" {...field} />
+                      <Input type="number" step="any" disabled {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,6 +199,9 @@ export function OccurrenceForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">
+                        Não Identificado / Opcional
+                      </SelectItem>
                       {isLoadingAggressors ? (
                         <SelectItem value="loading" disabled>
                           Loading...

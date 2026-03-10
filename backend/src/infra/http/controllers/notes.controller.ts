@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -29,6 +30,13 @@ const createNoteSchema = z.object({
 
 export class CreateNoteDto extends createZodDto(createNoteSchema) {}
 
+interface AuthenticatedRequest {
+  user: {
+    id: string;
+    role: Role;
+  };
+}
+
 @Controller("notes")
 @UseGuards(AuthGuard("jwt"), RolesGuard)
 export class NotesController {
@@ -38,11 +46,24 @@ export class NotesController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VICTIM)
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ZodValidationPipe)
-  async create(@Body() body: CreateNoteDto) {
+  async create(
+    @Body() body: CreateNoteDto,
+    @Request() request: AuthenticatedRequest,
+  ) {
     const { title, content, userId, occurrenceId } = body;
+    const authenticatedUser = request.user;
+
+    if (
+      authenticatedUser.role === Role.VICTIM &&
+      authenticatedUser.id !== userId
+    ) {
+      throw new ForbiddenException(
+        "Você só pode criar notas para o seu próprio usuário.",
+      );
+    }
 
     const note = await this.createNoteUseCase.execute({
       title,
@@ -65,8 +86,22 @@ export class NotesController {
   }
 
   @Get("user/:userId")
-  @Roles(Role.ADMIN)
-  async getByUser(@Param("userId") userId: string) {
+  @Roles(Role.ADMIN, Role.VICTIM)
+  async getByUser(
+    @Param("userId") userId: string,
+    @Request() request: AuthenticatedRequest,
+  ) {
+    const authenticatedUser = request.user;
+
+    if (
+      authenticatedUser.role === Role.VICTIM &&
+      authenticatedUser.id !== userId
+    ) {
+      throw new ForbiddenException(
+        "Você só pode visualizar as suas próprias notas.",
+      );
+    }
+
     const notes = await this.getNotesByUserUseCase.execute({ userId });
 
     return {

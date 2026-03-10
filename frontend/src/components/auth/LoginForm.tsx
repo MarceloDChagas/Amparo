@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,7 +20,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/presentation/hooks/useAuth";
-import { colors } from "@/styles/colors";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -33,6 +33,8 @@ export function LoginForm() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const inputClassName =
+    "h-13 rounded-[14px] border border-[#b9c8d8] bg-[#f8fbff] px-4 text-[15px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] placeholder:text-slate-500 focus-visible:border-[#244b7a] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.14)]";
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -63,21 +65,32 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-gray-300">Email</FormLabel>
+            <FormItem className="space-y-2.5">
+              <FormLabel
+                className="text-sm font-semibold"
+                style={{ color: govTheme.text.primary }}
+              >
+                Email
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="seu@email.com"
-                  className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
+                  className={inputClassName}
+                  style={{
+                    color: govTheme.text.primary,
+                  }}
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-[#f95daf]" />
+              <FormMessage
+                className="text-sm"
+                style={{ color: govTheme.status.danger }}
+              />
             </FormItem>
           )}
         />
@@ -85,38 +98,49 @@ export function LoginForm() {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-gray-300">Senha</FormLabel>
+            <FormItem className="space-y-2.5">
+              <FormLabel
+                className="text-sm font-semibold"
+                style={{ color: govTheme.text.primary }}
+              >
+                Senha
+              </FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="******"
-                    className="bg-[#1f2138] border-[#3d3d4e] text-white placeholder:text-gray-500 h-12 rounded-xl focus:border-[#9333ea] focus:ring-[#9333ea]"
+                    placeholder="Sua senha"
+                    className={`${inputClassName} pr-12`}
+                    style={{
+                      color: govTheme.text.primary,
+                    }}
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors hover:text-[#244b7a]"
+                    style={{ color: "#5b6b7f" }}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </FormControl>
-              <FormMessage className="text-[#f95daf]" />
+              <FormMessage
+                className="text-sm"
+                style={{ color: govTheme.status.danger }}
+              />
             </FormItem>
           )}
         />
         <Button
           type="submit"
-          className="w-full h-12 rounded-xl font-bold text-md transition-all hover:scale-[1.02] mt-4"
+          className="mt-6 h-13 w-full rounded-[14px] text-[15px] font-semibold shadow-[0_12px_24px_rgba(31,58,95,0.18)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(31,58,95,0.22)] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.18)]"
           disabled={loading}
           style={{
-            background: colors.gradients.cta,
-            boxShadow: `0 8px 25px ${colors.special.shadow.rose}`,
+            backgroundColor: govTheme.brand.blueStrong,
             border: "none",
-            color: "#fff",
+            color: govTheme.text.inverse,
           }}
         >
           {loading ? "Entrando..." : "Entrar"}

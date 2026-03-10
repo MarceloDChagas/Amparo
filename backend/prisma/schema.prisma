@@ -25,8 +25,8 @@ model Occurrence {
   longitude   Float
   userId      String
   user        User      @relation(fields: [userId], references: [id])
-  aggressorId String
-  aggressor   Aggressor @relation(fields: [aggressorId], references: [id])
+  aggressorId String?
+  aggressor   Aggressor? @relation(fields: [aggressorId], references: [id])
   notes       Note[]
 }
 

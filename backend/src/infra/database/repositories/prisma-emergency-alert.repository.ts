@@ -58,4 +58,23 @@ export class PrismaEmergencyAlertRepository implements EmergencyAlertRepository 
       alert.userId,
     );
   }
+
+  async findAll(): Promise<EmergencyAlert[]> {
+    const alerts = await this.prisma.emergencyAlert.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    return alerts.map(
+      (alert) =>
+        new EmergencyAlert(
+          alert.id,
+          alert.latitude,
+          alert.longitude,
+          alert.createdAt,
+          alert.status,
+          alert.address,
+          alert.userId,
+        ),
+    );
+  }
 }

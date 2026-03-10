@@ -47,8 +47,8 @@ export function EmergencyHeader() {
             <div
               className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
               style={{
-                backgroundColor: colors.secondary[300],
-                color: colors.primary[900],
+                backgroundColor: colors.accent[600],
+                color: "white",
               }}
             >
               {unreadCount > 9 ? "9+" : unreadCount}

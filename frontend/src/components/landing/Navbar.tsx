@@ -1,66 +1,115 @@
 "use client";
 
 import { ShieldCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
 interface NavbarProps {
   scrolled: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => (
-  <nav
-    className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-      scrolled ? "backdrop-blur-lg shadow-lg py-3" : "bg-transparent py-6"
-    }`}
-    style={
-      scrolled
-        ? {
-            backgroundColor: colors.functional.background.light,
-            borderBottom: `1px solid ${colors.neutral[200]}`,
-          }
-        : undefined
-    }
-  >
-    <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-      <div className="flex items-center gap-2.5">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center shadow-lg"
-          style={{ background: colors.gradients.card }}
-        >
-          <ShieldCheck className="text-white w-5 h-5" />
+export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: "#acesso-rapido", label: "Acesso rápido", hidden: false },
+    { href: "#how-it-works", label: "Como funciona", hidden: true },
+    { href: "#dados-publicos", label: "Dados públicos", hidden: true },
+  ];
+
+  const navLink = (href: string, label: string, hidden?: boolean) => {
+    const isActive = pathname === href;
+
+    return (
+      <a
+        href={href}
+        className={`relative flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 ${
+          hidden ? "hidden md:flex" : ""
+        }`}
+        style={{
+          color: isActive ? govTheme.brand.blueStrong : govTheme.text.secondary,
+        }}
+        onMouseEnter={(e) =>
+          ((e.currentTarget as HTMLElement).style.color =
+            govTheme.brand.blueStrong)
+        }
+        onMouseLeave={(e) =>
+          ((e.currentTarget as HTMLElement).style.color = isActive
+            ? govTheme.brand.blueStrong
+            : govTheme.text.secondary)
+        }
+      >
+        {label}
+        {isActive && (
+          <span
+            className="absolute -bottom-0.5 left-3 right-3 h-px rounded-full"
+            style={{ backgroundColor: govTheme.brand.sand }}
+          />
+        )}
+      </a>
+    );
+  };
+
+  return (
+    <nav
+      className="fixed top-0 w-full z-40 transition-all duration-200"
+      style={{
+        backgroundColor: scrolled
+          ? "rgba(255,255,255,0.98)"
+          : "rgba(247,248,250,0.92)",
+        borderBottom: scrolled
+          ? `1px solid ${govTheme.border.subtle}`
+          : `1px solid rgba(216, 225, 234, 0.78)`,
+        backdropFilter: "blur(10px)",
+        paddingTop: scrolled ? "0.75rem" : "1.15rem",
+        paddingBottom: scrolled ? "0.75rem" : "0.95rem",
+      }}
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: govTheme.brand.blueSurface }}
+          >
+            <ShieldCheck size={18} style={{ color: govTheme.brand.blue }} />
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: govTheme.brand.blue }}
+            >
+              Serviço público de proteção
+            </span>
+            <span
+              className="text-base font-semibold"
+              style={{ color: govTheme.text.primary }}
+            >
+              Amparo
+            </span>
+          </div>
         </div>
-        <span
-          className="text-xl font-bold tracking-tight bg-gradient-to-r bg-clip-text text-transparent"
-          style={{ backgroundImage: colors.gradients.primary }}
-        >
-          Amparo
-        </span>
+
+        <div className="flex items-center gap-1.5">
+          {navItems.map((item) => navLink(item.href, item.label, item.hidden))}
+          <div
+            className="hidden md:block mx-2 w-px h-4 self-center"
+            style={{ backgroundColor: govTheme.border.subtle }}
+          />
+          {navLink("/login", "Entrar")}
+          <a
+            href="/register"
+            className="ml-1 hidden items-center rounded-full px-4 py-2 text-sm font-semibold sm:inline-flex"
+            style={{
+              color: govTheme.text.inverse,
+              backgroundColor: govTheme.brand.blue,
+            }}
+          >
+            Acesso institucional
+          </a>
+        </div>
       </div>
-      <div className="flex items-center gap-6">
-        <a
-          href="#features"
-          className={`hidden md:block text-sm font-medium transition-colors ${scrolled ? "" : "text-white/90 hover:text-white"}`}
-          style={scrolled ? { color: colors.neutral[700] } : undefined}
-        >
-          Funcionalidades
-        </a>
-        <a
-          href="/login"
-          className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all ${scrolled ? "" : "text-white/90 hover:bg-white/10"}`}
-          style={scrolled ? { color: colors.accent[700] } : undefined}
-        >
-          Entrar
-        </a>
-        <a
-          href="/register"
-          className="hidden sm:block px-5 py-2 text-white text-sm font-semibold rounded-xl shadow-md transition-all hover:scale-105"
-          style={{ background: colors.gradients.cta }}
-        >
-          Criar Conta
-        </a>
-      </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
