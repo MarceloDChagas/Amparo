@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { aggressorService } from "@/services/aggressor-service";
 import { AuditLog, auditLogService } from "@/services/audit-log-service";
 import { CheckIn, checkInService } from "@/services/check-in-service";
@@ -13,7 +14,6 @@ import {
 import { occurrenceService } from "@/services/occurrence-service";
 import { Occurrence } from "@/services/occurrence-service";
 import { userService } from "@/services/user-service";
-import { colors } from "@/styles/colors";
 
 import { DashboardStats } from "./components/DashboardStats";
 import { LateCheckInAlert } from "./components/LateCheckInAlert";
@@ -25,7 +25,14 @@ const OccurrencesMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[400px] w-full flex items-center justify-center rounded-md border text-muted-foreground bg-gray-50 dark:bg-gray-800">
+      <div
+        className="flex h-[400px] w-full items-center justify-center rounded-2xl border text-sm"
+        style={{
+          color: govTheme.text.muted,
+          backgroundColor: govTheme.background.alt,
+          borderColor: govTheme.border.subtle,
+        }}
+      >
         Carregando mapa...
       </div>
     ),
@@ -84,14 +91,17 @@ export default function DashboardPage() {
   return (
     <div
       className="min-h-screen p-6 md:p-10"
-      style={{ backgroundColor: colors.functional.background.primary }}
+      style={{ backgroundColor: govTheme.background.page }}
     >
       <div className="max-w-7xl mx-auto space-y-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">
+          <h2
+            className="text-3xl font-bold tracking-tight"
+            style={{ color: govTheme.text.primary }}
+          >
             Painel de Controle
           </h2>
-          <p style={{ color: colors.functional.text.secondary }}>
+          <p style={{ color: govTheme.text.secondary }}>
             Visão geral do sistema de gestão Amparo.
           </p>
         </div>
@@ -108,8 +118,18 @@ export default function DashboardPage() {
                 <LateCheckInAlert key={c.id} checkIn={c} />
               ))}
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            <div
+              className="rounded-2xl border p-6"
+              style={{
+                backgroundColor: govTheme.background.section,
+                borderColor: govTheme.border.subtle,
+                boxShadow: govTheme.shadow.card,
+              }}
+            >
+              <h3
+                className="mb-4 text-lg font-semibold"
+                style={{ color: govTheme.text.primary }}
+              >
                 Mapa de Calor de Vítimas
               </h3>
               <OccurrencesMap occurrences={allOccurrences} viewMode="heatmap" />

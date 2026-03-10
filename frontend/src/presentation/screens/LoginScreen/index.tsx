@@ -1,110 +1,26 @@
 "use client";
 
-import { Shield } from "lucide-react";
-import Link from "next/link";
-
+import { AuthShell } from "@/components/auth/AuthShell";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { colors } from "@/styles/colors";
 
 export function LoginScreen() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-[#1a1d3a]">
-      {/* Left Column: Branding / Marketing */}
-      <div
-        className="relative hidden lg:flex flex-col justify-center items-start p-16 overflow-hidden"
-        style={{ backgroundColor: colors.functional.background.secondary }}
-      >
-        <div className="relative z-10 w-full max-w-lg mx-auto">
-          <Link href="/" className="inline-flex items-center gap-3 mb-12">
-            <div
-              className="p-2.5 rounded-xl"
-              style={{ backgroundColor: colors.accent[600] }}
-            >
-              <Shield size={32} className="text-white" />
-            </div>
-            <span className="text-3xl font-extrabold text-white tracking-tight">
-              Amparo
-            </span>
-          </Link>
-
-          <h1 className="text-5xl font-extrabold tracking-tight mb-6 leading-tight text-white drop-shadow-sm">
-            Bem-vindo(a) <br />
-            de volta.
-          </h1>
-
-          <p
-            className="text-lg leading-relaxed max-w-md"
-            style={{ color: colors.functional.text.secondary }}
-          >
-            Acesse sua conta para continuar gerenciando sua rede de proteção com
-            segurança e agilidade.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Column: Form */}
-      <div className="flex items-center justify-center p-6 sm:p-12 relative overflow-hidden">
-        {/* Subtle background glow on mobile */}
-        <div className="absolute inset-0 bg-[#1a1d3a] lg:hidden -z-10" />
-        <div
-          className="lg:hidden absolute top-[-10%] right-[-10%] w-96 h-96 rounded-full blur-[100px] opacity-20 pointer-events-none"
-          style={{ background: colors.accent[500] }}
-        />
-
-        <div
-          className="w-full max-w-md p-8 sm:p-10 rounded-[2rem] relative z-10"
-          style={{
-            backgroundColor: `${colors.functional.background.secondary}cc`,
-            backdropFilter: "blur(20px)",
-            border: `1px solid ${colors.functional.border.light}`,
-            boxShadow: `0 20px 40px ${colors.special.shadow.dark}`,
-          }}
-        >
-          {/* Decorative Top Glow inside card */}
-          <div
-            className="absolute -top-10 -right-10 w-32 h-32 blur-3xl rounded-full opacity-20 pointer-events-none hidden lg:block"
-            style={{ background: colors.accent[500] }}
-          />
-
-          <div className="mb-8 relative z-10">
-            {/* Mobile Logo */}
-            <div className="lg:hidden flex justify-center mb-10">
-              <Link href="/" className="inline-flex items-center gap-3">
-                <div
-                  className="p-2 rounded-lg"
-                  style={{ backgroundColor: colors.accent[600] }}
-                >
-                  <Shield size={20} className="text-white" />
-                </div>
-                <span className="text-xl font-bold text-white tracking-tight">
-                  Amparo
-                </span>
-              </Link>
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Entrar</h2>
-            <p style={{ color: colors.functional.text.secondary }}>
-              Insira seus dados para acessar o sistema.
-            </p>
-          </div>
-
-          <div className="relative z-10">
-            <LoginForm />
-          </div>
-
-          <div className="mt-8 text-center text-sm relative z-10">
-            <span style={{ color: colors.functional.text.tertiary }}>
-              Não tem uma conta?{" "}
-            </span>
-            <Link
-              href="/register"
-              className="font-semibold transition-colors hover:opacity-80"
-              style={{ color: colors.accent[400] }}
-            >
-              Cadastre-se
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AuthShell
+      eyebrow="Plataforma integrada de proteção"
+      title={
+        <>
+          Acesse o Amparo para acompanhar ocorrências, acionar fluxos de
+          resposta e atuar com segurança na rede pública autorizada.
+        </>
+      }
+      description="Use suas credenciais para entrar no ambiente institucional do Amparo e acessar, com segurança, os recursos de monitoramento, acompanhamento e coordenação entre os serviços públicos responsáveis pela proteção das mulheres."
+      formTitle="Entrar"
+      formDescription="Informe seus dados para acessar sua conta e acompanhar atendimentos, ocorrências e casos sob sua responsabilidade."
+      footerPrompt="Ainda não tem acesso?"
+      footerHref="/register"
+      footerLinkLabel="Solicitar cadastro"
+    >
+      <LoginForm />
+    </AuthShell>
   );
 }

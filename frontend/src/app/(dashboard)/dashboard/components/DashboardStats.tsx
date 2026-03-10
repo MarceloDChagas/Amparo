@@ -1,7 +1,7 @@
 import { Activity, AlertCircle, MapPin, Users } from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "@/components/landing/gov-theme";
 
 interface DashboardStatsProps {
   stats: {
@@ -20,34 +20,34 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
           label: "Ocorrências",
           value: stats.occurrences,
           icon: Activity,
-          color: colors.status.info.DEFAULT,
+          color: govTheme.brand.blue,
         },
         {
           label: "Agressores",
           value: stats.aggressors,
           icon: AlertCircle,
-          color: colors.status.error.DEFAULT,
+          color: govTheme.status.danger,
         },
         {
           label: "Usuários Ativos",
           value: stats.users,
           icon: Users,
-          color: colors.status.success.DEFAULT,
+          color: govTheme.brand.green,
         },
         {
           label: "Em Deslocamento",
           value: stats.activeCheckIns,
           icon: MapPin,
-          color: "#f59e0b", // Custom orange/warning color for active trips
+          color: govTheme.brand.sand,
         },
       ].map((stat, i) => (
         <div
           key={i}
           className="p-6 rounded-2xl border flex flex-col justify-between transition-transform hover:scale-[1.02]"
           style={{
-            backgroundColor: colors.functional.background.card,
-            borderColor: colors.functional.border.light,
-            boxShadow: `0 10px 30px ${colors.special.shadow.dark}`,
+            backgroundColor: govTheme.background.section,
+            borderColor: govTheme.border.subtle,
+            boxShadow: govTheme.shadow.card,
           }}
         >
           <div className="flex justify-between items-start mb-4">
@@ -60,13 +60,13 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
           </div>
           <div
             className="text-4xl font-extrabold mb-1"
-            style={{ color: colors.functional.text.primary }}
+            style={{ color: govTheme.text.primary }}
           >
             {stat.value}
           </div>
           <div
             className="text-sm font-medium"
-            style={{ color: colors.functional.text.secondary }}
+            style={{ color: govTheme.text.secondary }}
           >
             {stat.label}
           </div>

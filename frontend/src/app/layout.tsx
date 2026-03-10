@@ -19,6 +19,27 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  title: {
+    default: "Amparo | Plataforma Institucional",
+    template: "%s | Amparo",
+  },
+  description:
+    "Sistema institucional do Amparo para acolhimento, acompanhamento e coordenação entre serviços autorizados.",
+  applicationName: "Amparo",
+  openGraph: {
+    title: "Amparo | Plataforma Institucional",
+    description:
+      "Sistema institucional do Amparo para acolhimento, acompanhamento e coordenação entre serviços autorizados.",
+    siteName: "Amparo",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Amparo | Plataforma Institucional",
+    description:
+      "Sistema institucional do Amparo para acolhimento, acompanhamento e coordenação entre serviços autorizados.",
+  },
   icons: {
     icon: "/icon.png",
     shortcut: "/icon.png",

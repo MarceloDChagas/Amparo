@@ -1,22 +1,43 @@
 "use client";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 export function Header() {
   const { user } = useAuth();
 
   return (
-    <header className="h-16 border-b border-gray-200 bg-white flex items-center px-6 justify-between">
-      <div className="font-semibold text-lg text-gray-800">
+    <header
+      className="flex h-16 items-center justify-between px-6"
+      style={{
+        borderBottom: `1px solid ${govTheme.border.subtle}`,
+        backgroundColor: "rgba(255,255,255,0.94)",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <div
+        className="text-lg font-semibold"
+        style={{ color: govTheme.text.primary }}
+      >
         {/* Breadcrumb or Title placeholder */}
         Dashboard
       </div>
       <div className="flex items-center gap-4">
         <div className="text-sm text-right">
-          <p className="font-medium text-gray-900">{user?.name || "Usuário"}</p>
-          <p className="text-xs text-gray-500">{user?.email}</p>
+          <p className="font-medium" style={{ color: govTheme.text.primary }}>
+            {user?.name || "Usuário"}
+          </p>
+          <p className="text-xs" style={{ color: govTheme.text.muted }}>
+            {user?.email}
+          </p>
         </div>
-        <div className="h-8 w-8 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold">
+        <div
+          className="flex h-8 w-8 items-center justify-center rounded-full font-bold"
+          style={{
+            color: govTheme.text.inverse,
+            backgroundColor: govTheme.brand.blue,
+          }}
+        >
           {user?.name?.charAt(0).toUpperCase() || "U"}
         </div>
       </div>

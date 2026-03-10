@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -25,7 +26,10 @@ export default function CreateOccurrencePage() {
 
   if (selectedAlert) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
+      <div
+        className="flex min-h-screen flex-col p-6"
+        style={{ backgroundColor: govTheme.background.page }}
+      >
         <div className="flex items-center mb-6">
           <Button variant="ghost" onClick={() => setSelectedAlert(null)}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para os Chamados
@@ -39,18 +43,31 @@ export default function CreateOccurrencePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
+    <div
+      className="flex min-h-screen flex-col p-6"
+      style={{ backgroundColor: govTheme.background.page }}
+    >
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1
+          className="text-2xl font-bold tracking-tight"
+          style={{ color: govTheme.text.primary }}
+        >
           Avaliação de Chamados
         </h1>
-        <p className="text-muted-foreground">
+        <p style={{ color: govTheme.text.secondary }}>
           Selecione um chamado de emergência para transformá-lo em ocorrência ou
           avaliá-lo.
         </p>
       </div>
 
-      <div className="rounded-md border bg-white dark:bg-gray-800">
+      <div
+        className="rounded-2xl border"
+        style={{
+          borderColor: govTheme.border.subtle,
+          backgroundColor: govTheme.background.section,
+          boxShadow: govTheme.shadow.card,
+        }}
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -78,7 +95,7 @@ export default function CreateOccurrencePage() {
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         alert.status === "PENDING"
                           ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
+                          : "bg-slate-100 text-slate-700"
                       }`}
                     >
                       {alert.status}

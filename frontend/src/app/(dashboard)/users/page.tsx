@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -51,16 +52,30 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Usuários</h2>
+        <h2
+          className="text-3xl font-bold tracking-tight"
+          style={{ color: govTheme.text.primary }}
+        >
+          Usuários
+        </h2>
       </div>
-      <p className="text-muted-foreground">Listagem de usuários cadastrados.</p>
+      <p style={{ color: govTheme.text.secondary }}>
+        Listagem de usuários cadastrados.
+      </p>
 
       {loading ? (
         <div>Carregando...</div>
       ) : (
-        <div className="rounded-md border">
+        <div
+          className="rounded-2xl border"
+          style={{
+            borderColor: govTheme.border.subtle,
+            backgroundColor: govTheme.background.section,
+            boxShadow: govTheme.shadow.card,
+          }}
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -94,7 +109,10 @@ export default function UsersPage() {
                         size="icon"
                         onClick={() => handleDelete(user.id)}
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2
+                          className="h-4 w-4"
+                          style={{ color: govTheme.status.danger }}
+                        />
                       </Button>
                     </TableCell>
                   </TableRow>

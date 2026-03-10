@@ -13,8 +13,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { govTheme } from "@/components/landing/gov-theme";
 import { CheckIn, checkInService } from "@/services/check-in-service";
-import { colors } from "@/styles/colors";
 
 export default function CheckInDetailsPage() {
   const router = useRouter();
@@ -46,9 +46,12 @@ export default function CheckInDetailsPage() {
     return (
       <div
         className="min-h-screen p-6 flex justify-center items-center"
-        style={{ backgroundColor: colors.functional.background.primary }}
+        style={{ backgroundColor: govTheme.background.page }}
       >
-        <p className="text-white text-xl animate-pulse">
+        <p
+          className="animate-pulse text-xl"
+          style={{ color: govTheme.text.primary }}
+        >
           Buscando detalhes do deslocamento...
         </p>
       </div>
@@ -65,57 +68,102 @@ export default function CheckInDetailsPage() {
     if (checkInData.status === "ACTIVE") {
       if (isLate) {
         return (
-          <span className="flex items-center gap-2 text-orange-500 font-semibold bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/30">
+          <span
+            className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+            style={{
+              color: govTheme.brand.blueStrong,
+              backgroundColor: "rgba(216, 191, 122, 0.18)",
+              borderColor: "rgba(216, 191, 122, 0.42)",
+            }}
+          >
             <Clock className="w-4 h-4" /> Em Atraso
           </span>
         );
       }
       return (
-        <span className="flex items-center gap-2 text-blue-500 font-semibold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30">
+        <span
+          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+          style={{
+            color: govTheme.brand.blue,
+            backgroundColor: govTheme.brand.blueSurface,
+            borderColor: govTheme.border.strong,
+          }}
+        >
           <Navigation className="w-4 h-4 animate-pulse" /> Em Deslocamento
         </span>
       );
     }
     if (checkInData.status === "ON_TIME") {
       return (
-        <span className="flex items-center gap-2 text-green-500 font-semibold bg-green-500/10 px-3 py-1 rounded-full border border-green-500/30">
+        <span
+          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+          style={{
+            color: govTheme.brand.green,
+            backgroundColor: "rgba(47, 107, 87, 0.12)",
+            borderColor: "rgba(47, 107, 87, 0.3)",
+          }}
+        >
           <CheckCircle className="w-4 h-4" /> Chegada Confirmada
         </span>
       );
     }
     if (checkInData.status === "LATE") {
       return (
-        <span className="flex items-center gap-2 text-red-500 font-semibold bg-red-500/10 px-3 py-1 rounded-full border border-red-500/30">
+        <span
+          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+          style={{
+            color: govTheme.status.danger,
+            backgroundColor: govTheme.status.dangerSoft,
+            borderColor: "rgba(166, 60, 60, 0.28)",
+          }}
+        >
           <XCircle className="w-4 h-4" /> Chegada com Atraso
         </span>
       );
     }
-    return <span className="text-gray-400">{checkInData.status}</span>;
+    return (
+      <span style={{ color: govTheme.text.muted }}>{checkInData.status}</span>
+    );
   };
 
   return (
     <div
       className="p-6 md:p-10 min-h-screen"
-      style={{ backgroundColor: colors.functional.background.primary }}
+      style={{ backgroundColor: govTheme.background.page }}
     >
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <h2
+              className="flex items-center gap-3 text-3xl font-bold tracking-tight"
+              style={{ color: govTheme.text.primary }}
+            >
               <span
-                className={`p-2 rounded-lg ${isLate ? "bg-orange-500/20 text-orange-500" : "bg-blue-500/20 text-blue-400"}`}
+                className="rounded-lg p-2"
+                style={{
+                  backgroundColor: isLate
+                    ? "rgba(216, 191, 122, 0.18)"
+                    : govTheme.brand.blueSurface,
+                  color: isLate
+                    ? govTheme.brand.blueStrong
+                    : govTheme.brand.blue,
+                }}
               >
                 <MapPin size={32} />
               </span>
               Monitoramento de Deslocamento
             </h2>
-            <p className="text-gray-400 mt-2">
+            <p className="mt-2" style={{ color: govTheme.text.secondary }}>
               Detalhes do monitoramento de trajeto do usuário.
             </p>
           </div>
           <Link
             href="/dashboard"
-            className="px-6 py-3 rounded-lg text-sm font-semibold transition bg-gray-800 hover:bg-gray-700 text-white"
+            className="rounded-lg px-6 py-3 text-sm font-semibold transition hover:opacity-90"
+            style={{
+              backgroundColor: govTheme.brand.blue,
+              color: govTheme.text.inverse,
+            }}
           >
             Voltar ao Dashboard
           </Link>
@@ -126,44 +174,75 @@ export default function CheckInDetailsPage() {
             <div
               className="p-6 rounded-2xl border flex flex-col gap-6 h-full"
               style={{
-                backgroundColor: colors.functional.background.secondary,
-                borderColor: colors.functional.border.DEFAULT,
+                backgroundColor: govTheme.background.section,
+                borderColor: govTheme.border.subtle,
+                boxShadow: govTheme.shadow.card,
               }}
             >
-              <div className="flex justify-between items-center border-b border-gray-800 pb-4 mb-2">
-                <h3 className="text-xl font-semibold text-white">
+              <div
+                className="mb-2 flex items-center justify-between border-b pb-4"
+                style={{ borderColor: govTheme.border.subtle }}
+              >
+                <h3
+                  className="text-xl font-semibold"
+                  style={{ color: govTheme.text.primary }}
+                >
                   Dados do Trajeto
                 </h3>
                 {getStatusDisplay()}
               </div>
 
               <div className="flex items-start gap-4">
-                <User size={24} className="text-gray-400 mt-1" />
+                <User
+                  size={24}
+                  className="mt-1"
+                  style={{ color: govTheme.text.muted }}
+                />
                 <div>
-                  <p className="text-sm text-gray-400">Usuário</p>
-                  <p className="font-semibold text-white">
+                  <p className="text-sm" style={{ color: govTheme.text.muted }}>
+                    Usuário
+                  </p>
+                  <p
+                    className="font-semibold"
+                    style={{ color: govTheme.text.primary }}
+                  >
                     {checkInData.user?.name || "Desconhecido"}
                   </p>
-                  <p className="text-xs text-gray-500 font-mono mt-1">
+                  <p
+                    className="mt-1 text-xs font-mono"
+                    style={{ color: govTheme.text.muted }}
+                  >
                     ID: {checkInData.user?.id || "N/A"}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-4">
-                <Clock size={24} className="text-gray-400 mt-1" />
+                <Clock
+                  size={24}
+                  className="mt-1"
+                  style={{ color: govTheme.text.muted }}
+                />
                 <div className="w-full">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm" style={{ color: govTheme.text.muted }}>
                     Tempo Limite de Chegada
                   </p>
                   <p
-                    className={`font-semibold text-lg ${isLate ? "text-orange-500" : "text-white"}`}
+                    className="text-lg font-semibold"
+                    style={{
+                      color: isLate
+                        ? govTheme.brand.blueStrong
+                        : govTheme.text.primary,
+                    }}
                   >
                     {new Date(checkInData.expectedArrivalTime).toLocaleString(
                       "pt-BR",
                     )}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p
+                    className="mt-1 text-xs"
+                    style={{ color: govTheme.text.muted }}
+                  >
                     Início:{" "}
                     {new Date(checkInData.startTime).toLocaleString("pt-BR")} (
                     {checkInData.distanceType})
@@ -172,13 +251,26 @@ export default function CheckInDetailsPage() {
               </div>
 
               {checkInData.actualArrivalTime && (
-                <div className="flex items-start gap-4 pt-4 border-t border-gray-800">
-                  <CheckCircle size={24} className="text-green-500 mt-1" />
+                <div
+                  className="flex items-start gap-4 border-t pt-4"
+                  style={{ borderColor: govTheme.border.subtle }}
+                >
+                  <CheckCircle
+                    size={24}
+                    className="mt-1"
+                    style={{ color: govTheme.brand.green }}
+                  />
                   <div>
-                    <p className="text-sm text-gray-400">
+                    <p
+                      className="text-sm"
+                      style={{ color: govTheme.text.muted }}
+                    >
                       Horário de Chegada Real
                     </p>
-                    <p className="font-semibold text-white">
+                    <p
+                      className="font-semibold"
+                      style={{ color: govTheme.text.primary }}
+                    >
                       {new Date(checkInData.actualArrivalTime).toLocaleString(
                         "pt-BR",
                       )}
@@ -193,25 +285,44 @@ export default function CheckInDetailsPage() {
             <div
               className="p-6 rounded-2xl border flex flex-col gap-6 h-full"
               style={{
-                backgroundColor: colors.functional.background.secondary,
-                borderColor: colors.functional.border.DEFAULT,
+                backgroundColor: govTheme.background.section,
+                borderColor: govTheme.border.subtle,
+                boxShadow: govTheme.shadow.card,
               }}
             >
               <div>
-                <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-4 mb-4">
+                <h3
+                  className="mb-4 border-b pb-4 text-xl font-semibold"
+                  style={{
+                    color: govTheme.text.primary,
+                    borderColor: govTheme.border.subtle,
+                  }}
+                >
                   Estatísticas do Usuário
                 </h3>
               </div>
 
               <div className="flex items-center gap-6">
-                <div className="p-4 rounded-xl bg-blue-500/10 text-blue-400">
+                <div
+                  className="rounded-xl p-4"
+                  style={{
+                    backgroundColor: govTheme.brand.blueSurface,
+                    color: govTheme.brand.blue,
+                  }}
+                >
                   <History size={48} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-1">
+                  <p
+                    className="mb-1 text-sm"
+                    style={{ color: govTheme.text.muted }}
+                  >
                     Total de viagens realizadas no Amparo
                   </p>
-                  <p className="text-5xl font-black text-white">
+                  <p
+                    className="text-5xl font-black"
+                    style={{ color: govTheme.text.primary }}
+                  >
                     {checkInData.userCheckInCount !== undefined
                       ? checkInData.userCheckInCount
                       : "..."}
@@ -219,8 +330,17 @@ export default function CheckInDetailsPage() {
                 </div>
               </div>
 
-              <div className="mt-4 p-4 rounded-lg bg-gray-800/50 border border-gray-700">
-                <p className="text-sm text-gray-300">
+              <div
+                className="mt-4 rounded-lg border p-4"
+                style={{
+                  backgroundColor: govTheme.background.alt,
+                  borderColor: govTheme.border.subtle,
+                }}
+              >
+                <p
+                  className="text-sm"
+                  style={{ color: govTheme.text.secondary }}
+                >
                   A contagem de viagens baseia-se no histórico deste usuário.
                   Usuários com alto número de viagens bem sucedidas demonstram
                   forte engajamento com a ferramenta de monitoramento.
