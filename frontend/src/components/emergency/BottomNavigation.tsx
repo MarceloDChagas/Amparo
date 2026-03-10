@@ -23,15 +23,10 @@ export function BottomNavigation({
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
         <button
           className="rounded-full w-16 h-16 flex items-center justify-center shadow-2xl active:scale-95 transition-transform"
-          style={{ backgroundColor: colors.secondary[300] }}
+          style={{ backgroundColor: colors.accent[600] }}
           onClick={() => onTabChange("HOME")}
         >
-          <span
-            className="font-bold text-xs"
-            style={{ color: colors.primary[900] }}
-          >
-            AJUDA
-          </span>
+          <span className="font-bold text-xs text-white">AJUDA</span>
         </button>
       </div>
 

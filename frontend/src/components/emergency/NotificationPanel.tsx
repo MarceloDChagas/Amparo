@@ -90,7 +90,7 @@ export function NotificationPanel({
         style={{ borderBottom: `1px solid ${colors.functional.border.light}` }}
       >
         <div className="flex items-center gap-2">
-          <Bell size={14} color={colors.secondary[300]} />
+          <Bell size={14} color={colors.accent[400]} />
           <span className="text-white font-semibold text-sm">Notificações</span>
         </div>
         <button onClick={onClose} aria-label="Fechar notificações">

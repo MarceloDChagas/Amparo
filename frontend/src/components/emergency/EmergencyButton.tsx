@@ -135,7 +135,7 @@ export function EmergencyButton() {
           cy="115"
           r={radius}
           fill="transparent"
-          stroke={colors.secondary[300]}
+          stroke={colors.accent[400]}
           strokeWidth="8"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -160,7 +160,7 @@ export function EmergencyButton() {
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(1.05)" : "scale(1)"}`,
-          boxShadow: isPressing ? `0 0 40px ${colors.secondary[300]}` : "none",
+          boxShadow: isPressing ? `0 0 40px ${colors.accent[400]}` : "none",
         }}
       />
 
@@ -183,9 +183,7 @@ export function EmergencyButton() {
         style={{
           width: "170px",
           height: "170px",
-          backgroundColor: isPending
-            ? colors.neutral[300]
-            : colors.secondary[300],
+          backgroundColor: isPending ? colors.neutral[300] : colors.accent[500],
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
