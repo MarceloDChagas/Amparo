@@ -22,12 +22,17 @@ export const QuickExitButton: React.FC = () => {
   return (
     <button
       onClick={quickExit}
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-full font-bold shadow-2xl transition-all transform hover:scale-105 active:scale-95 group"
+      className="fixed bottom-5 right-5 z-50 flex items-center gap-2 text-red-400 hover:text-white hover:bg-red-700 px-4 py-2 rounded-lg font-semibold text-xs transition-all active:scale-95"
+      style={{
+        backgroundColor: "rgba(127, 29, 29, 0.55)",
+        border: "1px solid rgba(239, 68, 68, 0.35)",
+        backdropFilter: "blur(8px)",
+      }}
       title="Fecha o site e abre o Google instantaneamente (ESC)"
     >
-      <EyeOff size={20} />
-      <span className="hidden md:inline">SAIR RÁPIDO (ESC)</span>
-      <span className="md:hidden">SAIR</span>
+      <EyeOff size={14} />
+      <span className="hidden sm:inline">Saída rápida (ESC)</span>
+      <span className="sm:hidden">Sair</span>
     </button>
   );
 };

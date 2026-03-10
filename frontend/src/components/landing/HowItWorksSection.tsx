@@ -2,52 +2,105 @@ import React from "react";
 
 import { colors } from "@/styles/colors";
 
-import { Step } from "./Step";
+const steps = [
+  {
+    number: "01",
+    title: "Registro seguro",
+    tag: "Privacidade desde o início",
+    description:
+      "A vítima ou gestor inicia o registro em canal criptografado e discreto. Nenhum dado é exposto sem consentimento.",
+  },
+  {
+    number: "02",
+    title: "Acompanhamento contínuo",
+    tag: "Histórico centralizado",
+    description:
+      "Medidas protetivas, ocorrências e evoluções do caso são consolidadas em prontuário único e auditável.",
+  },
+  {
+    number: "03",
+    title: "Acionamento da rede",
+    tag: "Resposta coordenada",
+    description:
+      "Quando há risco, abrigo, polícia, assistência social e suporte psicológico são notificados em tempo real.",
+  },
+];
 
 export const HowItWorksSection: React.FC = () => (
   <section
-    className="py-32 relative"
-    style={{ backgroundColor: colors.functional.background.primary }}
+    id="how-it-works"
+    className="py-24"
+    style={{
+      backgroundColor: colors.functional.background.secondary,
+      borderTop: `1px solid ${colors.functional.border.dark}`,
+      borderBottom: `1px solid ${colors.functional.border.dark}`,
+    }}
   >
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="text-center mb-20">
-        <div
-          className="text-sm font-bold tracking-widest mb-4 transition-all"
-          style={{ color: colors.accent[400] }}
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="mb-14">
+        <p
+          className="text-xs font-semibold tracking-widest uppercase mb-3 flex items-center gap-2"
+          style={{ color: colors.accent[500] }}
         >
-          JORNADA DA VÍTIMA
-        </div>
+          <span
+            className="inline-block w-5 h-px"
+            style={{ backgroundColor: colors.accent[500] }}
+          />
+          Fluxo de Atendimento
+        </p>
         <h2
-          className="text-4xl md:text-5xl font-bold mb-6"
+          className="text-3xl font-bold"
           style={{ color: colors.functional.text.primary }}
         >
-          Fluxo de Amparo em 3 Passos
+          Do primeiro contato ao amparo completo
         </h2>
-        <div
-          className="w-24 h-1.5 mx-auto rounded-full opacity-80"
-          style={{ background: colors.gradients.card }}
-        ></div>
       </div>
 
-      {/* Timeline Wrapper */}
-      <div className="relative">
-        <div className="grid md:grid-cols-3 gap-12 gap-y-16 relative z-10">
-          <Step
-            number="1"
-            title="Acolhimento Digital"
-            description="A vítima ou gestor realiza o cadastro inicial em um ambiente criptografado e discreto, garantindo total privacidade desde o primeiro contato."
-          />
-          <Step
-            number="2"
-            title="Monitoramento Ativo"
-            description="Histórico de ocorrências e medidas protetivas são atualizados em tempo real, permitindo aos gestores prever e mitigar riscos."
-          />
-          <Step
-            number="3"
-            title="Resposta Imediata"
-            description="Em caso de risco iminente, a rede de apoio e autoridades competentes são notificadas instantaneamente via protocolos otimizados."
-          />
-        </div>
+      <div className="grid md:grid-cols-3 gap-0 relative">
+        {/* Connector line (desktop only) */}
+        <div
+          className="hidden md:block absolute top-[2.6rem] left-[33.33%] right-[33.33%] h-px z-0"
+          style={{ backgroundColor: colors.functional.border.dark }}
+        />
+        {steps.map((step, i) => (
+          <div
+            key={step.number}
+            className="p-6 relative z-10"
+            style={{
+              borderLeft:
+                i > 0 ? `1px solid ${colors.functional.border.dark}` : "none",
+            }}
+          >
+            <div
+              className="inline-block text-xs font-mono font-bold px-2 py-0.5 rounded mb-4"
+              style={{
+                color: colors.accent[400],
+                backgroundColor: `${colors.accent[900]}55`,
+                border: `1px solid ${colors.accent[800]}`,
+              }}
+            >
+              {step.number}
+            </div>
+            <p
+              className="text-xs font-medium mb-2"
+              style={{ color: colors.accent[500] }}
+            >
+              {step.tag}
+            </p>
+            <h3
+              className="text-base font-semibold mb-3"
+              style={{ color: colors.functional.text.primary }}
+            >
+              {step.title}
+            </h3>
+            <p
+              className="text-sm leading-relaxed"
+              style={{ color: colors.functional.text.secondary }}
+            >
+              {step.description}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   </section>

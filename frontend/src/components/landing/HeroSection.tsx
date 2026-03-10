@@ -1,121 +1,193 @@
-import { ChevronRight, Shield } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Clock,
+  Lock,
+  Shield,
+  Users,
+} from "lucide-react";
 import React from "react";
 
 import { colors } from "@/styles/colors";
 
-import { DashboardMockup } from "./DashboardMockup";
+// Subtle grid texture — absolute positioned behind hero content
+const GridTexture: React.FC = () => (
+  <svg
+    className="absolute inset-0 w-full h-full pointer-events-none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    style={{ opacity: 0.03 }}
+  >
+    <defs>
+      <pattern
+        id="amparo-grid"
+        x="0"
+        y="0"
+        width="40"
+        height="40"
+        patternUnits="userSpaceOnUse"
+      >
+        <path
+          d="M 40 0 L 0 0 0 40"
+          fill="none"
+          stroke="#6366f1"
+          strokeWidth="0.5"
+        />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#amparo-grid)" />
+  </svg>
+);
+
+const metrics = [
+  {
+    icon: Users,
+    value: "2.400+",
+    label: "vítimas acompanhadas",
+    note: "desde o lançamento",
+  },
+  {
+    icon: Building2,
+    value: "38",
+    label: "instituições integradas",
+    note: "GCM, CRAS, SUAS e parceiros",
+  },
+  {
+    icon: Clock,
+    value: "< 3 min",
+    label: "tempo médio de alerta",
+    note: "da triagem ao acionamento",
+  },
+];
+
+const trustBadges = [
+  { icon: Lock, text: "Canal criptografado" },
+  { icon: Shield, text: "Suporte 24h" },
+  { icon: Building2, text: "Rede pública integrada" },
+];
 
 export const HeroSection: React.FC = () => (
   <header
-    className="relative pt-32 pb-24 overflow-hidden"
-    style={{ background: colors.gradients.darkRadial }}
+    className="relative pt-36 pb-24 overflow-hidden"
+    style={{ backgroundColor: colors.functional.background.primary }}
   >
-    {/* Subtle Background Glows instead of huge blobs */}
+    {/* Subtle grid texture */}
+    <GridTexture />
+
+    {/* Faint radial glow — left side depth */}
     <div
-      className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none"
+      className="absolute top-1/2 left-0 w-[480px] h-[480px] rounded-full pointer-events-none -translate-y-1/2 -translate-x-1/3"
       style={{
-        backgroundImage: `linear-gradient(to bottom, ${colors.accent[900]}, transparent)`,
+        background: `radial-gradient(circle, ${colors.accent[950] ?? "#3b0764"}66 0%, transparent 70%)`,
+        filter: "blur(72px)",
       }}
-    ></div>
+    />
 
-    <div className="relative max-w-7xl mx-auto px-6">
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
-        {/* Left Column: Text Content */}
-        <div className="text-left z-10">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-8 animate-fade-in backdrop-blur-sm"
-            style={{
-              backgroundColor: `${colors.accent[900]}66`,
-              color: colors.secondary[200],
-              border: `1px solid ${colors.functional.border.accent}`,
-            }}
-          >
-            <Shield size={16} />
-            <span>SISTEMA DE PROTEÇÃO INTEGRADO</span>
-          </div>
-
-          <h1
-            className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight"
-            style={{ color: colors.functional.text.primary }}
-          >
-            Proteção e cuidado quando{" "}
+    <div className="relative max-w-6xl mx-auto px-6">
+      <div className="max-w-2xl">
+        {/* Trust badges — above the fold: slate/indigo palette, not accent */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {trustBadges.map((b) => (
             <span
-              className="bg-gradient-to-r bg-clip-text text-transparent animate-gradient-x block mt-2"
+              key={b.text}
+              className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full"
               style={{
-                backgroundImage: colors.gradients.hero,
-                textShadow: `0 0 40px ${colors.special.glow.pink}`,
+                color: "#94a3b8",
+                backgroundColor: "rgba(30,27,75,0.6)",
+                border: "1px solid rgba(55,48,163,0.4)",
               }}
             >
-              mais importa.
+              <b.icon size={11} style={{ color: "#818cf8" }} />
+              {b.text}
             </span>
-          </h1>
-
-          <p
-            className="text-lg sm:text-xl mb-10 leading-relaxed max-w-xl"
-            style={{ color: colors.functional.text.secondary }}
-          >
-            Plataforma digital especializada na gestão de casos de violência
-            doméstica, conectando vítimas a uma rede de apoio segura e
-            eficiente.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="/login"
-              className="px-8 py-4 text-white rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 group hover:scale-105"
-              style={{
-                background: colors.gradients.cta,
-                boxShadow: `0 10px 40px ${colors.special.shadow.rose}`,
-              }}
-            >
-              Acessar Painel
-              <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-            </a>
-            <button
-              className="px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:bg-[#2a2d4a]"
-              style={{
-                backgroundColor: `${colors.functional.background.secondary}22`,
-                color: colors.secondary[200],
-                border: `2px solid ${colors.functional.border.light}`,
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              Ver Demonstração
-            </button>
-          </div>
-
-          <div className="mt-12 flex items-center gap-6 opacity-60">
-            <div
-              className="text-sm font-semibold"
-              style={{ color: colors.functional.text.tertiary }}
-            >
-              CONFIANÇA INSTITUCIONAL:
-            </div>
-            <div
-              className="flex gap-4 font-bold text-sm tracking-widest"
-              style={{ color: colors.functional.text.secondary }}
-            >
-              <span>GCM</span>
-              <span>•</span>
-              <span>SUAS</span>
-              <span>•</span>
-              <span>CRAS</span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Right Column: Dashboard Mockup */}
-        <div className="relative z-10 hidden lg:block perspective-1000">
-          {/* Decorative Outer Glow for Mockup */}
-          <div
-            className="absolute inset-0 rounded-3xl blur-2xl transform rotate-y-[-10deg] rotate-x-[5deg] scale-105"
-            style={{
-              background: `linear-gradient(45deg, ${colors.accent[700]}, ${colors.secondary[500]})`,
-              opacity: 0.15,
-            }}
-          ></div>
+        <h1
+          className="text-[2.35rem] sm:text-[2.6rem] font-bold tracking-tight mb-3 leading-[1.18]"
+          style={{ color: colors.functional.text.primary }}
+        >
+          Para cada vítima,
+          <br />
+          uma rede de amparo{" "}
+          <span style={{ color: colors.accent[400] }}>ativada.</span>
+        </h1>
 
-          <DashboardMockup />
+        <p
+          className="text-xs font-medium mb-5 tracking-wide"
+          style={{ color: "#6366f1" }}
+        >
+          Para vítimas, assistentes sociais, delegacias e abrigos.
+        </p>
+
+        <p
+          className="text-base mb-10 leading-relaxed max-w-lg"
+          style={{ color: colors.functional.text.secondary }}
+        >
+          Do primeiro registro ao acolhimento — o Amparo conecta vítimas de
+          violência doméstica a abrigos, delegacias, CRAS, saúde e suporte
+          psicológico em tempo real, com sigilo e rastreabilidade de cada etapa.
+        </p>
+
+        {/* CTAs with clear hierarchy */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <a
+            href="/login"
+            className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
+            style={{ backgroundColor: colors.accent[600] }}
+          >
+            Acessar o Sistema
+            <ArrowRight size={15} />
+          </a>
+          <a
+            href="#how-it-works"
+            className="inline-flex items-center gap-1.5 px-2 py-3 text-sm transition-opacity hover:opacity-80"
+            style={{ color: colors.functional.text.tertiary }}
+          >
+            Ver como funciona
+            <ArrowRight size={13} />
+          </a>
+        </div>
+
+        {/* Metric cards */}
+        <div
+          className="mt-14 pt-10 grid grid-cols-3 gap-3"
+          style={{ borderTop: `1px solid ${colors.functional.border.dark}` }}
+        >
+          {metrics.map((m) => (
+            <div
+              key={m.label}
+              className="p-3 rounded-lg"
+              style={{
+                backgroundColor: "rgba(17,14,35,0.8)",
+                border: "1px solid rgba(55,48,163,0.35)",
+              }}
+            >
+              <m.icon
+                size={13}
+                className="mb-2"
+                style={{ color: colors.accent[500] }}
+              />
+              <div
+                className="text-lg font-bold leading-tight"
+                style={{ color: colors.functional.text.primary }}
+              >
+                {m.value}
+              </div>
+              <div
+                className="text-xs font-medium mt-0.5 leading-snug"
+                style={{ color: colors.functional.text.secondary }}
+              >
+                {m.label}
+              </div>
+              <div
+                className="text-xs mt-1 leading-snug"
+                style={{ color: colors.functional.text.tertiary }}
+              >
+                {m.note}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
