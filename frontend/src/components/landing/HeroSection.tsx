@@ -1,195 +1,409 @@
 import {
   ArrowRight,
   Building2,
-  Clock,
+  CheckCircle2,
+  CircleHelp,
+  FileText,
   Lock,
-  Shield,
+  Phone,
+  ShieldCheck,
+  Siren,
   Users,
 } from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
-// Subtle grid texture — absolute positioned behind hero content
-const GridTexture: React.FC = () => (
-  <svg
-    className="absolute inset-0 w-full h-full pointer-events-none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-    style={{ opacity: 0.03 }}
-  >
-    <defs>
-      <pattern
-        id="amparo-grid"
-        x="0"
-        y="0"
-        width="40"
-        height="40"
-        patternUnits="userSpaceOnUse"
-      >
-        <path
-          d="M 40 0 L 0 0 0 40"
-          fill="none"
-          stroke="#6366f1"
-          strokeWidth="0.5"
-        />
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#amparo-grid)" />
-  </svg>
-);
-
-const metrics = [
+const orientationItems = [
+  {
+    icon: Phone,
+    title: "Atendimento inicial e sigiloso",
+    description:
+      "Registro estruturado para acolhimento, orientação e encaminhamento com discrição desde o primeiro contato.",
+  },
   {
     icon: Users,
-    value: "2.400+",
-    label: "vítimas acompanhadas",
-    note: "desde o lançamento",
+    title: "Rede pública articulada",
+    description:
+      "Fluxo compartilhado entre assistência social, segurança, saúde e serviços de apoio autorizados.",
   },
   {
-    icon: Building2,
-    value: "38",
-    label: "instituições integradas",
-    note: "GCM, CRAS, SUAS e parceiros",
+    icon: FileText,
+    title: "Histórico confiável para acompanhamento",
+    description:
+      "Cada ação fica registrada para dar continuidade ao cuidado e apoiar decisões técnicas com rastreabilidade.",
   },
-  {
-    icon: Clock,
-    value: "< 3 min",
-    label: "tempo médio de alerta",
-    note: "da triagem ao acionamento",
-  },
+];
+
+const institutionalSignals = [
+  "Fluxo preparado para operação municipal",
+  "Registro com rastreabilidade e continuidade",
+  "Integração entre acolhimento, saúde e segurança",
 ];
 
 const trustBadges = [
   { icon: Lock, text: "Canal criptografado" },
-  { icon: Shield, text: "Suporte 24h" },
+  { icon: ShieldCheck, text: "Uso institucional controlado" },
   { icon: Building2, text: "Rede pública integrada" },
 ];
 
-export const HeroSection: React.FC = () => (
-  <header
-    className="relative pt-36 pb-24 overflow-hidden"
-    style={{ backgroundColor: colors.functional.background.primary }}
-  >
-    {/* Subtle grid texture */}
-    <GridTexture />
+export const HeroSection: React.FC = () => {
+  const primaryOrientationItem = orientationItems[0];
+  const PrimaryOrientationIcon = primaryOrientationItem.icon;
 
-    {/* Faint radial glow — left side depth */}
-    <div
-      className="absolute top-1/2 left-0 w-[480px] h-[480px] rounded-full pointer-events-none -translate-y-1/2 -translate-x-1/3"
+  return (
+    <header
+      className="relative overflow-hidden pt-36 pb-20"
       style={{
-        background: `radial-gradient(circle, ${colors.accent[950] ?? "#3b0764"}66 0%, transparent 70%)`,
-        filter: "blur(72px)",
+        background:
+          "linear-gradient(180deg, #f1f4f8 0%, #f7f8fa 42%, #ffffff 100%)",
       }}
-    />
+    >
+      <div
+        className="absolute left-0 right-0 top-0 h-2"
+        style={{
+          background: `linear-gradient(90deg, ${govTheme.brand.sand} 0 18%, ${govTheme.brand.blue} 18% 76%, ${govTheme.brand.green} 76% 100%)`,
+        }}
+      />
 
-    <div className="relative max-w-6xl mx-auto px-6">
-      <div className="max-w-2xl">
-        {/* Trust badges — above the fold: slate/indigo palette, not accent */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {trustBadges.map((b) => (
-            <span
-              key={b.text}
-              className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full"
-              style={{
-                color: "#94a3b8",
-                backgroundColor: "rgba(30,27,75,0.6)",
-                border: "1px solid rgba(55,48,163,0.4)",
-              }}
-            >
-              <b.icon size={11} style={{ color: "#818cf8" }} />
-              {b.text}
-            </span>
-          ))}
-        </div>
+      <div
+        className="absolute -right-28 top-18 h-120 w-120 rounded-full blur-3xl"
+        style={{ backgroundColor: "rgba(36, 75, 122, 0.1)" }}
+      />
 
-        <h1
-          className="text-[2.35rem] sm:text-[2.6rem] font-bold tracking-tight mb-3 leading-[1.18]"
-          style={{ color: colors.functional.text.primary }}
-        >
-          Para cada vítima,
-          <br />
-          uma rede de amparo{" "}
-          <span style={{ color: colors.accent[400] }}>ativada.</span>
-        </h1>
+      <div
+        className="absolute -left-20 top-36 h-80 w-80 rounded-full blur-3xl"
+        style={{ backgroundColor: "rgba(47, 107, 87, 0.08)" }}
+      />
 
-        <p
-          className="text-xs font-medium mb-5 tracking-wide"
-          style={{ color: "#6366f1" }}
-        >
-          Para vítimas, assistentes sociais, delegacias e abrigos.
-        </p>
-
-        <p
-          className="text-base mb-10 leading-relaxed max-w-lg"
-          style={{ color: colors.functional.text.secondary }}
-        >
-          Do primeiro registro ao acolhimento — o Amparo conecta vítimas de
-          violência doméstica a abrigos, delegacias, CRAS, saúde e suporte
-          psicológico em tempo real, com sigilo e rastreabilidade de cada etapa.
-        </p>
-
-        {/* CTAs with clear hierarchy */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <a
-            href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: colors.accent[600] }}
-          >
-            Acessar o Sistema
-            <ArrowRight size={15} />
-          </a>
-          <a
-            href="#how-it-works"
-            className="inline-flex items-center gap-1.5 px-2 py-3 text-sm transition-opacity hover:opacity-80"
-            style={{ color: colors.functional.text.tertiary }}
-          >
-            Ver como funciona
-            <ArrowRight size={13} />
-          </a>
-        </div>
-
-        {/* Metric cards */}
+      <div className="relative mx-auto max-w-6xl px-6">
         <div
-          className="mt-14 pt-10 grid grid-cols-3 gap-3"
-          style={{ borderTop: `1px solid ${colors.functional.border.dark}` }}
+          className="mb-8 flex flex-col gap-4 rounded-[1.75rem] border px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            borderColor: govTheme.border.subtle,
+            backgroundColor: "rgba(255,255,255,0.78)",
+            boxShadow: govTheme.shadow.card,
+          }}
         >
-          {metrics.map((m) => (
-            <div
-              key={m.label}
-              className="p-3 rounded-lg"
-              style={{
-                backgroundColor: "rgba(17,14,35,0.8)",
-                border: "1px solid rgba(55,48,163,0.35)",
-              }}
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-[0.16em]"
+              style={{ color: govTheme.brand.blue }}
             >
-              <m.icon
-                size={13}
-                className="mb-2"
-                style={{ color: colors.accent[500] }}
-              />
+              Portal público de acolhimento
+            </p>
+            <p
+              className="mt-1 text-sm leading-6"
+              style={{ color: govTheme.text.secondary }}
+            >
+              Estrutura pensada para nascer dentro do órgão municipal, com
+              previsibilidade, clareza e linguagem humana.
+            </p>
+          </div>
+
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+            style={{
+              color: govTheme.status.danger,
+              backgroundColor: govTheme.status.dangerSoft,
+            }}
+          >
+            <Siren size={16} />
+            Em risco imediato, acione 190
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:min-h-168 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.92fr)] lg:items-start">
+          <div className="flex max-w-3xl flex-col justify-between lg:min-h-136">
+            <div>
               <div
-                className="text-lg font-bold leading-tight"
-                style={{ color: colors.functional.text.primary }}
+                className="mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.16em] uppercase"
+                style={{
+                  color: govTheme.brand.blueStrong,
+                  backgroundColor: govTheme.brand.blueSurface,
+                  borderColor: govTheme.border.strong,
+                }}
               >
-                {m.value}
+                <CircleHelp size={14} />
+                Serviço oficial, seguro e acolhedor
               </div>
-              <div
-                className="text-xs font-medium mt-0.5 leading-snug"
-                style={{ color: colors.functional.text.secondary }}
+
+              <h1
+                className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-[3.45rem] lg:leading-[1.08]"
+                style={{ color: govTheme.text.primary }}
               >
-                {m.label}
+                Proteção, orientação e resposta coordenada para mulheres em
+                situação de violência.
+              </h1>
+
+              <p
+                className="mt-5 max-w-2xl text-lg leading-8"
+                style={{ color: govTheme.text.secondary }}
+              >
+                O Amparo organiza acolhimento, acompanhamento e articulação
+                entre os serviços públicos em um ambiente discreto, confiável e
+                preparado para atuação municipal integrada.
+              </p>
+
+              <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a
+                  href="#acesso-rapido"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: govTheme.brand.blue }}
+                >
+                  Pedir ajuda e entender os caminhos
+                  <ArrowRight size={15} />
+                </a>
+                <a
+                  href="#dados-publicos"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border px-6 py-3 text-sm font-semibold transition-colors"
+                  style={{
+                    color: govTheme.brand.blueStrong,
+                    backgroundColor: govTheme.background.section,
+                    borderColor: govTheme.border.strong,
+                  }}
+                >
+                  Entender meus direitos e a rede
+                </a>
               </div>
-              <div
-                className="text-xs mt-1 leading-snug"
-                style={{ color: colors.functional.text.tertiary }}
-              >
-                {m.note}
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                {trustBadges.map((badge) => (
+                  <span
+                    key={badge.text}
+                    className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
+                    style={{
+                      color: govTheme.brand.blueStrong,
+                      backgroundColor: "rgba(255,255,255,0.92)",
+                      borderColor: govTheme.border.subtle,
+                    }}
+                  >
+                    <badge.icon
+                      size={14}
+                      style={{ color: govTheme.brand.green }}
+                    />
+                    {badge.text}
+                  </span>
+                ))}
               </div>
             </div>
-          ))}
+
+            <div
+              className="mt-10 rounded-[1.75rem] border p-5 sm:p-6"
+              style={{
+                borderColor: govTheme.border.subtle,
+                backgroundColor: "rgba(255,255,255,0.9)",
+                boxShadow: govTheme.shadow.card,
+              }}
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="max-w-md">
+                  <p
+                    className="text-xs font-semibold uppercase tracking-[0.14em]"
+                    style={{ color: govTheme.brand.blue }}
+                  >
+                    Confiança institucional
+                  </p>
+                  <p
+                    className="mt-2 text-sm leading-7"
+                    style={{ color: govTheme.text.secondary }}
+                  >
+                    A experiência pública precisa explicar, orientar e acionar a
+                    rede sem fragmentar o atendimento nem sobrecarregar a
+                    usuária.
+                  </p>
+                </div>
+
+                <div
+                  className="rounded-2xl px-4 py-3 text-sm font-semibold"
+                  style={{
+                    color: govTheme.brand.blueStrong,
+                    backgroundColor: govTheme.brand.blueSurface,
+                  }}
+                >
+                  Uso orientado por protocolo e perfis autorizados
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {institutionalSignals.map((signal) => (
+                  <div
+                    key={signal}
+                    className="rounded-2xl border px-4 py-3"
+                    style={{
+                      borderColor: govTheme.border.subtle,
+                      backgroundColor: govTheme.background.section,
+                    }}
+                  >
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2
+                        size={16}
+                        className="mt-0.5 shrink-0"
+                        style={{ color: govTheme.brand.green }}
+                      />
+                      <p
+                        className="text-sm leading-6"
+                        style={{ color: govTheme.text.secondary }}
+                      >
+                        {signal}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 lg:pt-1">
+            <div
+              className="rounded-[2rem] border p-6 lg:p-7"
+              style={{
+                backgroundColor: govTheme.background.section,
+                borderColor: govTheme.border.subtle,
+                boxShadow: govTheme.shadow.soft,
+              }}
+            >
+              <div
+                className="rounded-2xl px-4 py-3 text-sm font-semibold"
+                style={{
+                  color: govTheme.brand.blueStrong,
+                  backgroundColor: govTheme.brand.blueSurface,
+                }}
+              >
+                Atendimento sensível, coordenação entre serviços e continuidade
+                do cuidado em um mesmo fluxo institucional.
+              </div>
+
+              <div
+                className="mt-5 rounded-[1.75rem] border p-5"
+                style={{
+                  borderColor: govTheme.border.subtle,
+                  backgroundColor: "#fbfcfe",
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <div
+                    className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+                    style={{ backgroundColor: govTheme.background.alt }}
+                  >
+                    <PrimaryOrientationIcon
+                      size={18}
+                      style={{ color: govTheme.brand.blue }}
+                    />
+                  </div>
+
+                  <div>
+                    <p
+                      className="text-xs font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: govTheme.brand.blue }}
+                    >
+                      Etapa prioritária
+                    </p>
+                    <h3
+                      className="mt-2 text-lg font-semibold"
+                      style={{ color: govTheme.text.primary }}
+                    >
+                      {primaryOrientationItem.title}
+                    </h3>
+                    <p
+                      className="mt-3 text-sm leading-7"
+                      style={{ color: govTheme.text.secondary }}
+                    >
+                      {primaryOrientationItem.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {orientationItems.slice(1).map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[1.5rem] border px-4 py-4"
+                    style={{
+                      borderColor: govTheme.border.subtle,
+                      backgroundColor: govTheme.background.section,
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl"
+                        style={{ backgroundColor: govTheme.background.alt }}
+                      >
+                        <item.icon
+                          size={16}
+                          style={{ color: govTheme.brand.blue }}
+                        />
+                      </div>
+
+                      <div>
+                        <h3
+                          className="text-sm font-semibold leading-6"
+                          style={{ color: govTheme.text.primary }}
+                        >
+                          {item.title}
+                        </h3>
+                        <p
+                          className="mt-1 text-sm leading-6"
+                          style={{ color: govTheme.text.secondary }}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div
+                className="rounded-[1.75rem] border px-5 py-4"
+                style={{
+                  borderColor: govTheme.border.subtle,
+                  backgroundColor: govTheme.brand.blueSurface,
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: govTheme.brand.blueStrong }}
+                >
+                  Acolhimento com clareza
+                </p>
+                <p
+                  className="mt-3 text-sm leading-7"
+                  style={{ color: govTheme.text.secondary }}
+                >
+                  Linguagem direta, sem excesso de termos técnicos, para que a
+                  usuária compreenda o que acontece em cada etapa.
+                </p>
+              </div>
+
+              <div
+                className="rounded-[1.75rem] border px-5 py-4"
+                style={{
+                  borderColor: govTheme.border.subtle,
+                  backgroundColor: govTheme.background.section,
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: govTheme.brand.green }}
+                >
+                  Governança pública
+                </p>
+                <p
+                  className="mt-3 text-sm leading-7"
+                  style={{ color: govTheme.text.secondary }}
+                >
+                  Dados e encaminhamentos organizados para apoiar auditoria,
+                  continuidade de serviço e decisão técnica responsável.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};

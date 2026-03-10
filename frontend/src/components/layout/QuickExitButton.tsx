@@ -1,31 +1,46 @@
 "use client";
 
-import { X } from "lucide-react";
-import React from "react";
-
-import { Button } from "@/components/ui/button";
+import { EyeOff } from "lucide-react";
+import React, { useEffect } from "react";
 
 export function QuickExitButton() {
   const handleQuickExit = () => {
-    // Redirect immediately to a neutral site
-    // Using replace to avoid back-button issues
     window.location.replace("https://www.msn.com/pt-br/clima");
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleQuickExit();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
-    <div className="fixed top-4 right-4 z-[100] md:top-auto md:bottom-20 md:right-8">
-      <Button
-        variant="destructive"
+    <div className="fixed right-4 top-4 z-100 md:right-6 md:top-5">
+      <button
+        type="button"
         onClick={handleQuickExit}
-        className="rounded-full shadow-2xl h-14 px-6 md:h-16 md:px-8 flex items-center gap-2 font-bold animate-pulse"
+        className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-all hover:-translate-y-0.5"
         style={{
-          backgroundColor: "#dc2626",
-          boxShadow: "0 0 20px rgba(220, 38, 38, 0.4)",
+          color: "#fffaf8",
+          backgroundColor: "rgba(166, 60, 60, 0.94)",
+          border: "1px solid rgba(255, 250, 248, 0.28)",
+          boxShadow: "0 12px 28px rgba(86, 29, 29, 0.22)",
+          backdropFilter: "blur(10px)",
         }}
+        title="Saída rápida: fecha o site e abre uma página neutra (ESC)"
       >
-        <X size={24} />
-        <span>SAÍDA RÁPIDA</span>
-      </Button>
+        <EyeOff size={16} />
+        <span>Saída rápida</span>
+        <span className="hidden rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-medium md:inline">
+          ESC
+        </span>
+      </button>
     </div>
   );
 }

@@ -1,32 +1,32 @@
 import { BarChart3, FolderOpen, Lock, Siren } from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
 const features = [
   {
     icon: FolderOpen,
-    title: "Prontuário Unificado",
+    title: "Prontuário unificado",
     description:
-      "Histórico psicossocial, jurídico e de ocorrências por vítima — em ambiente auditável, acessível apenas por profissionais autorizados.",
+      "Histórico psicossocial, jurídico e de ocorrências reunido em um mesmo ambiente, com acesso restrito a profissionais autorizados.",
   },
   {
     icon: Lock,
     title: "Privacidade e LGPD",
     description:
-      "Criptografia de ponta a ponta, controle de acesso por função e conformidade integral com a LGPD desde a arquitetura.",
+      "Criptografia, trilha de auditoria e controle por perfil para tratar dados sensíveis com rigor desde a arquitetura.",
   },
   {
     icon: Siren,
-    title: "Alerta de Emergência",
+    title: "Alerta de emergência",
     description:
-      "Em situação de risco iminente, a vítima aciona a rede de apoio com um toque — notificando contatos e órgãos competentes.",
+      "Em situação de risco iminente, o sistema facilita acionamentos e notificações para reduzir tempo de resposta da rede.",
   },
   {
     icon: BarChart3,
-    title: "Inteligência Territorial",
+    title: "Leitura territorial e indicadores",
     description:
-      "Visualização de padrões por região, perfil de risco e histórico de casos — para gestores tomarem decisões embasadas em dados.",
+      "Indicadores públicos e operacionais ajudam gestores a acompanhar demanda, risco e continuidade do serviço com base em evidências.",
   },
 ];
 
@@ -34,56 +34,62 @@ export const FeaturesSection: React.FC = () => (
   <section
     id="features"
     className="py-24"
-    style={{ backgroundColor: colors.functional.background.primary }}
+    style={{ backgroundColor: govTheme.background.page }}
   >
     <div className="max-w-6xl mx-auto px-6">
       <div className="mb-14">
         <p
           className="text-sm font-semibold tracking-widest uppercase mb-3"
-          style={{ color: colors.accent[400] }}
+          style={{ color: govTheme.brand.blue }}
         >
-          Funcionalidades
+          Estrutura do serviço
         </p>
         <h2
           className="text-3xl font-bold"
-          style={{ color: colors.functional.text.primary }}
+          style={{ color: govTheme.text.primary }}
         >
-          Tecnologia a serviço da proteção
+          Recursos pensados para a rede pública atuar com mais consistência
         </h2>
+        <p
+          className="mt-4 max-w-2xl text-base leading-7"
+          style={{ color: govTheme.text.secondary }}
+        >
+          Em vez de uma vitrine comercial, a página apresenta de forma direta os
+          pilares que sustentam acolhimento, proteção de dados e gestão pública
+          responsável.
+        </p>
       </div>
 
       <div
-        className="grid sm:grid-cols-2 gap-px"
+        className="grid gap-4 sm:grid-cols-2"
         style={{
-          border: `1px solid ${colors.functional.border.dark}`,
-          borderRadius: "0.5rem",
-          overflow: "hidden",
+          borderRadius: "1rem",
         }}
       >
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="p-8"
+            className="rounded-3xl border p-8"
             style={{
-              backgroundColor: colors.functional.background.card,
-              borderRight: `1px solid ${colors.functional.border.dark}`,
-              borderBottom: `1px solid ${colors.functional.border.dark}`,
+              backgroundColor: govTheme.background.section,
+              borderColor: govTheme.border.subtle,
+              boxShadow: govTheme.shadow.card,
             }}
           >
             <feature.icon
               size={22}
               className="mb-5"
-              style={{ color: colors.accent[400] }}
+              style={{ color: govTheme.brand.blue }}
             />
             <h3
               className="text-base font-semibold mb-2"
-              style={{ color: colors.functional.text.primary }}
+              style={{ color: govTheme.text.primary }}
             >
               {feature.title}
             </h3>
             <p
               className="text-sm leading-relaxed"
-              style={{ color: colors.functional.text.secondary }}
+              style={{ color: govTheme.text.secondary }}
             >
               {feature.description}
             </p>

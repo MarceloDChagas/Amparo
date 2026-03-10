@@ -13,5 +13,5 @@ export { HeroSection } from "./HeroSection";
 export { HowItWorksSection } from "./HowItWorksSection";
 export { ImpactSection } from "./ImpactSection";
 export { Navbar } from "./Navbar";
-export { QuickExitButton } from "./QuickExitButton";
+export { QuickAccessSection } from "./QuickAccessSection";
 export { Step } from "./Step";

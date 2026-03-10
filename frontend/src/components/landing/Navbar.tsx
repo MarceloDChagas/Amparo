@@ -4,7 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
 interface NavbarProps {
   scrolled: boolean;
@@ -13,38 +13,39 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
   const pathname = usePathname();
 
-  const navLink = (
-    href: string,
-    label: string,
-    opts?: { hidden?: boolean },
-  ) => {
+  const navItems = [
+    { href: "#acesso-rapido", label: "Acesso rápido", hidden: false },
+    { href: "#how-it-works", label: "Como funciona", hidden: true },
+    { href: "#dados-publicos", label: "Dados públicos", hidden: true },
+  ];
+
+  const navLink = (href: string, label: string, hidden?: boolean) => {
     const isActive = pathname === href;
+
     return (
       <a
         href={href}
         className={`relative flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 ${
-          opts?.hidden ? "hidden md:flex" : ""
+          hidden ? "hidden md:flex" : ""
         }`}
         style={{
-          color: isActive
-            ? colors.functional.text.primary
-            : colors.functional.text.secondary,
+          color: isActive ? govTheme.brand.blueStrong : govTheme.text.secondary,
         }}
         onMouseEnter={(e) =>
           ((e.currentTarget as HTMLElement).style.color =
-            colors.functional.text.primary)
+            govTheme.brand.blueStrong)
         }
         onMouseLeave={(e) =>
           ((e.currentTarget as HTMLElement).style.color = isActive
-            ? colors.functional.text.primary
-            : colors.functional.text.secondary)
+            ? govTheme.brand.blueStrong
+            : govTheme.text.secondary)
         }
       >
         {label}
         {isActive && (
           <span
             className="absolute -bottom-0.5 left-3 right-3 h-px rounded-full"
-            style={{ backgroundColor: colors.accent[500] }}
+            style={{ backgroundColor: govTheme.brand.sand }}
           />
         )}
       </a>
@@ -56,50 +57,56 @@ export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
       className="fixed top-0 w-full z-40 transition-all duration-200"
       style={{
         backgroundColor: scrolled
-          ? colors.functional.background.primary
-          : "transparent",
+          ? "rgba(255,255,255,0.98)"
+          : "rgba(247,248,250,0.92)",
         borderBottom: scrolled
-          ? `1px solid ${colors.functional.border.dark}`
-          : "none",
-        paddingTop: scrolled ? "0.75rem" : "1.5rem",
-        paddingBottom: scrolled ? "0.75rem" : "1.5rem",
+          ? `1px solid ${govTheme.border.subtle}`
+          : `1px solid rgba(216, 225, 234, 0.78)`,
+        backdropFilter: "blur(10px)",
+        paddingTop: scrolled ? "0.75rem" : "1.15rem",
+        paddingBottom: scrolled ? "0.75rem" : "0.95rem",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck size={18} style={{ color: colors.accent[500] }} />
-          <span
-            className="text-base font-bold tracking-tight"
-            style={{ color: colors.functional.text.primary }}
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: govTheme.brand.blueSurface }}
           >
-            Amparo
-          </span>
-          <span
-            className="hidden sm:inline text-xs font-medium px-2 py-0.5 rounded"
-            style={{
-              color: "#818cf8",
-              backgroundColor: "rgba(55,48,163,0.2)",
-              border: "1px solid rgba(67,56,202,0.4)",
-            }}
-          >
-            gov
-          </span>
+            <ShieldCheck size={18} style={{ color: govTheme.brand.blue }} />
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: govTheme.brand.blue }}
+            >
+              Serviço público de proteção
+            </span>
+            <span
+              className="text-base font-semibold"
+              style={{ color: govTheme.text.primary }}
+            >
+              Amparo
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          {navLink("#features", "Funcionalidades", { hidden: true })}
-          {navLink("#how-it-works", "Como funciona", { hidden: true })}
+        <div className="flex items-center gap-1.5">
+          {navItems.map((item) => navLink(item.href, item.label, item.hidden))}
           <div
             className="hidden md:block mx-2 w-px h-4 self-center"
-            style={{ backgroundColor: colors.functional.border.light }}
+            style={{ backgroundColor: govTheme.border.subtle }}
           />
           {navLink("/login", "Entrar")}
           <a
             href="/register"
-            className="hidden sm:inline-flex items-center px-4 py-2 text-white text-sm font-semibold rounded-lg transition-opacity hover:opacity-90 ml-1"
-            style={{ backgroundColor: colors.accent[600] }}
+            className="ml-1 hidden items-center rounded-full px-4 py-2 text-sm font-semibold sm:inline-flex"
+            style={{
+              color: govTheme.text.inverse,
+              backgroundColor: govTheme.brand.blue,
+            }}
           >
-            Criar Conta
+            Acesso institucional
           </a>
         </div>
       </div>

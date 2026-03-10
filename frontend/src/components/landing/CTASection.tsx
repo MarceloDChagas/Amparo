@@ -1,58 +1,63 @@
 import { ArrowRight } from "lucide-react";
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
 export const CTASection: React.FC = () => (
   <section
+    id="cta-rede"
     className="py-24"
     style={{
-      backgroundColor: colors.functional.background.secondary,
-      borderTop: `1px solid ${colors.functional.border.dark}`,
-      borderBottom: `1px solid ${colors.functional.border.dark}`,
+      backgroundColor: govTheme.background.emphasis,
+      borderTop: `1px solid ${govTheme.border.strong}`,
+      borderBottom: `1px solid ${govTheme.border.strong}`,
     }}
   >
     <div className="max-w-6xl mx-auto px-6">
       <div className="max-w-2xl">
         <p
           className="text-xs font-semibold tracking-widest uppercase mb-5 flex items-center gap-2"
-          style={{ color: colors.accent[500] }}
+          style={{ color: govTheme.brand.sand }}
         >
           <span
             className="inline-block w-5 h-px"
-            style={{ backgroundColor: colors.accent[500] }}
+            style={{ backgroundColor: govTheme.brand.sand }}
           />
-          Para Gestores e Instituições
+          Para a rede pública
         </p>
         <h2
           className="text-3xl font-bold mb-4 leading-tight"
-          style={{ color: colors.functional.text.primary }}
+          style={{ color: govTheme.text.inverse }}
         >
-          Sua instituição já pode fazer parte da rede Amparo.
+          Sua instituição pode integrar uma resposta pública mais coordenada.
         </h2>
         <p
           className="text-base mb-8 leading-relaxed"
-          style={{ color: colors.functional.text.secondary }}
+          style={{ color: "rgba(255,255,255,0.82)" }}
         >
-          GCM, CRAS, SUAS, abrigos e delegacias podem se integrar ao sistema e
-          coordenar respostas em tempo real. Mais agilidade, menos burocracia,
-          mais proteção.
+          CRAS, CREAS, saúde, guarda municipal, delegacias e serviços de
+          acolhimento podem operar no mesmo fluxo, com linguagem comum,
+          rastreabilidade e continuidade do atendimento.
         </p>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <a
             href="/register"
-            className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: colors.accent[600] }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
+            style={{
+              color: govTheme.text.primary,
+              backgroundColor: govTheme.brand.sand,
+            }}
           >
-            Integrar minha instituição
+            Solicitar acesso institucional
             <ArrowRight size={15} />
           </a>
-          <button
-            className="text-sm font-medium hover:opacity-100 transition-opacity"
-            style={{ color: colors.functional.text.tertiary }}
+          <a
+            href="/login"
+            className="text-sm font-medium transition-opacity hover:opacity-100"
+            style={{ color: "rgba(255,255,255,0.78)" }}
           >
-            Falar com a equipe
-          </button>
+            Entrar no ambiente institucional
+          </a>
         </div>
       </div>
     </div>

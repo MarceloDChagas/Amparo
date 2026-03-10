@@ -1,28 +1,28 @@
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 
 const steps = [
   {
     number: "01",
-    title: "Registro seguro",
-    tag: "Privacidade desde o início",
+    title: "Escuta inicial e registro protegido",
+    tag: "Privacidade desde o primeiro contato",
     description:
-      "A vítima ou gestor inicia o registro em canal criptografado e discreto. Nenhum dado é exposto sem consentimento.",
+      "A demanda é acolhida com linguagem clara e canal discreto, preservando informações sensíveis e organizando o primeiro encaminhamento.",
   },
   {
     number: "02",
-    title: "Acompanhamento contínuo",
+    title: "Acompanhamento com continuidade",
     tag: "Histórico centralizado",
     description:
-      "Medidas protetivas, ocorrências e evoluções do caso são consolidadas em prontuário único e auditável.",
+      "Medidas protetivas, ocorrências e retornos da rede ficam reunidos para reduzir retrabalho e permitir continuidade do cuidado.",
   },
   {
     number: "03",
-    title: "Acionamento da rede",
+    title: "Acionamento responsável da rede",
     tag: "Resposta coordenada",
     description:
-      "Quando há risco, abrigo, polícia, assistência social e suporte psicológico são notificados em tempo real.",
+      "Quando houver necessidade, assistência social, segurança, saúde e acolhimento são acionados de forma organizada e rastreável.",
   },
 ];
 
@@ -31,71 +31,84 @@ export const HowItWorksSection: React.FC = () => (
     id="how-it-works"
     className="py-24"
     style={{
-      backgroundColor: colors.functional.background.secondary,
-      borderTop: `1px solid ${colors.functional.border.dark}`,
-      borderBottom: `1px solid ${colors.functional.border.dark}`,
+      backgroundColor: govTheme.background.section,
+      borderTop: `1px solid ${govTheme.border.subtle}`,
+      borderBottom: `1px solid ${govTheme.border.subtle}`,
     }}
   >
     <div className="max-w-6xl mx-auto px-6">
       <div className="mb-14">
         <p
           className="text-xs font-semibold tracking-widest uppercase mb-3 flex items-center gap-2"
-          style={{ color: colors.accent[500] }}
+          style={{ color: govTheme.brand.blue }}
         >
           <span
             className="inline-block w-5 h-px"
-            style={{ backgroundColor: colors.accent[500] }}
+            style={{ backgroundColor: govTheme.brand.sand }}
           />
           Fluxo de Atendimento
         </p>
         <h2
           className="text-3xl font-bold"
-          style={{ color: colors.functional.text.primary }}
+          style={{ color: govTheme.text.primary }}
         >
-          Do primeiro contato ao amparo completo
+          Como o atendimento é organizado com clareza e continuidade
         </h2>
+        <p
+          className="mt-4 max-w-2xl text-base leading-7"
+          style={{ color: govTheme.text.secondary }}
+        >
+          O desenho do serviço prioriza previsibilidade, acolhimento e atuação
+          conjunta da rede pública, sem transformar a experiência em um portal
+          burocrático ou frio.
+        </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-0 relative">
-        {/* Connector line (desktop only) */}
+      <div className="relative grid gap-4 md:grid-cols-3">
         <div
-          className="hidden md:block absolute top-[2.6rem] left-[33.33%] right-[33.33%] h-px z-0"
-          style={{ backgroundColor: colors.functional.border.dark }}
+          className="absolute left-[33.33%] right-[33.33%] top-[2.8rem] z-0 hidden h-px md:block"
+          style={{ backgroundColor: govTheme.border.subtle }}
         />
         {steps.map((step, i) => (
           <div
             key={step.number}
-            className="p-6 relative z-10"
+            className="relative z-10 rounded-[1.75rem] border p-6"
             style={{
-              borderLeft:
-                i > 0 ? `1px solid ${colors.functional.border.dark}` : "none",
+              borderColor: govTheme.border.subtle,
+              backgroundColor:
+                i === 1
+                  ? govTheme.background.alt
+                  : i === 2
+                    ? govTheme.brand.blueSurface
+                    : govTheme.background.section,
+              boxShadow: govTheme.shadow.card,
             }}
           >
             <div
-              className="inline-block text-xs font-mono font-bold px-2 py-0.5 rounded mb-4"
+              className="mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold"
               style={{
-                color: colors.accent[400],
-                backgroundColor: `${colors.accent[900]}55`,
-                border: `1px solid ${colors.accent[800]}`,
+                color: govTheme.brand.blueStrong,
+                backgroundColor: govTheme.brand.blueSurface,
+                border: `1px solid ${govTheme.border.strong}`,
               }}
             >
               {step.number}
             </div>
             <p
               className="text-xs font-medium mb-2"
-              style={{ color: colors.accent[500] }}
+              style={{ color: govTheme.brand.green }}
             >
               {step.tag}
             </p>
             <h3
               className="text-base font-semibold mb-3"
-              style={{ color: colors.functional.text.primary }}
+              style={{ color: govTheme.text.primary }}
             >
               {step.title}
             </h3>
             <p
               className="text-sm leading-relaxed"
-              style={{ color: colors.functional.text.secondary }}
+              style={{ color: govTheme.text.secondary }}
             >
               {step.description}
             </p>

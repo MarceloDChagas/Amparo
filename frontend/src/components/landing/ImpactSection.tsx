@@ -1,6 +1,6 @@
 import React from "react";
 
-import { colors } from "@/styles/colors";
+import { govTheme } from "./gov-theme";
 const stats = [
   {
     value: "3 em cada 10",
@@ -23,65 +23,74 @@ const stats = [
 
 export const ImpactSection: React.FC = () => (
   <section
+    id="dados-publicos"
     className="py-20"
-    style={{ backgroundColor: colors.functional.background.primary }}
+    style={{ backgroundColor: govTheme.background.alt }}
   >
     <div className="max-w-6xl mx-auto px-6">
-      <div className="mb-12">
-        <p
-          className="text-xs font-semibold tracking-widest uppercase mb-3 flex items-center gap-2"
-          style={{ color: "#6366f1" }}
-        >
-          <span
-            className="inline-block w-5 h-px"
-            style={{ backgroundColor: "#6366f1" }}
-          />
-          Por que isso importa
-        </p>
-        <h2
-          className="text-2xl font-bold max-w-xl leading-snug"
-          style={{ color: colors.functional.text.primary }}
-        >
-          A fragmentação dos serviços custa vidas.
-          <br />
-          <span
-            className="font-normal text-xl"
-            style={{ color: colors.functional.text.secondary }}
+      <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p
+            className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest"
+            style={{ color: govTheme.brand.blue }}
           >
-            O Amparo existe para fechar essa lacuna.
-          </span>
-        </h2>
+            <span
+              className="inline-block h-px w-5"
+              style={{ backgroundColor: govTheme.brand.sand }}
+            />
+            Dados públicos
+          </p>
+          <h2
+            className="max-w-xl text-2xl font-bold leading-snug"
+            style={{ color: govTheme.text.primary }}
+          >
+            Informações que ajudam a entender a urgência da resposta pública.
+            <br />
+            <span
+              className="text-xl font-normal"
+              style={{ color: govTheme.text.secondary }}
+            >
+              A transparência dos dados fortalece prevenção, cuidado e gestão.
+            </span>
+          </h2>
+        </div>
+
+        <p
+          className="max-w-xl text-sm leading-7 sm:text-base"
+          style={{ color: govTheme.text.secondary }}
+        >
+          Os números abaixo não funcionam como peça publicitária. Eles servem
+          para contextualizar por que a integração entre acolhimento, proteção e
+          acompanhamento precisa ser tratada como política pública contínua.
+        </p>
       </div>
 
       <div
-        className="grid md:grid-cols-3 gap-px overflow-hidden rounded-lg"
-        style={{ border: `1px solid rgba(55,48,163,0.3)` }}
+        className="grid overflow-hidden rounded-3xl border md:grid-cols-3"
+        style={{ borderColor: govTheme.border.strong }}
       >
         {stats.map((s) => (
           <div
             key={s.label}
-            className="p-6"
+            className="border-r p-6 last:border-r-0"
             style={{
-              backgroundColor: "rgba(10,8,22,0.7)",
-              borderRight: `1px solid rgba(55,48,163,0.2)`,
+              backgroundColor: govTheme.background.section,
+              borderColor: govTheme.border.subtle,
             }}
           >
             <div
               className="text-2xl font-bold mb-2 leading-tight"
-              style={{ color: colors.functional.text.primary }}
+              style={{ color: govTheme.brand.blueStrong }}
             >
               {s.value}
             </div>
             <p
               className="text-sm leading-relaxed mb-3"
-              style={{ color: colors.functional.text.secondary }}
+              style={{ color: govTheme.text.secondary }}
             >
               {s.label}
             </p>
-            <p
-              className="text-xs"
-              style={{ color: colors.functional.text.tertiary }}
-            >
+            <p className="text-xs" style={{ color: govTheme.text.muted }}>
               {s.source}
             </p>
           </div>
@@ -90,11 +99,11 @@ export const ImpactSection: React.FC = () => (
 
       <p
         className="mt-8 text-sm leading-relaxed max-w-2xl"
-        style={{ color: colors.functional.text.tertiary }}
+        style={{ color: govTheme.text.secondary }}
       >
-        Não é uma campanha de conscientização. É infraestrutura de resposta —
-        para que assistentes sociais, policiais e agentes de saúde possam agir
-        de forma coordenada, rápida e com histórico completo do caso.
+        O objetivo não é apenas informar. É oferecer base para que equipes
+        técnicas planejem resposta, acompanhem trajetórias e evitem que a mulher
+        precise repetir sua história a cada novo atendimento.
       </p>
     </div>
   </section>

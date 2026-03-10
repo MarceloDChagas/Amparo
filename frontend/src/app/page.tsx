@@ -10,9 +10,9 @@ import {
   HowItWorksSection,
   ImpactSection,
   Navbar,
-  QuickExitButton,
+  QuickAccessSection,
 } from "@/components/landing";
-import { colors } from "@/styles/colors";
+import { govTheme } from "@/components/landing/gov-theme";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,11 +26,11 @@ export default function Home() {
   return (
     <div
       className="min-h-screen"
-      style={{ backgroundColor: colors.functional.background.primary }}
+      style={{ backgroundColor: govTheme.background.page }}
     >
-      <QuickExitButton />
       <Navbar scrolled={scrolled} />
       <HeroSection />
+      <QuickAccessSection />
       <HowItWorksSection />
       <ImpactSection />
       <FeaturesSection />
