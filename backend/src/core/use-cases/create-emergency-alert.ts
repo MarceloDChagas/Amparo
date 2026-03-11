@@ -7,6 +7,7 @@ import type { IEmergencyContactRepository } from "@/core/domain/repositories/eme
 import type { INotificationLogRepository } from "@/core/domain/repositories/notification-log-repository.interface";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import type { IEmailService } from "@/core/domain/services/email-service.interface";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
 import { getEmergencyAlertTemplate } from "@/infra/services/email-templates/emergency-alert-template";
@@ -29,7 +30,7 @@ export class CreateEmergencyAlert {
     private emergencyAlertRepository: EmergencyAlertRepository,
     @Inject("IEmergencyContactRepository")
     private emergencyContactRepository: IEmergencyContactRepository,
-    @Inject("UserRepository")
+    @Inject(USER_REPOSITORY)
     private userRepository: UserRepository,
     @Inject("IEmailService")
     private emailService: IEmailService,

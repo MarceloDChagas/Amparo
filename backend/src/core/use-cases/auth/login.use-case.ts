@@ -8,11 +8,13 @@ import {
   TOKEN_SERVICE_PORT,
   TokenServicePort,
 } from "@/core/ports/auth.ports";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { AuthTokenOutput, LoginInput } from "@/core/use-cases/auth/auth.types";
 
 @Injectable()
 export class LoginUseCase {
   constructor(
+    @Inject(USER_REPOSITORY)
     private userRepository: UserRepository,
     @Inject(PASSWORD_HASHER_PORT)
     private passwordHasher: PasswordHasherPort,
