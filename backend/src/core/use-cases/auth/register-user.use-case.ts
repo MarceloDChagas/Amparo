@@ -1,47 +1,67 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { User } from "@/core/domain/entities/user.entity";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
-import { RegisterUserDto } from "@/infra/http/dtos/register-user.dto";
-import { AuthService } from "@/infra/services/auth.service";
+import { UserAlreadyExistsError } from "@/core/errors/auth.errors";
+import {
+  PASSWORD_HASHER_PORT,
+  PasswordHasherPort,
+  TOKEN_SERVICE_PORT,
+  TokenServicePort,
+} from "@/core/ports/auth.ports";
+import {
+  AuthTokenOutput,
+  RegisterUserInput,
+} from "@/core/use-cases/auth/auth.types";
 
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
     private userRepository: UserRepository,
-    private authService: AuthService,
+    @Inject(PASSWORD_HASHER_PORT)
+    private passwordHasher: PasswordHasherPort,
+    @Inject(TOKEN_SERVICE_PORT)
+    private tokenService: TokenServicePort,
   ) {}
 
-  async execute(data: RegisterUserDto) {
+  async execute(data: RegisterUserInput): Promise<AuthTokenOutput> {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new BadRequestException("User already exists");
+      throw new UserAlreadyExistsError("email");
     }
 
-    // Check if CPF already exists if provided
     if (data.cpf) {
       const existingCpf = await this.userRepository.findByCpf(data.cpf);
       if (existingCpf) {
-        throw new BadRequestException("CPF already exists");
+        throw new UserAlreadyExistsError("cpf");
       }
     }
 
-    const hashedPassword = await this.authService.hashPassword(data.password);
+    const hashedPassword = await this.passwordHasher.hash(data.password);
 
     const newUser = new User({
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: "VICTIM", // Enforce VICTIM role for self-registration or allow from DTO if needed
+      role: "VICTIM",
       cpf: data.cpf,
     } as Partial<User>);
 
     const createdUser = await this.userRepository.create(newUser);
-    const { access_token } = this.authService.login(createdUser);
+    const access_token = this.tokenService.sign({
+      email: createdUser.email,
+      sub: createdUser.id,
+      role: createdUser.role,
+    });
 
     return {
-      user: createdUser,
       access_token,
+      user: {
+        id: createdUser.id,
+        email: createdUser.email,
+        name: createdUser.name,
+        role: createdUser.role,
+      },
     };
   }
 }

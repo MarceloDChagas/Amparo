@@ -1,31 +1,55 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
-import { User } from "@/core/domain/entities/user.entity";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
-import { LoginDto } from "@/infra/http/dtos/login.dto";
-import { AuthService } from "@/infra/services/auth.service";
+import { InvalidCredentialsError } from "@/core/errors/auth.errors";
+import {
+  PASSWORD_HASHER_PORT,
+  PasswordHasherPort,
+  TOKEN_SERVICE_PORT,
+  TokenServicePort,
+} from "@/core/ports/auth.ports";
+import { AuthTokenOutput, LoginInput } from "@/core/use-cases/auth/auth.types";
 
 @Injectable()
 export class LoginUseCase {
   constructor(
     private userRepository: UserRepository,
-    private authService: AuthService,
+    @Inject(PASSWORD_HASHER_PORT)
+    private passwordHasher: PasswordHasherPort,
+    @Inject(TOKEN_SERVICE_PORT)
+    private tokenService: TokenServicePort,
   ) {}
 
-  async execute(credentials: LoginDto) {
-    console.log("Login lookup for:", credentials.email);
+  async execute(credentials: LoginInput): Promise<AuthTokenOutput> {
     const user = await this.userRepository.findByEmail(credentials.email);
-    console.log("UserRepository return:", user);
-    const validatedUser = await this.authService.validateUser(
-      credentials.email,
-      credentials.password,
-      user,
-    );
 
-    if (!validatedUser) {
-      throw new UnauthorizedException("Invalid credentials");
+    if (!user) {
+      throw new InvalidCredentialsError();
     }
 
-    return this.authService.login(user as User);
+    const isMatch = await this.passwordHasher.compare(
+      credentials.password,
+      user.password!,
+    );
+
+    if (!isMatch) {
+      throw new InvalidCredentialsError();
+    }
+
+    const access_token = this.tokenService.sign({
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    });
+
+    return {
+      access_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    };
   }
 }
