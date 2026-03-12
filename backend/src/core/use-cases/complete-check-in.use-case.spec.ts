@@ -1,24 +1,23 @@
-import { NotFoundException } from "@nestjs/common";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
 import {
   CheckInStatus,
   DistanceType,
 } from "@/core/domain/enums/distance-type.enum";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
+import {
+  CheckInRecord,
+  CheckInRepository,
+} from "@/core/domain/repositories/check-in-repository";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
+import { ActiveCheckInNotFoundError } from "@/core/errors/check-in.errors";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
-import { PrismaService } from "@/infra/database/prisma.service";
 
 import { CompleteCheckInUseCase } from "./complete-check-in.use-case";
 
 describe("CompleteCheckInUseCase", () => {
   let useCase: CompleteCheckInUseCase;
-  let prismaMock: {
-    checkIn: {
-      findFirst: jest.Mock;
-      update: jest.Mock;
-    };
-  };
+  let checkInRepositoryMock: jest.Mocked<CheckInRepository>;
   let checkInValidationServiceMock: {
     validateCheckIn: jest.Mock;
   };
@@ -30,11 +29,14 @@ describe("CompleteCheckInUseCase", () => {
   };
 
   beforeEach(() => {
-    prismaMock = {
-      checkIn: {
-        findFirst: jest.fn(),
-        update: jest.fn(),
-      },
+    checkInRepositoryMock = {
+      findActiveByUserId: jest.fn(),
+      findAllActive: jest.fn(),
+      findById: jest.fn(),
+      findDetailedById: jest.fn(),
+      findByUserId: jest.fn(),
+      create: jest.fn(),
+      complete: jest.fn(),
     };
 
     checkInValidationServiceMock = {
@@ -50,7 +52,7 @@ describe("CompleteCheckInUseCase", () => {
     };
 
     useCase = new CompleteCheckInUseCase(
-      prismaMock as unknown as PrismaService,
+      checkInRepositoryMock,
       checkInValidationServiceMock as unknown as CheckInValidationService,
       auditLoggerMock as unknown as AuditLoggerPort,
       createEmergencyAlertMock as unknown as CreateEmergencyAlert,
@@ -64,15 +66,15 @@ describe("CompleteCheckInUseCase", () => {
       userId: "user-1",
       distanceType: DistanceType.SHORT,
       expectedArrivalTime: new Date(),
-    };
-    prismaMock.checkIn.findFirst.mockResolvedValue(activeCheckIn);
+    } as CheckInRecord;
+    checkInRepositoryMock.findActiveByUserId.mockResolvedValue(activeCheckIn);
     checkInValidationServiceMock.validateCheckIn.mockReturnValue(
       CheckInStatus.ON_TIME,
     );
-    prismaMock.checkIn.update.mockResolvedValue({
+    checkInRepositoryMock.complete.mockResolvedValue({
       ...activeCheckIn,
       status: CheckInStatus.ON_TIME,
-    });
+    } as CheckInRecord);
 
     const request = {
       userId: "user-1",
@@ -88,15 +90,15 @@ describe("CompleteCheckInUseCase", () => {
     expect(result.status).toBe(CheckInStatus.ON_TIME);
 
     // Ensure the record is updated with final positions
-    expect(prismaMock.checkIn.update).toHaveBeenCalledWith({
-      where: { id: "checkIn123" },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      data: expect.objectContaining({
+    expect(checkInRepositoryMock.complete.mock.calls).toHaveLength(1);
+    expect(checkInRepositoryMock.complete.mock.calls[0]).toEqual([
+      "checkIn123",
+      expect.objectContaining({
         finalLatitude: -23.5,
         finalLongitude: -46.6,
         status: CheckInStatus.ON_TIME,
       }),
-    });
+    ]);
 
     // Ensure Emergency alert was NOT triggered
     expect(createEmergencyAlertMock.execute).not.toHaveBeenCalled();
@@ -112,15 +114,15 @@ describe("CompleteCheckInUseCase", () => {
       startLatitude: -23.1,
       startLongitude: -46.1,
       expectedArrivalTime: new Date(),
-    };
-    prismaMock.checkIn.findFirst.mockResolvedValue(activeCheckIn);
+    } as CheckInRecord;
+    checkInRepositoryMock.findActiveByUserId.mockResolvedValue(activeCheckIn);
     checkInValidationServiceMock.validateCheckIn.mockReturnValue(
       CheckInStatus.LATE,
     );
-    prismaMock.checkIn.update.mockResolvedValue({
+    checkInRepositoryMock.complete.mockResolvedValue({
       ...activeCheckIn,
       status: CheckInStatus.LATE,
-    });
+    } as CheckInRecord);
 
     const request = {
       userId: "user-1",
@@ -142,20 +144,22 @@ describe("CompleteCheckInUseCase", () => {
     );
   });
 
-  it("should throw NotFoundException if no active check-in is found", async () => {
-    prismaMock.checkIn.findFirst.mockResolvedValue(null);
+  it("should throw ActiveCheckInNotFoundError if no active check-in is found", async () => {
+    checkInRepositoryMock.findActiveByUserId.mockResolvedValue(null);
 
     const request = {
       userId: "user-1",
     };
 
     // Act & Assert
-    await expect(useCase.execute(request)).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute(request)).rejects.toThrow(
+      ActiveCheckInNotFoundError,
+    );
     await expect(useCase.execute(request)).rejects.toThrow(
       "No active check-in found for this user",
     );
 
-    expect(prismaMock.checkIn.update).not.toHaveBeenCalled();
+    expect(checkInRepositoryMock.complete.mock.calls).toHaveLength(0);
     expect(createEmergencyAlertMock.execute).not.toHaveBeenCalled();
   });
 });

@@ -2,6 +2,14 @@ import {
   CheckInStatus,
   DistanceType,
 } from "@/core/domain/enums/distance-type.enum";
+import { Role } from "@/core/domain/enums/role.enum";
+
+export interface CheckInUserSummary {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+}
 
 export interface CheckInRecord {
   id: string;
@@ -17,6 +25,14 @@ export interface CheckInRecord {
   status: "ACTIVE" | CheckInStatus | "CANCELLED";
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ActiveCheckInRecord extends CheckInRecord {
+  user: CheckInUserSummary;
+}
+
+export interface CheckInDetailsRecord extends ActiveCheckInRecord {
+  userCheckInCount: number;
 }
 
 export interface CreateCheckInData {
@@ -38,7 +54,9 @@ export interface CompleteCheckInData {
 
 export interface CheckInRepository {
   findActiveByUserId(userId: string): Promise<CheckInRecord | null>;
+  findAllActive(): Promise<ActiveCheckInRecord[]>;
   findById(id: string): Promise<CheckInRecord | null>;
+  findDetailedById(id: string): Promise<CheckInDetailsRecord | null>;
   findByUserId(userId: string): Promise<CheckInRecord[]>;
   create(data: CreateCheckInData): Promise<CheckInRecord>;
   complete(

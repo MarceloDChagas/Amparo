@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import { CheckInStatus } from "@/core/domain/enums/distance-type.enum";
@@ -8,6 +8,7 @@ import {
   CompleteCheckInData,
 } from "@/core/domain/repositories/check-in-repository";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
+import { ActiveCheckInNotFoundError } from "@/core/errors/check-in.errors";
 import { CHECK_IN_REPOSITORY } from "@/core/ports/check-in-repository.ports";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 
@@ -33,7 +34,7 @@ export class CompleteCheckInUseCase {
     const checkIn = await this.checkInRepository.findActiveByUserId(userId);
 
     if (!checkIn) {
-      throw new NotFoundException("No active check-in found for this user");
+      throw new ActiveCheckInNotFoundError();
     }
 
     const actualArrivalTime = new Date();

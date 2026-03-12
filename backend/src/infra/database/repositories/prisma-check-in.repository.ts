@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
 
 import { DistanceType } from "@/core/domain/enums/distance-type.enum";
+import { Role } from "@/core/domain/enums/role.enum";
 import {
+  ActiveCheckInRecord,
+  CheckInDetailsRecord,
   CheckInRecord,
   CheckInRepository,
   CompleteCheckInData,
@@ -24,10 +27,49 @@ export class PrismaCheckInRepository implements CheckInRepository {
     return data ? this.toCheckInRecord(data) : null;
   }
 
+  async findAllActive(): Promise<ActiveCheckInRecord[]> {
+    const records = await this.prisma.checkIn.findMany({
+      where: { status: "ACTIVE" },
+      include: { user: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return records.map((record) => ({
+      ...this.toCheckInRecord(record),
+      user: this.toCheckInUserSummary(record.user),
+    }));
+  }
+
   async findById(id: string): Promise<CheckInRecord | null> {
     const data = await this.prisma.checkIn.findUnique({ where: { id } });
 
     return data ? this.toCheckInRecord(data) : null;
+  }
+
+  async findDetailedById(id: string): Promise<CheckInDetailsRecord | null> {
+    const checkIn = await this.prisma.checkIn.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if (!checkIn) {
+      return null;
+    }
+
+    const userCheckInCount = await this.prisma.checkIn.count({
+      where: {
+        userId: checkIn.userId,
+        status: {
+          in: ["ON_TIME", "LATE"],
+        },
+      },
+    });
+
+    return {
+      ...this.toCheckInRecord(checkIn),
+      user: this.toCheckInUserSummary(checkIn.user),
+      userCheckInCount,
+    };
   }
 
   async findByUserId(userId: string): Promise<CheckInRecord[]> {
@@ -101,6 +143,20 @@ export class PrismaCheckInRepository implements CheckInRepository {
       status: data.status as CheckInRecord["status"],
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
+    };
+  }
+
+  private toCheckInUserSummary(data: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  }) {
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role as Role,
     };
   }
 }

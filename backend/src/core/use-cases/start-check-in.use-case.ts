@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import {
@@ -10,6 +10,7 @@ import {
   CheckInRepository,
   CreateCheckInData,
 } from "@/core/domain/repositories/check-in-repository";
+import { ActiveCheckInAlreadyExistsError } from "@/core/errors/check-in.errors";
 import { CHECK_IN_REPOSITORY } from "@/core/ports/check-in-repository.ports";
 
 interface StartCheckInRequest {
@@ -34,7 +35,7 @@ export class StartCheckInUseCase {
       await this.checkInRepository.findActiveByUserId(userId);
 
     if (existingCheckIn) {
-      throw new BadRequestException("User already has an active check-in");
+      throw new ActiveCheckInAlreadyExistsError();
     }
 
     // eslint-disable-next-line security/detect-object-injection

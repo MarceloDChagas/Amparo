@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { AlertEventType, EventSource } from "@prisma/client";
 
 import { AlertEvent } from "@/core/domain/entities/alert-event";
+import {
+  AlertEventType,
+  EventSource,
+} from "@/core/domain/enums/alert-event.enum";
 import { AlertEventRepository } from "@/core/repositories/alert-event-repository";
 
 interface RecordAlertEventRequest {

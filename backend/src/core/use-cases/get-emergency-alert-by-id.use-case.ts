@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
+import { EmergencyAlertNotFoundError } from "@/core/errors/emergency-alert.errors";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
 
 @Injectable()
@@ -11,9 +12,7 @@ export class GetEmergencyAlertByIdUseCase {
     const alert = await this.emergencyAlertRepository.findById(id);
 
     if (!alert) {
-      throw new NotFoundException(
-        `Alerta de emergência de ID ${id} não encontrado.`,
-      );
+      throw new EmergencyAlertNotFoundError(id);
     }
 
     return alert;

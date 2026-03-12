@@ -1,5 +1,9 @@
-import { AlertEventType, EventSource } from "@prisma/client";
 import * as crypto from "crypto";
+
+import {
+  AlertEventType,
+  EventSource,
+} from "@/core/domain/enums/alert-event.enum";
 
 export class AlertEvent {
   constructor(

@@ -1,29 +1,29 @@
-import { BadRequestException } from "@nestjs/common";
-
 import { DistanceType } from "@/core/domain/enums/distance-type.enum";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
-import { PrismaService } from "@/infra/database/prisma.service";
+import {
+  CheckInRecord,
+  CheckInRepository,
+} from "@/core/domain/repositories/check-in-repository";
+import { ActiveCheckInAlreadyExistsError } from "@/core/errors/check-in.errors";
 
 import { StartCheckInUseCase } from "./start-check-in.use-case";
 
 describe("StartCheckInUseCase", () => {
   let useCase: StartCheckInUseCase;
-  let prismaMock: {
-    checkIn: {
-      findFirst: jest.Mock;
-      create: jest.Mock;
-    };
-  };
+  let checkInRepositoryMock: jest.Mocked<CheckInRepository>;
   let auditLoggerMock: {
     log: jest.Mock;
   };
 
   beforeEach(() => {
-    prismaMock = {
-      checkIn: {
-        findFirst: jest.fn(),
-        create: jest.fn(),
-      },
+    checkInRepositoryMock = {
+      findActiveByUserId: jest.fn(),
+      findAllActive: jest.fn(),
+      findById: jest.fn(),
+      findDetailedById: jest.fn(),
+      findByUserId: jest.fn(),
+      create: jest.fn(),
+      complete: jest.fn(),
     };
 
     auditLoggerMock = {
@@ -31,14 +31,16 @@ describe("StartCheckInUseCase", () => {
     };
 
     useCase = new StartCheckInUseCase(
-      prismaMock as unknown as PrismaService,
+      checkInRepositoryMock,
       auditLoggerMock as unknown as AuditLoggerPort,
     );
   });
 
   it("should start a check-in successfully with coordinates", async () => {
-    prismaMock.checkIn.findFirst.mockResolvedValue(null);
-    prismaMock.checkIn.create.mockResolvedValue({ id: "checkIn123" });
+    checkInRepositoryMock.findActiveByUserId.mockResolvedValue(null);
+    checkInRepositoryMock.create.mockResolvedValue({
+      id: "checkIn123",
+    } as CheckInRecord);
 
     const request = {
       userId: "user-1",
@@ -53,37 +55,39 @@ describe("StartCheckInUseCase", () => {
     expect(result.id).toBe("checkIn123");
 
     // Verify creation was called with correct data
-    expect(prismaMock.checkIn.create).toHaveBeenCalledWith(
+    expect(checkInRepositoryMock.create.mock.calls).toHaveLength(1);
+    expect(checkInRepositoryMock.create.mock.calls[0]).toEqual([
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        data: expect.objectContaining({
-          userId: "user-1",
-          distanceType: DistanceType.SHORT,
-          startLatitude: -23.5505,
-          startLongitude: -46.6333,
-          status: "ACTIVE",
-        }),
+        userId: "user-1",
+        distanceType: DistanceType.SHORT,
+        startLatitude: -23.5505,
+        startLongitude: -46.6333,
+        status: "ACTIVE",
       }),
-    );
+    ]);
 
     // Verify audit log was created
     expect(auditLoggerMock.log).toHaveBeenCalled();
   });
 
-  it("should throw BadRequestException if user already has an ACTIVE check-in", async () => {
-    prismaMock.checkIn.findFirst.mockResolvedValue({ id: "existing-checkin" });
+  it("should throw ActiveCheckInAlreadyExistsError if user already has an ACTIVE check-in", async () => {
+    checkInRepositoryMock.findActiveByUserId.mockResolvedValue(
+      {} as CheckInRecord,
+    );
 
     const request = {
       userId: "user-1",
       distanceType: DistanceType.SHORT,
     };
 
-    await expect(useCase.execute(request)).rejects.toThrow(BadRequestException);
+    await expect(useCase.execute(request)).rejects.toThrow(
+      ActiveCheckInAlreadyExistsError,
+    );
     await expect(useCase.execute(request)).rejects.toThrow(
       "User already has an active check-in",
     );
 
-    expect(prismaMock.checkIn.create).not.toHaveBeenCalled();
+    expect(checkInRepositoryMock.create.mock.calls).toHaveLength(0);
     expect(auditLoggerMock.log).not.toHaveBeenCalled();
   });
 });
