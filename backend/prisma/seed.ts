@@ -12,19 +12,32 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+const DEFAULT_ADMIN_EMAIL = "admin@amparo.local";
+const DEFAULT_ADMIN_PASSWORD = "Admin@123";
+const DEFAULT_ADMIN_NAME = "Administrador";
+
+function getSeedAdminConfig() {
+  return {
+    email: process.env.SEED_ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL,
+    password: process.env.SEED_ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD,
+    name: process.env.SEED_ADMIN_NAME ?? DEFAULT_ADMIN_NAME,
+  };
+}
+
 async function main() {
-  const adminEmail = "admin@gmail.com";
-  const adminPassword = "admin123";
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  const adminConfig = getSeedAdminConfig();
+  const hashedPassword = await bcrypt.hash(adminConfig.password, 10);
 
   const admin = await prisma.user.upsert({
-    where: { email: adminEmail },
+    where: { email: adminConfig.email },
     update: {
+      name: adminConfig.name,
+      password: hashedPassword,
       role: Role.ADMIN,
     },
     create: {
-      email: adminEmail,
-      name: "Admin",
+      email: adminConfig.email,
+      name: adminConfig.name,
       password: hashedPassword,
       role: Role.ADMIN,
     },
@@ -37,6 +50,8 @@ async function main() {
   const victim = await prisma.user.upsert({
     where: { email: victimEmail },
     update: {
+      name: "Maria da Silva",
+      password: victimHashedPassword,
       role: Role.VICTIM,
     },
     create: {
@@ -147,14 +162,32 @@ async function main() {
     },
   ];
 
-  for (const data of occurrencesData) {
-    await prisma.occurrence.create({
-      data,
-    });
+  const existingOccurrences = await prisma.occurrence.count({
+    where: { userId: victim.id },
+  });
+
+  if (existingOccurrences === 0) {
+    for (const data of occurrencesData) {
+      await prisma.occurrence.create({
+        data,
+      });
+    }
   }
 
   // eslint-disable-next-line no-console
-  console.log({ admin, victim, occurrencesCount: occurrencesData.length });
+  console.log({
+    admin: {
+      email: adminConfig.email,
+      password: adminConfig.password,
+      role: admin.role,
+    },
+    victim: {
+      email: victimEmail,
+      password: victimPassword,
+      role: victim.role,
+    },
+    occurrencesCount: existingOccurrences === 0 ? occurrencesData.length : 0,
+  });
 }
 
 void main()

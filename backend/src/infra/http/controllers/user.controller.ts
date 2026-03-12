@@ -38,7 +38,9 @@ export class UserController {
     const { user } = await this.registerUserUseCase.execute({
       ...createUserDto,
     });
-    return UserPresenter.toHTTP(user);
+    const createdUser = await this.getUserUseCase.execute(user.id);
+    if (!createdUser) return null;
+    return UserPresenter.toHTTP(createdUser);
   }
 
   @Get()
