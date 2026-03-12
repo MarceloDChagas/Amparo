@@ -3,10 +3,14 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 
-import { UserRepository } from "@/core/domain/repositories/user.repository";
+import {
+  PASSWORD_HASHER_PORT,
+  TOKEN_SERVICE_PORT,
+} from "@/core/ports/auth.ports";
 import { LoginUseCase } from "@/core/use-cases/auth/login.use-case";
 import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
-import { PrismaUserRepository } from "@/infra/database/repositories/prisma-user.repository";
+import { BcryptPasswordHasherAdapter } from "@/infra/adapters/bcrypt-password-hasher.adapter";
+import { JwtTokenServiceAdapter } from "@/infra/adapters/jwt-token-service.adapter";
 import { AuthController } from "@/infra/http/controllers/auth.controller";
 import { JwtStrategy } from "@/infra/http/strategies/jwt.strategy";
 import { AuthService } from "@/infra/services/auth.service";
@@ -37,8 +41,12 @@ import { DatabaseModule } from "./database.module";
     LoginUseCase,
     RegisterUserUseCase,
     {
-      provide: UserRepository,
-      useClass: PrismaUserRepository,
+      provide: PASSWORD_HASHER_PORT,
+      useClass: BcryptPasswordHasherAdapter,
+    },
+    {
+      provide: TOKEN_SERVICE_PORT,
+      useClass: JwtTokenServiceAdapter,
     },
   ],
   exports: [AuthService, RegisterUserUseCase],

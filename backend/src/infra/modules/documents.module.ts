@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { DOCUMENT_REPOSITORY } from "@/core/ports/document-repository.ports";
 import { CreateDocumentUseCase } from "@/core/use-cases/documents/create-document.use-case";
 import { DeleteDocumentUseCase } from "@/core/use-cases/documents/delete-document.use-case";
 import { ListDocumentsUseCase } from "@/core/use-cases/documents/list-documents.use-case";
@@ -16,7 +17,7 @@ import { UserModule } from "@/infra/modules/user.module";
     ListDocumentsUseCase,
     DeleteDocumentUseCase,
     {
-      provide: "DocumentRepository",
+      provide: DOCUMENT_REPOSITORY,
       useClass: PrismaDocumentRepository,
     },
   ],

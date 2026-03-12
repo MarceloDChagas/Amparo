@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -11,6 +12,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { ZodValidationPipe } from "nestjs-zod";
 
 import { Role } from "@/core/domain/enums/role.enum";
+import { EmergencyAlertNotFoundError } from "@/core/errors/emergency-alert.errors";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emergency-alert.use-case";
 import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
@@ -47,7 +49,15 @@ export class EmergencyAlertController {
   @Get(":id")
   @Roles(Role.ADMIN)
   async getById(@Param("id") id: string) {
-    return this.getEmergencyAlertById.execute(id);
+    try {
+      return await this.getEmergencyAlertById.execute(id);
+    } catch (error) {
+      if (error instanceof EmergencyAlertNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   @Get(":id/events")

@@ -3,6 +3,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Document } from "@/core/domain/entities/document.entity";
 import { DocumentRepository } from "@/core/domain/repositories/document-repository";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
+import { DOCUMENT_REPOSITORY } from "@/core/ports/document-repository.ports";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 
 export interface CreateDocumentRequest {
   fileName: string;
@@ -16,9 +18,9 @@ export interface CreateDocumentRequest {
 @Injectable()
 export class CreateDocumentUseCase {
   constructor(
-    @Inject("DocumentRepository")
+    @Inject(DOCUMENT_REPOSITORY)
     private readonly documentRepository: DocumentRepository,
-    @Inject("UserRepository")
+    @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepository,
   ) {}
 

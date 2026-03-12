@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import {
@@ -6,7 +6,12 @@ import {
   DistanceType,
 } from "@/core/domain/enums/distance-type.enum";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
-import { PrismaService } from "@/infra/database/prisma.service";
+import {
+  CheckInRepository,
+  CreateCheckInData,
+} from "@/core/domain/repositories/check-in-repository";
+import { ActiveCheckInAlreadyExistsError } from "@/core/errors/check-in.errors";
+import { CHECK_IN_REPOSITORY } from "@/core/ports/check-in-repository.ports";
 
 interface StartCheckInRequest {
   userId: string;
@@ -18,45 +23,39 @@ interface StartCheckInRequest {
 @Injectable()
 export class StartCheckInUseCase {
   constructor(
-    private prisma: PrismaService,
+    @Inject(CHECK_IN_REPOSITORY)
+    private checkInRepository: CheckInRepository,
     private auditLogger: AuditLoggerPort,
   ) {}
 
   async execute(request: StartCheckInRequest) {
     const { userId, distanceType, startLatitude, startLongitude } = request;
 
-    // Check if user already has an ACTIVE check-in
-    const existingCheckIn = await this.prisma.checkIn.findFirst({
-      where: {
-        userId,
-        status: "ACTIVE",
-      },
-    });
+    const existingCheckIn =
+      await this.checkInRepository.findActiveByUserId(userId);
 
     if (existingCheckIn) {
-      throw new BadRequestException("User already has an active check-in");
+      throw new ActiveCheckInAlreadyExistsError();
     }
 
     // eslint-disable-next-line security/detect-object-injection
     const toleranceMinutes = DistanceTolerances[distanceType];
     const now = new Date();
-    // expected arrival time is the travel time (assuming tolerance is the travel time estimation, or we could add another calculation, but sticking to tolerance as baseline + actual tolerance logic)
-    // Actually, for check-in we should define expected time. Since they just pick distance, let's say Expected Arrival Time = Now + Distance Tolerance (max travel time expected)
     const expectedArrivalTime = new Date(
       now.getTime() + toleranceMinutes * 60 * 1000,
     );
 
-    const checkIn = await this.prisma.checkIn.create({
-      data: {
-        userId,
-        distanceType,
-        startTime: now,
-        expectedArrivalTime,
-        startLatitude,
-        startLongitude,
-        status: "ACTIVE",
-      },
-    });
+    const createData: CreateCheckInData = {
+      userId,
+      distanceType,
+      startTime: now,
+      expectedArrivalTime,
+      startLatitude,
+      startLongitude,
+      status: "ACTIVE",
+    };
+
+    const checkIn = await this.checkInRepository.create(createData);
 
     await this.auditLogger.log(
       new AuditLog({

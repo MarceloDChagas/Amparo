@@ -1,15 +1,22 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { AlertEventType, EventSource } from "@prisma/client";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
 import { NotificationLog } from "@/core/domain/entities/notification-log.entity";
+import {
+  AlertEventType,
+  EventSource,
+} from "@/core/domain/enums/alert-event.enum";
 import type { IEmergencyContactRepository } from "@/core/domain/repositories/emergency-contact-repository.interface";
 import type { INotificationLogRepository } from "@/core/domain/repositories/notification-log-repository.interface";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import type { IEmailService } from "@/core/domain/services/email-service.interface";
+import {
+  EMERGENCY_ALERT_TEMPLATE_RENDERER,
+  EmergencyAlertTemplateRendererPort,
+} from "@/core/ports/emergency-alert-template-renderer.ports";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
-import { getEmergencyAlertTemplate } from "@/infra/services/email-templates/emergency-alert-template";
 
 interface CreateEmergencyAlertRequest {
   latitude: number;
@@ -29,10 +36,12 @@ export class CreateEmergencyAlert {
     private emergencyAlertRepository: EmergencyAlertRepository,
     @Inject("IEmergencyContactRepository")
     private emergencyContactRepository: IEmergencyContactRepository,
-    @Inject("UserRepository")
+    @Inject(USER_REPOSITORY)
     private userRepository: UserRepository,
     @Inject("IEmailService")
     private emailService: IEmailService,
+    @Inject(EMERGENCY_ALERT_TEMPLATE_RENDERER)
+    private readonly emergencyAlertTemplateRenderer: EmergencyAlertTemplateRendererPort,
     @Inject("INotificationLogRepository")
     private notificationLogRepository: INotificationLogRepository,
     private recordAlertEvent: RecordAlertEventUseCase,
@@ -92,12 +101,14 @@ export class CreateEmergencyAlert {
       const mapLink = `https://www.google.com/maps?q=${alert.latitude},${alert.longitude}`;
       const subject = "ALERTA DE EMERGÊNCIA - AMPARO";
 
-      const htmlBody = getEmergencyAlertTemplate({
-        userName: userName,
-        locationLink: mapLink,
-        time: alert.createdAt.toLocaleString("pt-BR"),
-        address: alert.address || undefined,
-      });
+      const htmlBody = this.emergencyAlertTemplateRenderer.renderEmergencyAlert(
+        {
+          userName: userName,
+          locationLink: mapLink,
+          time: alert.createdAt.toLocaleString("pt-BR"),
+          address: alert.address || undefined,
+        },
+      );
 
       const contactsWithEmail = contacts.filter((c) => !!c.email);
 

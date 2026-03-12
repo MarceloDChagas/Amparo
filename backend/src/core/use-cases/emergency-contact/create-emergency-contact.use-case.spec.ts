@@ -1,7 +1,7 @@
-import { BadRequestException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
+import { EmergencyContactLimitExceededError } from "@/core/errors/emergency-contact.errors";
 
 import { CreateEmergencyContactUseCase } from "./create-emergency-contact.use-case";
 
@@ -58,7 +58,7 @@ describe("CreateEmergencyContactUseCase", () => {
     expect(result).toEqual(contactData);
   });
 
-  it("should throw BadRequestException when user already has 3 contacts", async () => {
+  it("should throw EmergencyContactLimitExceededError when user already has 3 contacts", async () => {
     const contactData = new EmergencyContact({
       id: "contact-id-4",
       name: "João Silva",
@@ -79,7 +79,7 @@ describe("CreateEmergencyContactUseCase", () => {
     ]);
 
     await expect(useCase.execute(contactData)).rejects.toThrow(
-      BadRequestException,
+      EmergencyContactLimitExceededError,
     );
     await expect(useCase.execute(contactData)).rejects.toThrow(
       "O limite máximo é de 3 contatos de confiança por usuária.",

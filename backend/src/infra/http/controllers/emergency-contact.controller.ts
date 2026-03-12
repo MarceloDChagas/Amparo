@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -14,6 +15,7 @@ import { ZodValidationPipe } from "nestjs-zod";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
 import { Role } from "@/core/domain/enums/role.enum";
+import { EmergencyContactLimitExceededError } from "@/core/errors/emergency-contact.errors";
 import { CreateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/create-emergency-contact.use-case";
 import { DeleteEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/delete-emergency-contact.use-case";
 import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/get-emergency-contact.use-case";
@@ -38,12 +40,20 @@ export class EmergencyContactController {
   @Roles(Role.VICTIM)
   @UsePipes(ZodValidationPipe)
   async create(@Body() createEmergencyContactDto: CreateEmergencyContactDto) {
-    const contact = new EmergencyContact(
-      createEmergencyContactDto as EmergencyContact,
-    );
-    const createdContact =
-      await this.createEmergencyContactUseCase.execute(contact);
-    return EmergencyContactPresenter.toHTTP(createdContact);
+    try {
+      const contact = new EmergencyContact(
+        createEmergencyContactDto as EmergencyContact,
+      );
+      const createdContact =
+        await this.createEmergencyContactUseCase.execute(contact);
+      return EmergencyContactPresenter.toHTTP(createdContact);
+    } catch (error) {
+      if (error instanceof EmergencyContactLimitExceededError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   @Get()

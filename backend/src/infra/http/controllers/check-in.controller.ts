@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -14,9 +15,16 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
 
 import { Role } from "@/core/domain/enums/role.enum";
+import {
+  ActiveCheckInAlreadyExistsError,
+  ActiveCheckInNotFoundError,
+  CheckInNotFoundError,
+} from "@/core/errors/check-in.errors";
 import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
+import { GetActiveCheckInUseCase } from "@/core/use-cases/get-active-check-in.use-case";
+import { GetAllActiveCheckInsUseCase } from "@/core/use-cases/get-all-active-check-ins.use-case";
+import { GetCheckInByIdUseCase } from "@/core/use-cases/get-check-in-by-id.use-case";
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
-import { PrismaService } from "@/infra/database/prisma.service";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import {
   CompleteCheckInDto,
@@ -32,44 +40,58 @@ export class CheckInController {
   constructor(
     private readonly startCheckInUseCase: StartCheckInUseCase,
     private readonly completeCheckInUseCase: CompleteCheckInUseCase,
-    private readonly prisma: PrismaService,
+    private readonly getActiveCheckInUseCase: GetActiveCheckInUseCase,
+    private readonly getAllActiveCheckInsUseCase: GetAllActiveCheckInsUseCase,
+    private readonly getCheckInByIdUseCase: GetCheckInByIdUseCase,
   ) {}
 
   @Post("start")
   @ApiOperation({ summary: "Start a new check-in" })
   @UsePipes(ZodValidationPipe)
   async start(@Request() req, @Body() body: StartCheckInDto) {
-    return this.startCheckInUseCase.execute({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      userId: req.user.id,
-      distanceType: body.distanceType,
-      startLatitude: body.startLatitude,
-      startLongitude: body.startLongitude,
-    });
+    try {
+      return await this.startCheckInUseCase.execute({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        userId: req.user.id,
+        distanceType: body.distanceType,
+        startLatitude: body.startLatitude,
+        startLongitude: body.startLongitude,
+      });
+    } catch (error) {
+      if (error instanceof ActiveCheckInAlreadyExistsError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   @Post("complete")
   @ApiOperation({ summary: "Complete an active check-in" })
   @UsePipes(ZodValidationPipe)
   async complete(@Request() req, @Body() body: CompleteCheckInDto) {
-    return this.completeCheckInUseCase.execute({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      userId: req.user.id,
-      finalLatitude: body.finalLatitude,
-      finalLongitude: body.finalLongitude,
-    });
+    try {
+      return await this.completeCheckInUseCase.execute({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        userId: req.user.id,
+        finalLatitude: body.finalLatitude,
+        finalLongitude: body.finalLongitude,
+      });
+    } catch (error) {
+      if (error instanceof ActiveCheckInNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   @Get("active")
   @ApiOperation({ summary: "Get current active check-in for the user" })
   async getActive(@Request() req) {
-    const checkIn = await this.prisma.checkIn.findFirst({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        userId: req.user.id,
-        status: "ACTIVE",
-      },
-    });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const user = req.user as { id: string };
+    const checkIn = await this.getActiveCheckInUseCase.execute(user.id);
 
     return checkIn || null;
   }
@@ -78,14 +100,7 @@ export class CheckInController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Get all active check-ins for the dashboard" })
   async getAllActive() {
-    return this.prisma.checkIn.findMany({
-      where: {
-        status: "ACTIVE",
-      },
-      include: {
-        user: true,
-      },
-    });
+    return this.getAllActiveCheckInsUseCase.execute();
   }
 
   @Get(":id")
@@ -94,29 +109,14 @@ export class CheckInController {
     summary: "Get detailed check-in by ID including user history count",
   })
   async getById(@Param("id") id: string) {
-    const checkIn = await this.prisma.checkIn.findUnique({
-      where: { id },
-      include: {
-        user: true,
-      },
-    });
+    try {
+      return await this.getCheckInByIdUseCase.execute(id);
+    } catch (error) {
+      if (error instanceof CheckInNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
 
-    if (!checkIn) {
-      throw new NotFoundException("Check-in not found");
+      throw error;
     }
-
-    const historyCount = await this.prisma.checkIn.count({
-      where: {
-        userId: checkIn.userId,
-        status: {
-          in: ["ON_TIME", "LATE"],
-        },
-      },
-    });
-
-    return {
-      ...checkIn,
-      userCheckInCount: historyCount,
-    };
   }
 }

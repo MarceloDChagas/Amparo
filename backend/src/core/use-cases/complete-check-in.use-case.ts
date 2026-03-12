@@ -1,14 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
-import {
-  CheckInStatus,
-  DistanceType,
-} from "@/core/domain/enums/distance-type.enum";
+import { CheckInStatus } from "@/core/domain/enums/distance-type.enum";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
+import {
+  CheckInRepository,
+  CompleteCheckInData,
+} from "@/core/domain/repositories/check-in-repository";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
+import { ActiveCheckInNotFoundError } from "@/core/errors/check-in.errors";
+import { CHECK_IN_REPOSITORY } from "@/core/ports/check-in-repository.ports";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
-import { PrismaService } from "@/infra/database/prisma.service";
 
 interface CompleteCheckInRequest {
   userId: string;
@@ -19,7 +21,8 @@ interface CompleteCheckInRequest {
 @Injectable()
 export class CompleteCheckInUseCase {
   constructor(
-    private prisma: PrismaService,
+    @Inject(CHECK_IN_REPOSITORY)
+    private checkInRepository: CheckInRepository,
     private checkInValidationService: CheckInValidationService,
     private auditLogger: AuditLoggerPort,
     private createEmergencyAlert: CreateEmergencyAlert,
@@ -28,38 +31,32 @@ export class CompleteCheckInUseCase {
   async execute(request: CompleteCheckInRequest) {
     const { userId, finalLatitude, finalLongitude } = request;
 
-    // Find the active check-in for the user
-    const checkIn = await this.prisma.checkIn.findFirst({
-      where: {
-        userId,
-        status: "ACTIVE",
-      },
-    });
+    const checkIn = await this.checkInRepository.findActiveByUserId(userId);
 
     if (!checkIn) {
-      throw new NotFoundException("No active check-in found for this user");
+      throw new ActiveCheckInNotFoundError();
     }
 
     const actualArrivalTime = new Date();
-    const distanceType = checkIn.distanceType as DistanceType;
+    const distanceType = checkIn.distanceType;
 
-    // Validate the arrival status
     const resultStatus = this.checkInValidationService.validateCheckIn(
       checkIn.expectedArrivalTime,
       actualArrivalTime,
       distanceType,
     );
 
-    // Update the record with actual time and final status
-    const updatedCheckIn = await this.prisma.checkIn.update({
-      where: { id: checkIn.id },
-      data: {
-        actualArrivalTime,
-        finalLatitude,
-        finalLongitude,
-        status: resultStatus,
-      },
-    });
+    const completeData: CompleteCheckInData = {
+      actualArrivalTime,
+      finalLatitude,
+      finalLongitude,
+      status: resultStatus,
+    };
+
+    const updatedCheckIn = await this.checkInRepository.complete(
+      checkIn.id,
+      completeData,
+    );
 
     if (resultStatus === CheckInStatus.LATE) {
       const lat = finalLatitude ?? checkIn.startLatitude ?? 0;

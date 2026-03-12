@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -15,6 +16,7 @@ import { createZodDto, ZodValidationPipe } from "nestjs-zod";
 import { z } from "zod";
 
 import { Role } from "@/core/domain/enums/role.enum";
+import { DocumentNotFoundError } from "@/core/errors/document.errors";
 import { CreateDocumentUseCase } from "@/core/use-cases/documents/create-document.use-case";
 import { DeleteDocumentUseCase } from "@/core/use-cases/documents/delete-document.use-case";
 import { ListDocumentsUseCase } from "@/core/use-cases/documents/list-documents.use-case";
@@ -73,7 +75,15 @@ export class DocumentsController {
   @Roles(Role.ADMIN, Role.VICTIM)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param("id") id: string) {
-    await this.deleteDocumentUseCase.execute({ id });
+    try {
+      await this.deleteDocumentUseCase.execute({ id });
+    } catch (error) {
+      if (error instanceof DocumentNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   private toResponse(document: {
