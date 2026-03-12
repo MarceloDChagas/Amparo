@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { EMERGENCY_ALERT_NOTIFICATION_PORT } from "@/core/ports/emergency-alert-notification.ports";
 import { EMERGENCY_ALERT_TEMPLATE_RENDERER } from "@/core/ports/emergency-alert-template-renderer.ports";
 import { AlertEventRepository } from "@/core/repositories/alert-event-repository";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
@@ -9,6 +10,7 @@ import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-c
 import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
+import { EmailEmergencyAlertNotificationAdapter } from "@/infra/adapters/email-emergency-alert-notification.adapter";
 import { EmergencyAlertTemplateRendererAdapter } from "@/infra/adapters/emergency-alert-template-renderer.adapter";
 import { PrismaService } from "@/infra/database/prisma.service";
 import { PrismaAlertEventRepository } from "@/infra/database/repositories/prisma-alert-event.repository";
@@ -32,6 +34,7 @@ import { UserModule } from "./user.module";
     GetEmergencyAlertByIdUseCase,
     RecordAlertEventUseCase,
     GetAlertHistoryUseCase,
+    EmailEmergencyAlertNotificationAdapter,
     {
       provide: EmergencyAlertRepository,
       useClass: PrismaEmergencyAlertRepository,
@@ -48,6 +51,10 @@ import { UserModule } from "./user.module";
     {
       provide: "INotificationLogRepository",
       useClass: PrismaNotificationLogRepository,
+    },
+    {
+      provide: EMERGENCY_ALERT_NOTIFICATION_PORT,
+      useExisting: EmailEmergencyAlertNotificationAdapter,
     },
   ],
   exports: [CreateEmergencyAlert],

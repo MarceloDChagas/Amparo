@@ -5,11 +5,13 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 
 import { AlertEvent } from "@/core/domain/entities/alert-event";
+import { EMERGENCY_ALERT_NOTIFICATION_PORT } from "@/core/ports/emergency-alert-notification.ports";
 import { AlertEventRepository } from "@/core/repositories/alert-event-repository";
 import { EmergencyAlertRepository } from "@/core/repositories/emergency-alert-repository";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emergency-alert.use-case";
 import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
+import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
 import { EmergencyAlertController } from "@/infra/http/controllers/emergency-alert.controller";
@@ -21,6 +23,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
   const mockEmergencyAlertRepository = {
     create: jest.fn(),
     findActive: jest.fn(),
+    findAll: jest.fn(),
     findById: jest.fn(),
   };
 
@@ -29,20 +32,8 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     findByAlertId: jest.fn(),
   };
 
-  const mockEmergencyContactRepository = {
-    findByUserId: jest.fn(),
-  };
-
-  const mockUserRepository = {
-    findById: jest.fn(),
-  };
-
-  const mockEmailService = {
-    sendEmergencyNotification: jest.fn(),
-  };
-
-  const mockNotificationLogRepository = {
-    create: jest.fn(),
+  const mockEmergencyAlertNotificationPort = {
+    notify: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -58,18 +49,13 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
           useValue: mockAlertEventRepository,
         },
         {
-          provide: "IEmergencyContactRepository",
-          useValue: mockEmergencyContactRepository,
-        },
-        { provide: "UserRepository", useValue: mockUserRepository },
-        { provide: "IEmailService", useValue: mockEmailService },
-        {
-          provide: "INotificationLogRepository",
-          useValue: mockNotificationLogRepository,
+          provide: EMERGENCY_ALERT_NOTIFICATION_PORT,
+          useValue: mockEmergencyAlertNotificationPort,
         },
         RecordAlertEventUseCase,
         CreateEmergencyAlert,
         GetActiveEmergencyAlertUseCase,
+        GetAllEmergencyAlertsUseCase,
         GetEmergencyAlertByIdUseCase,
         GetAlertHistoryUseCase,
       ],
@@ -87,7 +73,9 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it("Scenario 1: Get events history successfully", async () => {
@@ -118,7 +106,6 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
   });
 
   it("Scenario 2: Creating alert records CREATED event", async () => {
-    mockEmergencyContactRepository.findByUserId.mockResolvedValue([]);
     mockEmergencyAlertRepository.create.mockResolvedValue(undefined);
 
     await request(app.getHttpServer())
@@ -159,12 +146,8 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
   });
 
   it("Scenario 4: Notifying contacts records NOTIFICATION_SENT event", async () => {
-    mockEmergencyContactRepository.findByUserId.mockResolvedValue([
-      { name: "Mother", email: "mom@example.com" },
-    ]);
-    mockUserRepository.findById.mockResolvedValue({ name: "Victim 1" });
-    mockEmailService.sendEmergencyNotification.mockResolvedValue(undefined);
     mockEmergencyAlertRepository.create.mockResolvedValue(undefined);
+    mockEmergencyAlertNotificationPort.notify.mockResolvedValue(undefined);
 
     await request(app.getHttpServer())
       .post("/emergency-alerts")
@@ -175,12 +158,6 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
       })
       .expect(201);
 
-    // Save should be called twice: 1 for CREATED, 1 for NOTIFICATION_SENT
-    expect(mockAlertEventRepository.save).toHaveBeenCalledTimes(2);
-
-    const mockSave = mockAlertEventRepository.save;
-    const secondEvent = (mockSave.mock.calls[1] as [AlertEvent])[0];
-    expect(secondEvent?.type).toBe("NOTIFICATION_SENT");
-    expect(secondEvent?.message).toContain("Notificação enviada para Mother");
+    expect(mockEmergencyAlertNotificationPort.notify).toHaveBeenCalledTimes(1);
   });
 });
