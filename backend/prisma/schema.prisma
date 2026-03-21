@@ -78,7 +78,7 @@ model NotificationLog {
   attempt      Int            @default(1)
   createdAt    DateTime       @default(now())
 
-  @@index([alertId])
+  @@index([alertId, createdAt]) 
   @@index([status])
 }
 
@@ -106,7 +106,7 @@ model AlertEvent {
   metadata  String? // Extra data stringified
   createdAt DateTime       @default(now())
 
-  @@index([alertId])
+  @@index([alertId, createdAt]) 
   @@index([type])
 }
 
@@ -171,7 +171,7 @@ model Notification {
   read      Boolean              @default(false)
   createdAt DateTime             @default(now())
 
-  @@index([targetId])
+  @@index([targetId, createdAt]) 
   @@index([read])
   @@index([category])
 }
@@ -192,8 +192,9 @@ model CheckIn {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  @@index([userId, status]) 
-  @@index([status, expectedArrivalTime]) 
+  @@index([userId, status])      
+  @@index([status, expectedArrivalTime])
+  @@index([userId, createdAt])        
 }
 
 model Note {
@@ -210,7 +211,7 @@ model Note {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, createdAt])
   @@index([occurrenceId])
 }
 
@@ -280,5 +281,5 @@ model Document {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, createdAt]) 
 }
