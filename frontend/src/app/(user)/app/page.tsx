@@ -13,6 +13,8 @@ import {
 } from "@/components/emergency";
 import { CheckInTab } from "@/components/emergency/CheckInTab";
 import { DocumentsTab } from "@/components/emergency/DocumentsTab";
+import { colors } from "@/styles/colors";
+
 export default function UserAppPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -55,8 +57,10 @@ export default function UserAppPage() {
   >("EMERGENCY");
 
   return (
-    // bg-background usa var(--background) que no contexto data-surface="victim" = navy #1f3a5f
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
+      style={{ backgroundColor: colors.primary[900] }}
+    >
       <EmergencyHeader />
 
       <AnimatePresence>
@@ -72,9 +76,14 @@ export default function UserAppPage() {
                 onClick={() => setActiveSecondaryTab("EMERGENCY")}
                 className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
                   activeSecondaryTab === "EMERGENCY"
-                    ? "bg-white text-primary shadow-sm"
+                    ? "bg-white shadow-sm"
                     : "text-white/80 hover:text-white"
                 }`}
+                style={
+                  activeSecondaryTab === "EMERGENCY"
+                    ? { color: "#7c3aed" }
+                    : undefined
+                }
               >
                 Emergência
               </button>
@@ -82,9 +91,14 @@ export default function UserAppPage() {
                 onClick={() => setActiveSecondaryTab("CHECKIN")}
                 className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
                   activeSecondaryTab === "CHECKIN"
-                    ? "bg-white text-primary shadow-sm"
+                    ? "bg-white shadow-sm"
                     : "text-white/80 hover:text-white"
                 }`}
+                style={
+                  activeSecondaryTab === "CHECKIN"
+                    ? { color: "#0d9488" }
+                    : undefined
+                }
               >
                 Deslocamento
               </button>

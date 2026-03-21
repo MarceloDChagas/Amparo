@@ -30,11 +30,106 @@ export function CheckInStart({
   onStart,
   isPending,
 }: CheckInStartProps) {
+  // Identidade teal — diferencia visualmente da tela de Emergência (violeta)
+  // Teal semântico: navegação, rota, movimento seguro (não conflita com verde/âmbar/vermelho do countdown)
+  const teal = {
+    outer: "#134e4a",
+    middle: "#0f766e",
+    inner: "#0d9488",
+    innerPending: "rgba(13, 148, 136, 0.5)",
+    pulse: "rgba(13, 148, 136, 0.45)",
+    glow: "rgba(13, 148, 136, 0.28)",
+  };
+
   return (
     <div className="w-full flex flex-col items-center justify-center">
-      <div className="mb-4 text-center w-full z-30">
-        <Label className="text-lg font-semibold block mb-3 text-white">
-          Selecione o tempo de deslocamento
+      <div
+        className="relative flex items-center justify-center mt-6"
+        style={{ width: "220px", height: "220px" }}
+      >
+        {/* Pulse wave teal */}
+        {!isPending && (
+          <div
+            aria-hidden="true"
+            className="absolute rounded-full"
+            style={{
+              width: "220px",
+              height: "220px",
+              backgroundColor: "transparent",
+              border: `3px solid ${teal.pulse}`,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              animation: "pulse-wave 2s ease-out infinite",
+            }}
+          />
+        )}
+
+        {/* Outer ring — teal escuro */}
+        <div
+          aria-hidden="true"
+          className="absolute rounded-full"
+          style={{
+            width: "220px",
+            height: "220px",
+            backgroundColor: teal.outer,
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            boxShadow: `0 0 48px ${teal.glow}`,
+          }}
+        />
+
+        {/* Middle ring — teal médio */}
+        <div
+          aria-hidden="true"
+          className="absolute rounded-full"
+          style={{
+            width: "175px",
+            height: "175px",
+            backgroundColor: teal.middle,
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+
+        {/* Inner circle — botão de ação */}
+        <div
+          className="absolute z-20"
+          style={{
+            width: "130px",
+            height: "130px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <button
+            onClick={onStart}
+            disabled={isPending}
+            aria-label={
+              isPending
+                ? "Iniciando monitoramento de deslocamento"
+                : "Iniciar monitoramento de deslocamento seguro"
+            }
+            className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: isPending ? teal.innerPending : teal.inner,
+              boxShadow: `0 10px 30px rgba(0, 0, 0, 0.3), 0 0 24px ${teal.glow}`,
+              cursor: isPending ? "not-allowed" : "pointer",
+            }}
+          >
+            <span className="text-base font-bold leading-tight text-center transition-all duration-300 px-3 text-white">
+              {isPending ? "INICIANDO..." : "MARCAR SAÍDA"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 text-center w-full z-30">
+        <Label className="text-sm font-medium block mb-2 text-white/70">
+          Tempo de deslocamento
         </Label>
         <div className="mx-auto w-[200px]">
           <Select
@@ -56,96 +151,6 @@ export function CheckInStart({
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      </div>
-
-      <div
-        className="relative flex items-center justify-center mt-6"
-        style={{ width: "280px", height: "280px" }}
-      >
-        {/* Pulse wave — reutiliza keyframe pulse-wave de globals.css */}
-        {!isPending && (
-          <div
-            aria-hidden="true"
-            className="absolute rounded-full"
-            style={{
-              width: "280px",
-              height: "280px",
-              backgroundColor: "transparent",
-              // Violeta — cor do contexto victim (var(--primary) = #7c3aed)
-              border: "3px solid rgba(124, 58, 237, 0.4)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "pulse-wave 2s ease-out infinite",
-            }}
-          />
-        )}
-
-        {/* Outer ring — violeta escuro */}
-        <div
-          aria-hidden="true"
-          className="absolute rounded-full transition-transform duration-300"
-          style={{
-            width: "280px",
-            height: "280px",
-            backgroundColor: "#3b0764",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-
-        {/* Middle ring — violeta médio */}
-        <div
-          aria-hidden="true"
-          className="absolute rounded-full transition-transform duration-300"
-          style={{
-            width: "220px",
-            height: "220px",
-            backgroundColor: "#6b21a8",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-
-        {/* Inner circle — botão de ação */}
-        <div
-          className="absolute z-20"
-          style={{
-            width: "170px",
-            height: "170px",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <button
-            onClick={onStart}
-            disabled={isPending}
-            aria-label={
-              isPending
-                ? "Iniciando monitoramento de deslocamento"
-                : "Iniciar monitoramento de deslocamento seguro"
-            }
-            className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
-            style={{
-              // var(--primary) no contexto victim = #7c3aed (violeta)
-              backgroundColor: isPending
-                ? "rgba(124, 58, 237, 0.5)"
-                : "var(--primary)",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-              cursor: isPending ? "not-allowed" : "pointer",
-            }}
-          >
-            <span
-              className="text-2xl font-bold leading-tight text-center transition-all duration-300 px-4"
-              style={{ color: "#ffffff" }}
-            >
-              {isPending ? "INICIANDO..." : "MARCAR SAÍDA"}
-            </span>
-          </button>
         </div>
       </div>
     </div>

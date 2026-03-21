@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { QuickExitButton } from "@/components/layout/QuickExitButton";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 export default function UserLayout({
@@ -41,10 +40,7 @@ export default function UserLayout({
   }
 
   return (
-    // NRF09 — data-surface="victim" ativa tokens de alta visibilidade para a vítima.
-    // QuickExitButton (NRF09/RN04) sempre presente — redireciona para site neutro via ESC ou clique.
     <div className="min-h-screen bg-background" data-surface="victim">
-      <QuickExitButton />
       {children}
     </div>
   );

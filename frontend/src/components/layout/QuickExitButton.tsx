@@ -1,46 +1,47 @@
 "use client";
 
 import { EyeOff } from "lucide-react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
+/**
+ * Botão de saída rápida — NRF09/RN04.
+ * Redireciona para página neutra via clique ou ESC.
+ * Renderizado inline dentro do EmergencyHeader.
+ */
 export function QuickExitButton() {
   const handleQuickExit = () => {
     window.location.replace("https://www.msn.com/pt-br/clima");
   };
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        handleQuickExit();
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleQuickExit();
     };
-
     window.addEventListener("keydown", handleKeyDown);
-
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
-    <div className="fixed right-4 top-4 z-100 md:right-6 md:top-5">
-      <button
-        type="button"
-        onClick={handleQuickExit}
-        className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-all hover:-translate-y-0.5"
-        style={{
-          color: "#fffaf8",
-          backgroundColor: "rgba(166, 60, 60, 0.94)",
-          border: "1px solid rgba(255, 250, 248, 0.28)",
-          boxShadow: "0 12px 28px rgba(86, 29, 29, 0.22)",
-          backdropFilter: "blur(10px)",
-        }}
-        title="Saída rápida: fecha o site e abre uma página neutra (ESC)"
+    <button
+      type="button"
+      onClick={handleQuickExit}
+      aria-label="Saída rápida — fecha o app e abre uma página neutra"
+      title="Saída rápida (ESC)"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 h-9 text-xs font-semibold transition-all hover:brightness-110 active:scale-95"
+      style={{
+        color: "#fecaca",
+        backgroundColor: "rgba(220, 38, 38, 0.18)",
+        border: "1px solid rgba(220, 38, 38, 0.35)",
+      }}
+    >
+      <EyeOff size={14} aria-hidden="true" />
+      <span>Sair</span>
+      <span
+        className="rounded border border-red-400/30 px-1.5 py-px text-[10px] font-medium hidden sm:inline"
+        style={{ color: "#fca5a5" }}
       >
-        <EyeOff size={16} />
-        <span>Saída rápida</span>
-        <span className="hidden rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-medium md:inline">
-          ESC
-        </span>
-      </button>
-    </div>
+        ESC
+      </span>
+    </button>
   );
 }

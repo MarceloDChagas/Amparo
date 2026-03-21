@@ -74,6 +74,13 @@ export function CheckInTab() {
       transition={{ duration: 0.3 }}
       className="flex-1 flex flex-col items-center justify-start w-full max-w-md mx-auto relative px-4 mt-2"
     >
+      {/* Glow ambiente teal — ancora visual imediata ao trocar de aba */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl pointer-events-none"
+        style={{ backgroundColor: "rgba(13, 148, 136, 0.13)" }}
+      />
+
       {!activeCheckIn ? (
         <CheckInStart
           selectedDistance={selectedDistance}

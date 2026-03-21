@@ -69,17 +69,27 @@ export function BottomNavigation({
               onClick={() => onTabChange(tab.id)}
               // NRF10 — aria-current="page" informa o tab ativo para leitores de tela
               aria-current={isActive ? "page" : undefined}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl px-2 py-2 transition-colors"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-colors"
               style={{
-                // Violeta com 12% opacidade no tab ativo — contexto victim (var(--primary))
                 backgroundColor: isActive
-                  ? "rgba(124, 58, 237, 0.12)"
+                  ? "rgba(124, 58, 237, 0.10)"
                   : "transparent",
               }}
             >
+              {/* Indicador pip acima do ícone ativo — reforça o estado além da cor */}
+              <div
+                aria-hidden="true"
+                className="mb-0.5 rounded-full transition-all duration-200"
+                style={{
+                  width: isActive ? "20px" : "0px",
+                  height: "2px",
+                  backgroundColor: isActive ? "var(--primary)" : "transparent",
+                }}
+              />
+
               {/* NRF10 — ícone decorativo, label visível carrega o significado */}
               <Icon
-                size={22}
+                size={21}
                 aria-hidden={true}
                 style={{
                   color: isActive
@@ -88,8 +98,10 @@ export function BottomNavigation({
                 }}
               />
               <span
-                className="text-center text-[10px] font-medium leading-tight"
+                className="text-center text-[10px] leading-tight"
                 style={{
+                  // font-semibold no ativo torna a orientação legível sem depender só de cor
+                  fontWeight: isActive ? 600 : 400,
                   color: isActive
                     ? "var(--primary)"
                     : "var(--muted-foreground)",
