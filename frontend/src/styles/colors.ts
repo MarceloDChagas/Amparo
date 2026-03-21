@@ -152,3 +152,49 @@ export type ColorPalette = typeof colors;
 export type PrimaryColor = keyof typeof colors.primary;
 export type SecondaryColor = keyof typeof colors.secondary;
 export type AccentColor = keyof typeof colors.accent;
+
+/**
+ * Mapeamento semântico para CSS custom properties definidas em globals.css.
+ * Preferir estes tokens em código novo em vez de acessar a paleta raw acima.
+ *
+ * Uso: style={{ backgroundColor: tokens.emergency }}
+ * Equivale a: style={{ backgroundColor: "var(--emergency)" }}
+ *
+ * RF01/RN01 — tokens.emergency é VERMELHO reservado para emergência.
+ * RN04 — tokens.primary no contexto victim = violeta (não azul institucional).
+ */
+export const tokens = {
+  /* Ações principais — muda conforme data-surface (azul no dashboard, violeta no app) */
+  primary: "var(--primary)",
+  primaryForeground: "var(--primary-foreground)",
+  accent: "var(--accent)",
+  accentForeground: "var(--accent-foreground)",
+
+  /* Backgrounds e superfícies */
+  background: "var(--background)",
+  card: "var(--card)",
+  cardForeground: "var(--card-foreground)",
+  muted: "var(--muted)",
+  mutedForeground: "var(--muted-foreground)",
+
+  /* Bordas */
+  border: "var(--border)",
+  ring: "var(--ring)",
+
+  /* Status semânticos — RF03 (check-in), RF01 (emergência) */
+  emergency: "var(--emergency)",
+  emergencyForeground: "var(--emergency-foreground)",
+  emergencySoft: "var(--emergency-soft)",
+  warning: "var(--warning)",
+  warningForeground: "var(--warning-foreground)",
+  warningSoft: "var(--warning-soft)",
+  success: "var(--success)",
+  successForeground: "var(--success-foreground)",
+  successSoft: "var(--success-soft)",
+  amber: "var(--amber)",
+  amberForeground: "var(--amber-foreground)",
+  destructive: "var(--destructive)",
+  destructiveSoft: "var(--destructive-soft)",
+} as const;
+
+export type Tokens = typeof tokens;

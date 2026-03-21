@@ -1,31 +1,41 @@
+/**
+ * Tokens do tema institucional do Dashboard Operacional.
+ *
+ * Todos os valores referenciam CSS custom properties definidas em globals.css.
+ * Isso garante que mudanças no design system (dark mode, tema por superfície)
+ * se propaguem automaticamente para todos os componentes que usam govTheme.
+ *
+ * NRF02 — Arquitetura Limpa: tokens de design isolados da lógica de componente.
+ * RN04 — Restrição de Acesso e Sigilo: status.danger sinaliza dados restritos.
+ */
 export const govTheme = {
   brand: {
-    blue: "#244b7a",
-    blueStrong: "#1f3a5f",
-    blueSoft: "#e7eef7",
-    blueSurface: "#f2f6fb",
-    sand: "#d8bf7a",
-    green: "#2f6b57",
+    blue: "var(--primary)",
+    blueStrong: "var(--accent-foreground)",
+    blueSoft: "var(--accent)",
+    blueSurface: "var(--accent)",
+    sand: "var(--chart-3)",
+    green: "var(--chart-2)",
   },
   background: {
-    page: "#f7f8fa",
-    section: "#ffffff",
-    alt: "#f1f4f8",
-    emphasis: "#16324f",
+    page: "var(--background)",
+    section: "var(--card)",
+    alt: "var(--secondary)",
+    emphasis: "var(--surface-emphasis)",
   },
   text: {
-    primary: "#1f2937",
+    primary: "var(--foreground)",
     secondary: "#4b5563",
-    muted: "#6b7280",
-    inverse: "#f9fafb",
+    muted: "var(--muted-foreground)",
+    inverse: "var(--primary-foreground)",
   },
   border: {
-    subtle: "#d8e1ea",
-    strong: "#a8b8cb",
+    subtle: "var(--border)",
+    strong: "var(--ring)",
   },
   status: {
-    danger: "#a63c3c",
-    dangerSoft: "#f9e7e7",
+    danger: "var(--destructive)",
+    dangerSoft: "var(--destructive-soft)",
   },
   shadow: {
     soft: "0 18px 40px rgba(31, 58, 95, 0.08)",
