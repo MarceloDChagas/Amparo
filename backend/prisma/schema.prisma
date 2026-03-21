@@ -221,6 +221,30 @@ model HeatMapCell {
   @@index([lastOccurrence])
 }
 
+enum PatrolRouteStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model PatrolRoute {
+  id         String             @id @default(uuid())
+  name       String // Ex: "Rota Carnaval - Centro"
+  waypoints  String // JSON: Array<{ latitude: Float, longitude: Float, order: Int }>
+  status     PatrolRouteStatus  @default(PENDING)
+  assignedTo String? // ID do agente/viatura responsável
+  generatedBy String? // ID do admin que gerou a rota
+  scheduledAt DateTime?
+  startedAt  DateTime?
+  completedAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+}
+
 model SafeLocation {
   id        String   @id @default(uuid())
   name      String // Ex: "Casa", "Trabalho", "Academia"
