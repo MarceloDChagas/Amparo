@@ -12,7 +12,6 @@ import {
   Navbar,
   QuickAccessSection,
 } from "@/components/landing";
-import { govTheme } from "@/components/landing/gov-theme";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,10 +23,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: govTheme.background.page }}
-    >
+    <div className="min-h-screen bg-background">
       <Navbar scrolled={scrolled} />
       <HeroSection />
       <QuickAccessSection />

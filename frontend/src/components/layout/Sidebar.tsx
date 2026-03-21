@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Sidebar do Dashboard Operacional.
+ *
+ * NRF10 — Acessibilidade:
+ *   - <nav> com aria-label identifica a região para leitores de tela
+ *   - aria-current="page" no link ativo
+ *   - Cada link tem label visível + ícone (nunca só ícone)
+ *
+ * NRF09 — Usabilidade Sob Estresse: min-h-11 garante área clicável de 44px.
+ * RN04 — Ícone de "Agressores" em vermelho (destructive) sinaliza dado sensível.
+ */
 import { Bell, FileText, Home, LogOut, ShieldAlert, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +37,7 @@ const routes = [
     label: "Agressores",
     icon: ShieldAlert,
     href: "/aggressors",
+    // RN04 — vermelho sinaliza seção de dado sensível/restrito
     color: govTheme.status.danger,
   },
   {
@@ -56,7 +68,11 @@ export function Sidebar() {
       }}
     >
       <div className="px-3 py-2 flex-1">
-        <Link href="/dashboard" className="flex items-center pl-3 mb-14">
+        <Link
+          href="/dashboard"
+          className="flex items-center pl-3 mb-14"
+          aria-label="Amparo — Painel institucional"
+        >
           <div>
             <p
               className="text-[11px] font-semibold uppercase tracking-[0.16em]"
@@ -67,45 +83,55 @@ export function Sidebar() {
             <h1 className="text-2xl font-bold">Amparo</h1>
           </div>
         </Link>
-        <div className="space-y-1">
-          {routes.map((route) => (
-            <Link
-              key={route.href}
-              href={route.href}
-              className={cn(
-                "group flex w-full cursor-pointer justify-start rounded-xl p-3 text-sm font-medium transition",
-                pathname === route.href ? "text-white" : "",
-              )}
-              style={{
-                backgroundColor:
-                  pathname === route.href
-                    ? "rgba(255,255,255,0.12)"
-                    : "transparent",
-                color:
-                  pathname === route.href
-                    ? govTheme.text.inverse
-                    : "rgba(249, 250, 251, 0.72)",
-              }}
-            >
-              <div className="flex items-center flex-1">
-                <route.icon
-                  className="mr-3 h-5 w-5"
-                  style={{ color: route.color }}
-                />
-                {route.label}
-              </div>
-            </Link>
-          ))}
-        </div>
+
+        {/* NRF10 — <nav> identifica a região de navegação principal para leitores de tela */}
+        <nav aria-label="Navegação principal">
+          <ul className="space-y-1 list-none p-0 m-0">
+            {routes.map((route) => {
+              const isActive = pathname === route.href;
+
+              return (
+                <li key={route.href}>
+                  <Link
+                    href={route.href}
+                    // NRF10 — aria-current="page" informa o link ativo
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      // NRF09 — min-h-11 garante área clicável de 44px
+                      "group flex w-full min-h-11 cursor-pointer items-center justify-start rounded-xl p-3 text-sm font-medium transition",
+                    )}
+                    style={{
+                      backgroundColor: isActive
+                        ? "rgba(255,255,255,0.12)"
+                        : "transparent",
+                      color: isActive
+                        ? govTheme.text.inverse
+                        : "rgba(249, 250, 251, 0.72)",
+                    }}
+                  >
+                    <route.icon
+                      className="mr-3 h-5 w-5 shrink-0"
+                      aria-hidden="true"
+                      style={{ color: route.color }}
+                    />
+                    {route.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
+
       <div className="px-3 py-2">
         <Button
           onClick={logout}
           variant="ghost"
-          className="w-full justify-start rounded-xl"
+          className="w-full min-h-11 justify-start rounded-xl"
           style={{ color: "rgba(249, 250, 251, 0.72)" }}
+          aria-label="Sair da conta"
         >
-          <LogOut className="h-5 w-5 mr-3" />
+          <LogOut className="h-5 w-5 mr-3" aria-hidden="true" />
           Sair
         </Button>
       </div>

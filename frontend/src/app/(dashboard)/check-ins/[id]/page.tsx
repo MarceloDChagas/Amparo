@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * RF03 — Check-in Inteligente: detalhes do monitoramento de deslocamento.
+ * RN03 — Tolerância de Atraso: exibe countdown em tempo real para check-ins ACTIVE.
+ * RF13 — Gestão e Evolução de Casos: status badges com semântica via componente Badge.
+ *
+ * NRF10 — Acessibilidade:
+ *   - Badge usa ícone + cor + texto (nunca só cor)
+ *   - aria-live no countdown para anunciar mudanças de estado
+ */
 import {
   CheckCircle,
   Clock,
@@ -14,7 +23,30 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { govTheme } from "@/components/landing/gov-theme";
+import { Badge } from "@/components/ui/badge";
 import { CheckIn, checkInService } from "@/services/check-in-service";
+
+/** RN03 — countdown em tempo real para check-ins ainda ACTIVE no dashboard */
+function useCountdown(targetDate: string | Date) {
+  const [timeLeft, setTimeLeft] = useState(
+    () => new Date(targetDate).getTime() - Date.now(),
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(new Date(targetDate).getTime() - Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  const abs = Math.abs(timeLeft);
+  const minutes = Math.floor(abs / 60000);
+  const seconds = Math.floor((abs % 60000) / 1000);
+  const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  const isOverdue = timeLeft < 0;
+
+  return { formatted, isOverdue };
+}
 
 export default function CheckInDetailsPage() {
   const router = useRouter();
@@ -44,10 +76,7 @@ export default function CheckInDetailsPage() {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen p-6 flex justify-center items-center"
-        style={{ backgroundColor: govTheme.background.page }}
-      >
+      <div className="min-h-screen p-6 flex justify-center items-center">
         <p
           className="animate-pulse text-xl"
           style={{ color: govTheme.text.primary }}
@@ -64,73 +93,38 @@ export default function CheckInDetailsPage() {
     new Date(checkInData.expectedArrivalTime).getTime() < Date.now() &&
     checkInData.status === "ACTIVE";
 
-  const getStatusDisplay = () => {
+  /** RF13 — badges semânticos para o ciclo de vida do check-in (NRF10: ícone + cor + texto) */
+  const getStatusBadge = () => {
     if (checkInData.status === "ACTIVE") {
       if (isLate) {
         return (
-          <span
-            className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
-            style={{
-              color: govTheme.brand.blueStrong,
-              backgroundColor: "rgba(216, 191, 122, 0.18)",
-              borderColor: "rgba(216, 191, 122, 0.42)",
-            }}
-          >
-            <Clock className="w-4 h-4" /> Em Atraso
-          </span>
+          <Badge variant="late">
+            <Clock className="w-3 h-3" aria-hidden="true" /> Em Atraso
+          </Badge>
         );
       }
       return (
-        <span
-          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
-          style={{
-            color: govTheme.brand.blue,
-            backgroundColor: govTheme.brand.blueSurface,
-            borderColor: govTheme.border.strong,
-          }}
-        >
-          <Navigation className="w-4 h-4 animate-pulse" /> Em Deslocamento
-        </span>
+        <Badge variant="active">
+          <Navigation className="w-3 h-3 animate-pulse" aria-hidden="true" /> Em
+          Deslocamento
+        </Badge>
       );
     }
     if (checkInData.status === "ON_TIME") {
-      return (
-        <span
-          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
-          style={{
-            color: govTheme.brand.green,
-            backgroundColor: "rgba(47, 107, 87, 0.12)",
-            borderColor: "rgba(47, 107, 87, 0.3)",
-          }}
-        >
-          <CheckCircle className="w-4 h-4" /> Chegada Confirmada
-        </span>
-      );
+      return <Badge variant="success">Chegada Confirmada</Badge>;
     }
     if (checkInData.status === "LATE") {
       return (
-        <span
-          className="flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
-          style={{
-            color: govTheme.status.danger,
-            backgroundColor: govTheme.status.dangerSoft,
-            borderColor: "rgba(166, 60, 60, 0.28)",
-          }}
-        >
-          <XCircle className="w-4 h-4" /> Chegada com Atraso
-        </span>
+        <Badge variant="danger">
+          <XCircle className="w-3 h-3" aria-hidden="true" /> Chegada com Atraso
+        </Badge>
       );
     }
-    return (
-      <span style={{ color: govTheme.text.muted }}>{checkInData.status}</span>
-    );
+    return <Badge variant="pending">{checkInData.status}</Badge>;
   };
 
   return (
-    <div
-      className="p-6 md:p-10 min-h-screen"
-      style={{ backgroundColor: govTheme.background.page }}
-    >
+    <div className="p-6 md:p-10 min-h-screen">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
@@ -139,6 +133,7 @@ export default function CheckInDetailsPage() {
               style={{ color: govTheme.text.primary }}
             >
               <span
+                aria-hidden="true"
                 className="rounded-lg p-2"
                 style={{
                   backgroundColor: isLate
@@ -164,8 +159,9 @@ export default function CheckInDetailsPage() {
               backgroundColor: govTheme.brand.blue,
               color: govTheme.text.inverse,
             }}
+            aria-label="Voltar ao Dashboard"
           >
-            Voltar ao Dashboard
+            Voltar
           </Link>
         </div>
 
@@ -189,13 +185,15 @@ export default function CheckInDetailsPage() {
                 >
                   Dados do Trajeto
                 </h3>
-                {getStatusDisplay()}
+                {/* RF13 — badge semântico do ciclo de vida */}
+                {getStatusBadge()}
               </div>
 
               <div className="flex items-start gap-4">
                 <User
                   size={24}
-                  className="mt-1"
+                  aria-hidden="true"
+                  className="mt-1 shrink-0"
                   style={{ color: govTheme.text.muted }}
                 />
                 <div>
@@ -220,25 +218,34 @@ export default function CheckInDetailsPage() {
               <div className="flex items-start gap-4">
                 <Clock
                   size={24}
-                  className="mt-1"
+                  aria-hidden="true"
+                  className="mt-1 shrink-0"
                   style={{ color: govTheme.text.muted }}
                 />
                 <div className="w-full">
                   <p className="text-sm" style={{ color: govTheme.text.muted }}>
-                    Tempo Limite de Chegada
+                    {checkInData.status === "ACTIVE"
+                      ? "Tempo Restante"
+                      : "Tempo Limite de Chegada"}
                   </p>
-                  <p
-                    className="text-lg font-semibold"
-                    style={{
-                      color: isLate
-                        ? govTheme.brand.blueStrong
-                        : govTheme.text.primary,
-                    }}
-                  >
-                    {new Date(checkInData.expectedArrivalTime).toLocaleString(
-                      "pt-BR",
-                    )}
-                  </p>
+
+                  {/* RN03 — countdown em tempo real para check-ins ainda ativos */}
+                  {checkInData.status === "ACTIVE" ? (
+                    <ActiveCountdown
+                      expectedArrivalTime={checkInData.expectedArrivalTime}
+                      isLate={isLate}
+                    />
+                  ) : (
+                    <p
+                      className="text-lg font-semibold"
+                      style={{ color: govTheme.text.primary }}
+                    >
+                      {new Date(checkInData.expectedArrivalTime).toLocaleString(
+                        "pt-BR",
+                      )}
+                    </p>
+                  )}
+
                   <p
                     className="mt-1 text-xs"
                     style={{ color: govTheme.text.muted }}
@@ -257,7 +264,8 @@ export default function CheckInDetailsPage() {
                 >
                   <CheckCircle
                     size={24}
-                    className="mt-1"
+                    aria-hidden="true"
+                    className="mt-1 shrink-0"
                     style={{ color: govTheme.brand.green }}
                   />
                   <div>
@@ -304,7 +312,8 @@ export default function CheckInDetailsPage() {
 
               <div className="flex items-center gap-6">
                 <div
-                  className="rounded-xl p-4"
+                  aria-hidden="true"
+                  className="rounded-xl p-4 shrink-0"
                   style={{
                     backgroundColor: govTheme.brand.blueSurface,
                     color: govTheme.brand.blue,
@@ -321,6 +330,7 @@ export default function CheckInDetailsPage() {
                   </p>
                   <p
                     className="text-5xl font-black"
+                    aria-label={`${checkInData.userCheckInCount ?? "..."} viagens realizadas`}
                     style={{ color: govTheme.text.primary }}
                   >
                     {checkInData.userCheckInCount !== undefined
@@ -350,6 +360,43 @@ export default function CheckInDetailsPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** RN03 — sub-componente isolado para o countdown ativo no dashboard */
+function ActiveCountdown({
+  expectedArrivalTime,
+  isLate,
+}: {
+  expectedArrivalTime: string | Date;
+  isLate: boolean;
+}) {
+  const { formatted, isOverdue } = useCountdown(expectedArrivalTime);
+
+  return (
+    <div
+      // NRF10 — aria-live anuncia mudanças de estado (polite: não interrompe)
+      aria-live="polite"
+      aria-atomic="true"
+      className="flex items-center gap-2"
+    >
+      <span
+        className="text-2xl font-bold tabular-nums"
+        style={{
+          color: isOverdue
+            ? "var(--emergency)"
+            : isLate
+              ? "var(--warning)"
+              : "var(--success)",
+        }}
+      >
+        {isOverdue ? "+" : ""}
+        {formatted}
+      </span>
+      <span className="text-xs" style={{ color: govTheme.text.muted }}>
+        {isOverdue ? "em atraso" : "restantes"}
+      </span>
     </div>
   );
 }

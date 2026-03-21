@@ -27,20 +27,18 @@ export function AuthShell({
   footerLinkLabel,
   children,
 }: AuthShellProps) {
-  const supportingTextColor = "#425466";
-  const mutedTextColor = "#5b6b7f";
-  const panelBorderColor = "#bfd0e0";
-
   return (
     <div
       className="relative min-h-screen overflow-hidden"
       style={{
-        backgroundColor: "#f4f7fb",
+        backgroundColor: govTheme.background.page,
         backgroundImage:
           "radial-gradient(circle at top left, rgba(36, 75, 122, 0.13), transparent 34%), radial-gradient(circle at 85% 18%, rgba(31, 58, 95, 0.08), transparent 26%), linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%)",
       }}
     >
+      {/* NRF10 — barra decorativa do cabeçalho, sem conteúdo semântico */}
       <div
+        aria-hidden="true"
         className="absolute inset-x-0 top-0 h-1.5"
         style={{
           background:
@@ -48,7 +46,9 @@ export function AuthShell({
         }}
       />
 
+      {/* NRF10 — grid decorativo, sem conteúdo semântico */}
       <div
+        aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-50"
         style={{
           backgroundImage:
@@ -59,11 +59,14 @@ export function AuthShell({
         }}
       />
 
+      {/* NRF10 — blobs decorativos */}
       <div
+        aria-hidden="true"
         className="absolute -right-16 top-10 h-80 w-80 rounded-full blur-3xl"
         style={{ backgroundColor: "rgba(36, 75, 122, 0.08)" }}
       />
       <div
+        aria-hidden="true"
         className="absolute -left-20 bottom-0 h-72 w-72 rounded-full blur-3xl"
         style={{ backgroundColor: "rgba(47, 107, 87, 0.06)" }}
       />
@@ -101,7 +104,7 @@ export function AuthShell({
 
             <p
               className="mt-6 max-w-xl text-lg leading-8"
-              style={{ color: supportingTextColor }}
+              style={{ color: govTheme.text.secondary }}
             >
               {description}
             </p>
@@ -120,7 +123,7 @@ export function AuthShell({
               />
               <p
                 className="text-sm leading-6"
-                style={{ color: mutedTextColor }}
+                style={{ color: govTheme.text.muted }}
               >
                 Acesso com segurança, continuidade de atendimento e perfis
                 autorizados.
@@ -129,11 +132,11 @@ export function AuthShell({
           </div>
         </section>
 
-        <section className="flex items-center justify-center lg:justify-end">
+        <main className="flex items-center justify-center lg:justify-end">
           <div
             className="w-full max-w-[36rem] rounded-[24px] border p-8 sm:p-10 lg:p-11"
             style={{
-              borderColor: panelBorderColor,
+              borderColor: govTheme.border.subtle,
               background:
                 "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,250,253,0.98) 100%)",
               boxShadow:
@@ -142,8 +145,13 @@ export function AuthShell({
             }}
           >
             <div className="mb-8">
-              <Link href="/" className="inline-flex items-center gap-3">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-3"
+                aria-label="Página inicial do Amparo"
+              >
                 <div
+                  aria-hidden="true"
                   className="flex h-12 w-12 items-center justify-center rounded-2xl"
                   style={{ backgroundColor: govTheme.brand.blueSurface }}
                 >
@@ -176,7 +184,7 @@ export function AuthShell({
               </h2>
               <p
                 className="mt-3 text-base leading-7"
-                style={{ color: supportingTextColor }}
+                style={{ color: govTheme.text.secondary }}
               >
                 {formDescription}
               </p>
@@ -185,7 +193,7 @@ export function AuthShell({
             {children}
 
             <div className="mt-8 text-center text-sm">
-              <span style={{ color: supportingTextColor }}>
+              <span style={{ color: govTheme.text.secondary }}>
                 {footerPrompt}{" "}
               </span>
               <Link
@@ -197,7 +205,7 @@ export function AuthShell({
               </Link>
             </div>
           </div>
-        </section>
+        </main>
       </div>
     </div>
   );

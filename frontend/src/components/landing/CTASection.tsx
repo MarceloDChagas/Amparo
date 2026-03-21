@@ -53,7 +53,7 @@ export const CTASection: React.FC = () => (
           </a>
           <a
             href="/login"
-            className="text-sm font-medium transition-opacity hover:opacity-100"
+            className="inline-flex items-center py-3 text-sm font-medium transition-opacity hover:opacity-100"
             style={{ color: "rgba(255,255,255,0.78)" }}
           >
             Entrar no ambiente institucional

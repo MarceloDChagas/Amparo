@@ -243,11 +243,18 @@ export default function EmergencyAlertDetailsPage() {
                   className="flex items-center gap-2 font-semibold"
                   style={{ color: govTheme.text.primary }}
                 >
-                  <MapPin size={20} style={{ color: govTheme.status.danger }} />
+                  <MapPin
+                    size={20}
+                    aria-hidden="true"
+                    style={{ color: govTheme.status.danger }}
+                  />
                   Mapa Tático
                 </h3>
+                {/* NRF10 — role="status" + aria-live anunciam o badge sem roubar o foco */}
                 <span
-                  className="animate-pulse rounded-full border px-3 py-1 text-xs"
+                  role="status"
+                  aria-live="polite"
+                  className="animate-pulse rounded-full border px-3 py-1 text-xs font-medium"
                   style={{
                     color: govTheme.status.danger,
                     backgroundColor: govTheme.status.dangerSoft,
