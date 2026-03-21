@@ -2,12 +2,29 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+type CardVariant = "default" | "victim";
+
+/**
+ * `variant="victim"` — card translúcido para uso no app da vítima (fundo navy).
+ * Usa backdrop-blur para manter legibilidade sobre o background escuro.
+ * Ativado junto com data-surface="victim" no layout (user).
+ *
+ * `variant="default"` — comportamento padrão shadcn (fundo branco, dashboard).
+ */
+function Card({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & { variant?: CardVariant }) {
   return (
     <div
       data-slot="card"
+      data-variant={variant}
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        variant === "victim"
+          ? "bg-white/10 border-white/15 backdrop-blur-sm text-card-foreground"
+          : "bg-card text-card-foreground",
         className,
       )}
       {...props}

@@ -69,11 +69,14 @@ TableRow.displayName = "TableRow";
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+>(({ className, scope = "col", ...props }, ref) => (
   <th
     ref={ref}
+    // NRF10 — scope="col" por padrão para acessibilidade com leitores de tela
+    // NRF09 — h-11 garante área clicável mínima de 44px em headers ordenáveis
+    scope={scope}
     className={cn(
-      "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [button&]:cursor-pointer",
+      "h-11 px-3 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [button&]:cursor-pointer",
       className,
     )}
     {...props}
@@ -87,7 +90,8 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-2 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    // RF04 — padding p-3 para maior legibilidade em tabelas densas do Dashboard
+    className={cn("p-3 align-middle [&:has([role=checkbox])]:pr-0", className)}
     {...props}
   />
 ));
