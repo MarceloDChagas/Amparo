@@ -217,6 +217,7 @@ model Note {
 
 model HeatMapCell {
   id             String   @id @default(uuid())
+  cellKey        String   @unique // Stable identifier for the grid cell (e.g., geohash or tile index)
   latitude       Float
   longitude      Float
   intensity      Int      @default(1) // Número de ocorrências na célula
