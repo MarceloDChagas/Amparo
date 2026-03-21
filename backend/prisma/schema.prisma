@@ -19,15 +19,20 @@ model Aggressor {
 }
 
 model Occurrence {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   description String
   latitude    Float
   longitude   Float
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
   aggressorId String?
   aggressor   Aggressor? @relation(fields: [aggressorId], references: [id])
   notes       Note[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model EmergencyContact {
