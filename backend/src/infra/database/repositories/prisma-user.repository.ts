@@ -77,9 +77,9 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    const user = await this.prisma.withRetry(() =>
+      this.prisma.user.findUnique({ where: { id } }),
+    );
     if (!user) return null;
     return this.mapToEntity(user);
   }

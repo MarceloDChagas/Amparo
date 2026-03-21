@@ -29,7 +29,7 @@ model Occurrence {
   aggressor   Aggressor? @relation(fields: [aggressorId], references: [id])
   notes       Note[]
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime   @default(now()) @updatedAt
 
   @@index([userId])
   @@index([createdAt])
@@ -45,7 +45,7 @@ model EmergencyContact {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime @default(now()) @updatedAt
 
   @@index([userId])
 }
@@ -131,7 +131,7 @@ model User {
   safeLocations     SafeLocation[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 enum Role {
@@ -190,7 +190,7 @@ model CheckIn {
   userId              String
   user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  updatedAt           DateTime  @default(now()) @updatedAt
 
   @@index([userId, status])      
   @@index([status, expectedArrivalTime])
@@ -209,7 +209,7 @@ model Note {
   occurrence   Occurrence? @relation(fields: [occurrenceId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId, createdAt])
   @@index([occurrenceId])
@@ -222,7 +222,7 @@ model HeatMapCell {
   longitude      Float
   intensity      Int      @default(1) // Número de ocorrências na célula
   lastOccurrence DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @default(now()) @updatedAt
 
   @@unique([latitude, longitude])
   @@index([intensity])
@@ -247,7 +247,7 @@ model PatrolRoute {
   startedAt  DateTime?
   completedAt DateTime?
   createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  updatedAt  DateTime           @default(now()) @updatedAt
 
   @@index([status])
   @@index([scheduledAt])
@@ -263,7 +263,7 @@ model SafeLocation {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId])
 }
@@ -280,7 +280,7 @@ model Document {
   uploadedBy String? // ID do admin que fez o upload
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId, createdAt]) 
 }

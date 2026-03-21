@@ -35,17 +35,23 @@ export class OverdueCheckInCron {
     const now = new Date();
 
     // RN03 — busca check-ins ativos cujo prazo já passou.
-    const overdueCheckIns = await this.prisma.checkIn.findMany({
-      where: {
-        status: "ACTIVE",
-        expectedArrivalTime: {
-          lt: now, // Expected arrival time has already passed
+    let overdueCheckIns: Awaited<
+      ReturnType<typeof this.prisma.checkIn.findMany>
+    >;
+    try {
+      overdueCheckIns = await this.prisma.checkIn.findMany({
+        where: {
+          status: "ACTIVE",
+          expectedArrivalTime: { lt: now },
         },
-      },
-      include: {
-        user: true,
-      },
-    });
+        include: { user: true },
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Falha ao consultar check-ins (conexão instável): ${String(err)}`,
+      );
+      return;
+    }
 
     if (overdueCheckIns.length === 0) {
       return;
