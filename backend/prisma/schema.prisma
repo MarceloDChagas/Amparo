@@ -19,15 +19,20 @@ model Aggressor {
 }
 
 model Occurrence {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   description String
   latitude    Float
   longitude   Float
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
   aggressorId String?
   aggressor   Aggressor? @relation(fields: [aggressorId], references: [id])
   notes       Note[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model EmergencyContact {
@@ -58,6 +63,7 @@ model EmergencyAlert {
   events           AlertEvent[]
 
   @@index([userId])
+  @@index([status, createdAt]) 
 }
 
 model NotificationLog {
@@ -72,7 +78,7 @@ model NotificationLog {
   attempt      Int            @default(1)
   createdAt    DateTime       @default(now())
 
-  @@index([alertId])
+  @@index([alertId, createdAt]) 
   @@index([status])
 }
 
@@ -100,7 +106,7 @@ model AlertEvent {
   metadata  String? // Extra data stringified
   createdAt DateTime       @default(now())
 
-  @@index([alertId])
+  @@index([alertId, createdAt]) 
   @@index([type])
 }
 
@@ -122,6 +128,7 @@ model User {
   checkIns          CheckIn[]
   notes             Note[]
   documents         Document[]
+  safeLocations     SafeLocation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,7 +171,7 @@ model Notification {
   read      Boolean              @default(false)
   createdAt DateTime             @default(now())
 
-  @@index([targetId])
+  @@index([targetId, createdAt]) 
   @@index([read])
   @@index([category])
 }
@@ -185,8 +192,9 @@ model CheckIn {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  @@index([userId])
-  @@index([status])
+  @@index([userId, status])      
+  @@index([status, expectedArrivalTime])
+  @@index([userId, createdAt])        
 }
 
 model Note {
@@ -203,8 +211,61 @@ model Note {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, createdAt])
   @@index([occurrenceId])
+}
+
+model HeatMapCell {
+  id             String   @id @default(uuid())
+  cellKey        String   @unique // Stable identifier for the grid cell (e.g., geohash or tile index)
+  latitude       Float
+  longitude      Float
+  intensity      Int      @default(1) // Número de ocorrências na célula
+  lastOccurrence DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([latitude, longitude])
+  @@index([intensity])
+  @@index([lastOccurrence])
+}
+
+enum PatrolRouteStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model PatrolRoute {
+  id         String             @id @default(uuid())
+  name       String // Ex: "Rota Carnaval - Centro"
+  waypoints  String // JSON: Array<{ latitude: Float, longitude: Float, order: Int }>
+  status     PatrolRouteStatus  @default(PENDING)
+  assignedTo String? // ID do agente/viatura responsável
+  generatedBy String? // ID do admin que gerou a rota
+  scheduledAt DateTime?
+  startedAt  DateTime?
+  completedAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model SafeLocation {
+  id        String   @id @default(uuid())
+  name      String // Ex: "Casa", "Trabalho", "Academia"
+  address   String?
+  latitude  Float
+  longitude Float
+  radius    Int      @default(200) // Raio em metros para geofencing (RN06)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Document {
@@ -221,5 +282,5 @@ model Document {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, createdAt]) 
 }
