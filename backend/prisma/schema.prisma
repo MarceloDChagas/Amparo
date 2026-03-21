@@ -122,6 +122,7 @@ model User {
   checkIns          CheckIn[]
   notes             Note[]
   documents         Document[]
+  safeLocations     SafeLocation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -205,6 +206,21 @@ model Note {
 
   @@index([userId])
   @@index([occurrenceId])
+}
+
+model SafeLocation {
+  id        String   @id @default(uuid())
+  name      String // Ex: "Casa", "Trabalho", "Academia"
+  address   String?
+  latitude  Float
+  longitude Float
+  radius    Int      @default(200) // Raio em metros para geofencing (RN06)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Document {
