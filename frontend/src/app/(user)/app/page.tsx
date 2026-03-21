@@ -13,8 +13,6 @@ import {
 } from "@/components/emergency";
 import { CheckInTab } from "@/components/emergency/CheckInTab";
 import { DocumentsTab } from "@/components/emergency/DocumentsTab";
-import { colors } from "@/styles/colors";
-
 export default function UserAppPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -57,10 +55,8 @@ export default function UserAppPage() {
   >("EMERGENCY");
 
   return (
-    <div
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ backgroundColor: colors.primary[900] }}
-    >
+    // bg-background usa var(--background) que no contexto data-surface="victim" = navy #1f3a5f
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
       <EmergencyHeader />
 
       <AnimatePresence>

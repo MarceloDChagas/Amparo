@@ -1,3 +1,15 @@
+/**
+ * Navegação inferior do app da vítima.
+ *
+ * NRF10 — Acessibilidade:
+ *   - aria-label na <nav> identifica a região de navegação
+ *   - aria-current="page" no tab ativo (leitores de tela)
+ *   - Cada botão tem label visível + ícone (nunca só ícone)
+ *
+ * NRF09 — Usabilidade Sob Estresse:
+ *   - Área de toque mínima: py-2 + ícone + texto ≈ 56px por tab
+ *   - Tokens do contexto victim (violeta) em vez de azul institucional
+ */
 import {
   FileText,
   House,
@@ -6,8 +18,6 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
-
-import { govTheme } from "@/components/landing/gov-theme";
 
 export type MainTabType =
   | "HOME"
@@ -21,24 +31,25 @@ interface BottomNavigationProps {
   onTabChange: (tab: MainTabType) => void;
 }
 
+const tabs: Array<{
+  id: MainTabType;
+  label: string;
+  icon: React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
+}> = [
+  { id: "HOME", label: "Início", icon: House },
+  { id: "REGISTERS", label: "Registros", icon: FileText },
+  { id: "SUPPORT", label: "Rede de apoio", icon: Users },
+  { id: "MESSAGES", label: "Mensagens", icon: MessageCircle },
+  { id: "PROFILE", label: "Perfil e segurança", icon: ShieldCheck },
+];
+
 export function BottomNavigation({
   activeMainTab,
   onTabChange,
 }: BottomNavigationProps) {
-  const tabs: Array<{
-    id: MainTabType;
-    label: string;
-    icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
-  }> = [
-    { id: "HOME", label: "Início", icon: House },
-    { id: "REGISTERS", label: "Registros", icon: FileText },
-    { id: "SUPPORT", label: "Rede de apoio", icon: Users },
-    { id: "MESSAGES", label: "Mensagens", icon: MessageCircle },
-    { id: "PROFILE", label: "Perfil e segurança", icon: ShieldCheck },
-  ];
-
   return (
     <nav
+      aria-label="Navegação principal"
       className="rounded-t-[28px] border-t px-2 py-3 pb-6"
       style={{
         backgroundColor: "rgba(255,255,255,0.96)",
@@ -56,27 +67,32 @@ export function BottomNavigation({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
+              // NRF10 — aria-current="page" informa o tab ativo para leitores de tela
+              aria-current={isActive ? "page" : undefined}
               className="flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl px-2 py-2 transition-colors"
               style={{
+                // Violeta com 12% opacidade no tab ativo — contexto victim (var(--primary))
                 backgroundColor: isActive
-                  ? govTheme.brand.blueSurface
+                  ? "rgba(124, 58, 237, 0.12)"
                   : "transparent",
               }}
             >
+              {/* NRF10 — ícone decorativo, label visível carrega o significado */}
               <Icon
                 size={22}
+                aria-hidden={true}
                 style={{
                   color: isActive
-                    ? govTheme.brand.blueStrong
-                    : govTheme.text.muted,
+                    ? "var(--primary)"
+                    : "var(--muted-foreground)",
                 }}
               />
               <span
                 className="text-center text-[10px] font-medium leading-tight"
                 style={{
                   color: isActive
-                    ? govTheme.brand.blueStrong
-                    : govTheme.text.muted,
+                    ? "var(--primary)"
+                    : "var(--muted-foreground)",
                 }}
               >
                 {tab.label}

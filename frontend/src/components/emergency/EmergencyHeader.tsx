@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * Cabeçalho do app da vítima.
+ *
+ * NRF09 — Usabilidade Sob Estresse: botão de notificações com min-w/h 44px.
+ * NRF10 — Acessibilidade:
+ *   - aria-label dinâmico no botão com contagem de não-lidas
+ *   - aria-live="polite" no badge para anunciar novos valores
+ *   - Badge usa cor + número (nunca só cor)
+ */
 import { Bell } from "lucide-react";
 import { useState } from "react";
 
@@ -9,7 +18,6 @@ import {
   useUserNotifications,
 } from "@/data/hooks/use-notifications";
 import { useAuth } from "@/presentation/hooks/useAuth";
-import { colors } from "@/styles/colors";
 
 import { NotificationPanel } from "./NotificationPanel";
 
@@ -34,20 +42,38 @@ export function EmergencyHeader() {
 
   return (
     <header className="flex items-center justify-between px-6 py-4 relative">
-      <h1 className="text-white font-bold text-xl tracking-wider">AMPARO</h1>
+      <h1
+        className="text-white font-bold text-xl tracking-wider"
+        aria-label="Amparo — Aplicativo de proteção"
+      >
+        AMPARO
+      </h1>
 
       <div className="relative">
         <button
           onClick={open ? () => setOpen(false) : handleOpen}
-          className="relative p-1 focus:outline-none"
-          aria-label="Notificações"
+          // NRF09 — área de toque mínima de 44px
+          className="relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+          // NRF10 — label descreve o estado completo do botão
+          aria-label={
+            unreadCount > 0
+              ? `Notificações — ${unreadCount} não lida${unreadCount !== 1 ? "s" : ""}`
+              : "Notificações"
+          }
+          aria-expanded={open}
+          aria-haspopup="dialog"
         >
-          <Bell size={24} color="white" />
+          <Bell size={24} color="white" aria-hidden="true" />
+
           {unreadCount > 0 && (
+            // NRF10 — aria-live anuncia novos badges sem roubar o foco
             <div
+              aria-live="polite"
+              aria-atomic="true"
               className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
               style={{
-                backgroundColor: colors.accent[600],
+                // var(--primary) no contexto victim = violeta (não vermelho — reservado RF01)
+                backgroundColor: "var(--primary)",
                 color: "white",
               }}
             >

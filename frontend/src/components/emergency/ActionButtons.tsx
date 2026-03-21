@@ -1,7 +1,14 @@
+/**
+ * Atalhos de ação rápida do app da vítima.
+ *
+ * RF11 — Gestão de Contatos de Emergência: atalho para a rede de apoio.
+ * RF09 — Registro de Notas de Segurança: atalho para memória do caso.
+ *
+ * NRF09 — Usabilidade Sob Estresse: active:scale-95 para feedback tátil imediato.
+ * NRF10 — Acessibilidade: cada botão tem ícone + texto visível (nunca só ícone).
+ */
 import { NotebookPen, Users } from "lucide-react";
 import Link from "next/link";
-
-import { colors } from "@/styles/colors";
 
 export function ActionButtons() {
   return (
@@ -9,9 +16,11 @@ export function ActionButtons() {
       <Link href="/app/contacts" className="flex-1">
         <button
           className="w-full rounded-2xl py-4 px-3 flex flex-col items-center justify-center gap-2 shadow-lg transition-transform active:scale-95"
-          style={{ backgroundColor: colors.accent[600] }}
+          // var(--primary) no contexto victim = violeta #7c3aed
+          style={{ backgroundColor: "var(--primary)" }}
+          aria-label="Ir para rede de apoio — gerenciar contatos de emergência"
         >
-          <Users size={24} color="white" />
+          <Users size={24} color="white" aria-hidden="true" />
           <span className="font-semibold text-xs text-center leading-tight text-white">
             Rede de{"\n"}apoio
           </span>
@@ -21,9 +30,10 @@ export function ActionButtons() {
       <Link href="/app/notes" className="flex-1">
         <button
           className="w-full rounded-2xl py-4 px-3 flex flex-col items-center justify-center gap-2 shadow-lg transition-transform active:scale-95"
-          style={{ backgroundColor: colors.accent[600] }}
+          style={{ backgroundColor: "var(--primary)" }}
+          aria-label="Ir para memória do caso — registrar notas de segurança"
         >
-          <NotebookPen size={24} color="white" />
+          <NotebookPen size={24} color="white" aria-hidden="true" />
           <span className="font-semibold text-xs text-center leading-tight text-white">
             Memória do{"\n"}caso
           </span>

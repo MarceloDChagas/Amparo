@@ -1,12 +1,19 @@
+/**
+ * RF01 — Botão de Emergência (HIGH)
+ * RN01 — Ativação por Tempo Contínuo: acionamento apenas após 2s pressionado.
+ * RN02 — Impossibilidade de Autocancelamento: após disparado, não há como cancelar pelo app.
+ * NRF05 — Desempenho: geolocalização com timeout de 8s, fallback para coordenadas 0,0.
+ * NRF09 — Usabilidade Sob Estresse: botão de 170px, feedback visual + háptico durante o hold.
+ * NRF10 — Acessibilidade: role="progressbar" no SVG, aria-label dinâmico no botão.
+ */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useCreateEmergencyAlert } from "@/hooks/use-emergency-alert";
 import { useAuth } from "@/presentation/hooks/useAuth";
-import { colors } from "@/styles/colors";
 
-const HOLD_DURATION = 2000; // 2 seconds
-const TICK_INTERVAL = 20; // 20ms for smooth animation
+const HOLD_DURATION = 2000;
+const TICK_INTERVAL = 20;
 
 export function EmergencyButton() {
   const { user } = useAuth();
@@ -20,7 +27,7 @@ export function EmergencyButton() {
 
   const handleEmergency = useCallback(() => {
     if (!user) {
-      toast.error("Você precisa estar logado para enviar um alerta.");
+      toast.error("Você precisa estar logada para enviar um alerta.");
       return;
     }
 
@@ -32,22 +39,14 @@ export function EmergencyButton() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        createAlert({
-          latitude,
-          longitude,
-          userId: user.id,
-        });
+        createAlert({ latitude, longitude, userId: user.id });
       },
       (error) => {
         console.error("Erro ao obter localização:", error);
         toast.error(
           "Erro ao obter localização. Enviando alerta com localização aproximada.",
         );
-        createAlert({
-          latitude: 0,
-          longitude: 0,
-          userId: user.id,
-        });
+        createAlert({ latitude: 0, longitude: 0, userId: user.id });
       },
       { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
     );
@@ -79,7 +78,7 @@ export function EmergencyButton() {
       if (newProgress >= 100) {
         handlePressEnd();
         handleEmergency();
-        // Give haptic feedback if available
+        // NRF09 — feedback háptico ao acionar (RN01: confirmação do hold de 2s)
         if ("vibrate" in navigator) {
           navigator.vibrate([100, 50, 100]);
         }
@@ -93,41 +92,53 @@ export function EmergencyButton() {
     };
   }, []);
 
-  // SVG Progress calculation
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
+
+  const secondsLeft = Math.ceil(
+    (HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000,
+  );
 
   return (
     <div
       className="relative mb-8 flex items-center justify-center"
       style={{ width: "280px", height: "280px" }}
     >
-      {/* Pulse waves animation */}
+      {/* Pulse wave — keyframe pulse-wave definido em globals.css */}
       {showPulse && (
-        <>
-          <div
-            className="absolute rounded-full animate-pulse-wave"
-            style={{
-              width: "280px",
-              height: "280px",
-              backgroundColor: "transparent",
-              border: "3px solid rgba(255, 179, 217, 0.6)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "pulseWave 1.5s ease-out infinite",
-            }}
-          />
-        </>
+        <div
+          aria-hidden="true"
+          className="absolute rounded-full"
+          style={{
+            width: "280px",
+            height: "280px",
+            backgroundColor: "transparent",
+            // RN01 — cor vermelha reforça que o alerta está sendo acionado
+            border: "3px solid rgba(220, 38, 38, 0.6)",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            animation: "pulse-wave 1.5s ease-out infinite",
+          }}
+        />
       )}
 
-      {/* Progress Ring (SVG) */}
+      {/* NRF10 — role="progressbar" comunica o progresso do hold para leitores de tela */}
       <svg
         className="absolute z-10 pointer-events-none"
         width="230"
         height="230"
         viewBox="0 0 230 230"
+        role="progressbar"
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={
+          isPressing
+            ? `Acionando alerta: ${secondsLeft} segundo${secondsLeft !== 1 ? "s" : ""} restante${secondsLeft !== 1 ? "s" : ""}`
+            : "Progresso do acionamento de emergência"
+        }
         style={{ transform: "rotate(-90deg)" }}
       >
         <circle
@@ -135,108 +146,86 @@ export function EmergencyButton() {
           cy="115"
           r={radius}
           fill="transparent"
-          stroke={colors.accent[400]}
+          stroke="rgba(255,255,255,0.9)"
           strokeWidth="8"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{
-            transition:
-              TICK_INTERVAL === TICK_INTERVAL
-                ? "none"
-                : "stroke-dashoffset 0.1s linear",
-            opacity: progress > 0 ? 1 : 0,
-          }}
+          style={{ opacity: progress > 0 ? 1 : 0 }}
         />
       </svg>
 
-      {/* Outer ring - darkest */}
+      {/* Outer ring — vermelho escuro (reservado para emergência, RN01) */}
       <div
+        aria-hidden="true"
         className="absolute rounded-full transition-transform duration-300"
         style={{
           width: "280px",
           height: "280px",
-          backgroundColor: "#3d3d6a",
+          backgroundColor: "#7f1d1d",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(1.05)" : "scale(1)"}`,
-          boxShadow: isPressing ? `0 0 40px ${colors.accent[400]}` : "none",
+          boxShadow: isPressing ? "0 0 40px rgba(220, 38, 38, 0.5)" : "none",
         }}
       />
 
-      {/* Middle ring - purple */}
+      {/* Middle ring — vermelho médio */}
       <div
+        aria-hidden="true"
         className="absolute rounded-full transition-transform duration-300"
         style={{
           width: "220px",
           height: "220px",
-          backgroundColor: "#6b5b7b",
+          backgroundColor: "#991b1b",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(1.02)" : "scale(1)"}`,
         }}
       />
 
-      {/* Inner circle - pink */}
+      {/* Inner circle — botão de ação principal */}
       <button
         className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl z-20"
         style={{
           width: "170px",
           height: "170px",
-          backgroundColor: isPending ? colors.neutral[300] : colors.accent[500],
+          // RN01 — vermelho #dc2626 EXCLUSIVO para emergência (nunca usar em outros contextos)
+          backgroundColor: isPending
+            ? "rgba(220, 38, 38, 0.5)"
+            : "var(--emergency)",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
           boxShadow: isPressing
-            ? "0 0 40px rgba(255, 179, 217, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.1)"
-            : "0 10px 30px rgba(0, 0, 0, 0.3)",
+            ? "0 0 40px rgba(220, 38, 38, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.15)"
+            : "0 10px 30px rgba(0, 0, 0, 0.35)",
           cursor: isPending ? "not-allowed" : "pointer",
           opacity: isPending ? 0.7 : 1,
         }}
         disabled={isPending}
+        // NRF10 — aria-label descreve a ação e o mecanismo de hold (RN01)
+        aria-label={
+          isPending
+            ? "Enviando alerta de emergência"
+            : "Botão de emergência — segure por 2 segundos para acionar"
+        }
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
         onMouseLeave={handlePressEnd}
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
       >
-        <span
-          className="text-2xl font-bold leading-tight text-center transition-all duration-300"
-          style={{
-            color: colors.primary[900],
-            textShadow: isPressing
-              ? "0 0 10px rgba(255, 255, 255, 0.5)"
-              : "none",
-          }}
-        >
+        <span className="text-2xl font-bold leading-tight text-center text-white transition-all duration-300">
           {isPending ? "ENVIANDO..." : isPressing ? "SEGURE..." : "EMERGÊNCIA"}
         </span>
+        {/* RN01 — contador regressivo reforça o mecanismo de hold de 2s */}
         {isPressing && (
-          <span
-            className="text-xs font-bold mt-1"
-            style={{ color: colors.primary[900] }}
-          >
-            {Math.ceil(
-              (HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000,
-            )}
-            s
+          <span className="text-xs font-bold mt-1 text-white/90">
+            {secondsLeft}s
           </span>
         )}
       </button>
-
-      {/* CSS Keyframes */}
-      <style jsx>{`
-        @keyframes pulseWave {
-          0% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(1.8);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }
