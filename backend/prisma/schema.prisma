@@ -63,6 +63,7 @@ model EmergencyAlert {
   events           AlertEvent[]
 
   @@index([userId])
+  @@index([status, createdAt]) 
 }
 
 model NotificationLog {
