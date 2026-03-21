@@ -208,6 +208,19 @@ model Note {
   @@index([occurrenceId])
 }
 
+model HeatMapCell {
+  id             String   @id @default(uuid())
+  latitude       Float
+  longitude      Float
+  intensity      Int      @default(1) // Número de ocorrências na célula
+  lastOccurrence DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([latitude, longitude])
+  @@index([intensity])
+  @@index([lastOccurrence])
+}
+
 model SafeLocation {
   id        String   @id @default(uuid())
   name      String // Ex: "Casa", "Trabalho", "Academia"
