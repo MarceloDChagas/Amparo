@@ -1,6 +1,5 @@
 import React from "react";
 
-import { govTheme } from "./gov-theme";
 const stats = [
   {
     value: "3 em cada 10",
@@ -22,43 +21,27 @@ const stats = [
 ];
 
 export const ImpactSection: React.FC = () => (
-  <section
-    id="dados-publicos"
-    className="py-20"
-    style={{ backgroundColor: govTheme.background.alt }}
-  >
+  <section id="dados-publicos" className="py-20 bg-secondary">
     <div className="max-w-6xl mx-auto px-6">
       <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p
-            className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest"
-            style={{ color: govTheme.brand.blue }}
-          >
+          <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
             <span
               className="inline-block h-px w-5"
-              style={{ backgroundColor: govTheme.brand.sand }}
+              style={{ backgroundColor: "var(--chart-3)" }}
             />
             Dados públicos
           </p>
-          <h2
-            className="max-w-xl text-2xl font-bold leading-snug"
-            style={{ color: govTheme.text.primary }}
-          >
+          <h2 className="max-w-xl text-2xl font-bold leading-snug text-foreground">
             Informações que ajudam a entender a urgência da resposta pública.
             <br />
-            <span
-              className="text-xl font-normal"
-              style={{ color: govTheme.text.secondary }}
-            >
+            <span className="text-xl font-normal text-muted-foreground">
               A transparência dos dados fortalece prevenção, cuidado e gestão.
             </span>
           </h2>
         </div>
 
-        <p
-          className="max-w-xl text-sm leading-7 sm:text-base"
-          style={{ color: govTheme.text.secondary }}
-        >
+        <p className="max-w-xl text-sm leading-7 sm:text-base text-muted-foreground">
           Os números abaixo não funcionam como peça publicitária. Eles servem
           para contextualizar por que a integração entre acolhimento, proteção e
           acompanhamento precisa ser tratada como política pública contínua.
@@ -67,40 +50,25 @@ export const ImpactSection: React.FC = () => (
 
       <div
         className="grid overflow-hidden rounded-3xl border md:grid-cols-3"
-        style={{ borderColor: govTheme.border.strong }}
+        style={{ borderColor: "var(--ring)" }}
       >
         {stats.map((s) => (
           <div
             key={s.label}
-            className="border-r p-6 last:border-r-0"
-            style={{
-              backgroundColor: govTheme.background.section,
-              borderColor: govTheme.border.subtle,
-            }}
+            className="border-r border-border p-6 last:border-r-0 bg-card"
           >
-            <div
-              className="text-2xl font-bold mb-2 leading-tight"
-              style={{ color: govTheme.brand.blueStrong }}
-            >
+            <div className="text-2xl font-bold mb-2 leading-tight text-accent-foreground">
               {s.value}
             </div>
-            <p
-              className="text-sm leading-relaxed mb-3"
-              style={{ color: govTheme.text.secondary }}
-            >
+            <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
               {s.label}
             </p>
-            <p className="text-xs" style={{ color: govTheme.text.muted }}>
-              {s.source}
-            </p>
+            <p className="text-xs text-muted-foreground">{s.source}</p>
           </div>
         ))}
       </div>
 
-      <p
-        className="mt-8 text-sm leading-relaxed max-w-2xl"
-        style={{ color: govTheme.text.secondary }}
-      >
+      <p className="mt-8 text-sm leading-relaxed max-w-2xl text-muted-foreground">
         O objetivo não é apenas informar. É oferecer base para que equipes
         técnicas planejem resposta, acompanhem trajetórias e evitem que a mulher
         precise repetir sua história a cada novo atendimento.

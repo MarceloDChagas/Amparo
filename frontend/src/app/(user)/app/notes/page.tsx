@@ -8,7 +8,6 @@ import {
   EmergencyHeader,
   MainTabType,
 } from "@/components/emergency";
-import { govTheme } from "@/components/landing/gov-theme";
 import { NotesSection } from "@/components/notes/NotesSection";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
@@ -86,27 +85,19 @@ export default function UserNotesPage() {
           <div className="flex items-start gap-3">
             <button
               onClick={() => router.back()}
-              className="rounded-full border p-2 transition-colors hover:opacity-90"
+              className="rounded-full border border-border p-2 transition-colors hover:opacity-90 text-accent-foreground"
               style={{
                 backgroundColor: "rgba(255,255,255,0.84)",
-                borderColor: govTheme.border.subtle,
-                color: govTheme.brand.blueStrong,
               }}
               aria-label="Voltar"
             >
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h2
-                className="text-xl font-bold leading-tight sm:text-2xl"
-                style={{ color: govTheme.text.primary }}
-              >
+              <h2 className="text-xl font-bold leading-tight sm:text-2xl text-foreground">
                 Minhas Notas
               </h2>
-              <p
-                className="mt-1 text-sm"
-                style={{ color: govTheme.text.secondary }}
-              >
+              <p className="mt-1 text-sm text-muted-foreground">
                 Registre observações pessoais em um espaço protegido e de fácil
                 acompanhamento.
               </p>
@@ -114,20 +105,16 @@ export default function UserNotesPage() {
           </div>
 
           <div
-            className="flex items-start gap-3 rounded-4xl border px-4 py-4"
+            className="flex items-start gap-3 rounded-4xl border px-4 py-4 shadow-sm"
             style={{
               backgroundColor: "rgba(255,255,255,0.9)",
               borderColor: "rgba(168, 184, 203, 0.65)",
-              boxShadow: govTheme.shadow.card,
             }}
           >
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: govTheme.brand.blueSurface }}
-            >
-              <NotebookPen size={18} style={{ color: govTheme.brand.blue }} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+              <NotebookPen size={18} className="text-primary" />
             </div>
-            <p className="text-sm" style={{ color: govTheme.text.secondary }}>
+            <p className="text-sm text-muted-foreground">
               Suas notas ajudam a manter contexto, histórico e informações úteis
               para o seu acompanhamento dentro do Amparo.
             </p>

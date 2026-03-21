@@ -1,8 +1,6 @@
 import { BarChart3, FolderOpen, Lock, Siren } from "lucide-react";
 import React from "react";
 
-import { govTheme } from "./gov-theme";
-
 const features = [
   {
     icon: FolderOpen,
@@ -31,29 +29,16 @@ const features = [
 ];
 
 export const FeaturesSection: React.FC = () => (
-  <section
-    id="features"
-    className="py-24"
-    style={{ backgroundColor: govTheme.background.page }}
-  >
+  <section id="features" className="py-24 bg-background">
     <div className="max-w-6xl mx-auto px-6">
       <div className="mb-14">
-        <p
-          className="text-sm font-semibold tracking-widest uppercase mb-3"
-          style={{ color: govTheme.brand.blue }}
-        >
+        <p className="text-sm font-semibold tracking-widest uppercase mb-3 text-primary">
           Estrutura do serviço
         </p>
-        <h2
-          className="text-3xl font-bold"
-          style={{ color: govTheme.text.primary }}
-        >
+        <h2 className="text-3xl font-bold text-foreground">
           Recursos pensados para a rede pública atuar com mais consistência
         </h2>
-        <p
-          className="mt-4 max-w-2xl text-base leading-7"
-          style={{ color: govTheme.text.secondary }}
-        >
+        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
           Em vez de uma vitrine comercial, a página apresenta de forma direta os
           pilares que sustentam acolhimento, proteção de dados e gestão pública
           responsável.
@@ -69,28 +54,13 @@ export const FeaturesSection: React.FC = () => (
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="rounded-3xl border p-8"
-            style={{
-              backgroundColor: govTheme.background.section,
-              borderColor: govTheme.border.subtle,
-              boxShadow: govTheme.shadow.card,
-            }}
+            className="rounded-3xl border border-border p-8 bg-card shadow-sm"
           >
-            <feature.icon
-              size={22}
-              className="mb-5"
-              style={{ color: govTheme.brand.blue }}
-            />
-            <h3
-              className="text-base font-semibold mb-2"
-              style={{ color: govTheme.text.primary }}
-            >
+            <feature.icon size={22} className="mb-5 text-primary" />
+            <h3 className="text-base font-semibold mb-2 text-foreground">
               {feature.title}
             </h3>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: govTheme.text.secondary }}
-            >
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {feature.description}
             </p>
           </div>

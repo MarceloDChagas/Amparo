@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -83,26 +82,17 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem className="space-y-2.5">
-              <FormLabel
-                className="text-sm font-semibold"
-                style={{ color: govTheme.text.primary }}
-              >
+              <FormLabel className="text-sm font-semibold text-foreground">
                 Nome Completo
               </FormLabel>
               <FormControl>
                 <Input
                   placeholder="Seu nome"
-                  className={inputClassName}
-                  style={{
-                    color: govTheme.text.primary,
-                  }}
+                  className={`${inputClassName} text-foreground`}
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                className="text-sm"
-                style={{ color: govTheme.status.danger }}
-              />
+              <FormMessage className="text-sm text-destructive" />
             </FormItem>
           )}
         />
@@ -111,26 +101,17 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem className="space-y-2.5">
-              <FormLabel
-                className="text-sm font-semibold"
-                style={{ color: govTheme.text.primary }}
-              >
+              <FormLabel className="text-sm font-semibold text-foreground">
                 Email
               </FormLabel>
               <FormControl>
                 <Input
                   placeholder="seu@email.com"
-                  className={inputClassName}
-                  style={{
-                    color: govTheme.text.primary,
-                  }}
+                  className={`${inputClassName} text-foreground`}
                   {...field}
                 />
               </FormControl>
-              <FormMessage
-                className="text-sm"
-                style={{ color: govTheme.status.danger }}
-              />
+              <FormMessage className="text-sm text-destructive" />
             </FormItem>
           )}
         />
@@ -139,10 +120,7 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem className="space-y-2.5">
-              <FormLabel
-                className="text-sm font-semibold"
-                style={{ color: govTheme.text.primary }}
-              >
+              <FormLabel className="text-sm font-semibold text-foreground">
                 Senha
               </FormLabel>
               <FormControl>
@@ -150,10 +128,7 @@ export function RegisterForm() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Crie uma senha"
-                    className={`${inputClassName} pr-12`}
-                    style={{
-                      color: govTheme.text.primary,
-                    }}
+                    className={`${inputClassName} pr-12 text-foreground`}
                     {...field}
                   />
                   <button
@@ -166,10 +141,7 @@ export function RegisterForm() {
                   </button>
                 </div>
               </FormControl>
-              <FormMessage
-                className="text-sm"
-                style={{ color: govTheme.status.danger }}
-              />
+              <FormMessage className="text-sm text-destructive" />
             </FormItem>
           )}
         />
@@ -178,10 +150,7 @@ export function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem className="space-y-2.5">
-              <FormLabel
-                className="text-sm font-semibold"
-                style={{ color: govTheme.text.primary }}
-              >
+              <FormLabel className="text-sm font-semibold text-foreground">
                 Confirmar Senha
               </FormLabel>
               <FormControl>
@@ -189,10 +158,7 @@ export function RegisterForm() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Repita a senha"
-                    className={`${inputClassName} pr-12`}
-                    style={{
-                      color: govTheme.text.primary,
-                    }}
+                    className={`${inputClassName} pr-12 text-foreground`}
                     {...field}
                   />
                   <button
@@ -205,22 +171,14 @@ export function RegisterForm() {
                   </button>
                 </div>
               </FormControl>
-              <FormMessage
-                className="text-sm"
-                style={{ color: govTheme.status.danger }}
-              />
+              <FormMessage className="text-sm text-destructive" />
             </FormItem>
           )}
         />
         <Button
           type="submit"
-          className="mt-6 h-13 w-full rounded-[14px] text-[15px] font-semibold shadow-[0_12px_24px_rgba(31,58,95,0.18)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(31,58,95,0.22)] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.18)]"
+          className="mt-6 h-13 w-full rounded-[14px] text-[15px] font-semibold shadow-[0_12px_24px_rgba(31,58,95,0.18)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(31,58,95,0.22)] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.18)] bg-accent-foreground text-primary-foreground border-none"
           disabled={loading}
-          style={{
-            backgroundColor: govTheme.brand.blueStrong,
-            border: "none",
-            color: govTheme.text.inverse,
-          }}
         >
           {loading ? "Cadastrando..." : "Cadastrar"}
         </Button>

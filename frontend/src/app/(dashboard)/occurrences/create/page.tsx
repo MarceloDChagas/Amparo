@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -26,10 +25,7 @@ export default function CreateOccurrencePage() {
 
   if (selectedAlert) {
     return (
-      <div
-        className="flex min-h-screen flex-col p-6"
-        style={{ backgroundColor: govTheme.background.page }}
-      >
+      <div className="flex min-h-screen flex-col p-6 bg-background">
         <div className="flex items-center mb-6">
           <Button variant="ghost" onClick={() => setSelectedAlert(null)}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para os Chamados
@@ -43,31 +39,18 @@ export default function CreateOccurrencePage() {
   }
 
   return (
-    <div
-      className="flex min-h-screen flex-col p-6"
-      style={{ backgroundColor: govTheme.background.page }}
-    >
+    <div className="flex min-h-screen flex-col p-6 bg-background">
       <div className="mb-6">
-        <h1
-          className="text-2xl font-bold tracking-tight"
-          style={{ color: govTheme.text.primary }}
-        >
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Avaliação de Chamados
         </h1>
-        <p style={{ color: govTheme.text.secondary }}>
+        <p className="text-muted-foreground">
           Selecione um chamado de emergência para transformá-lo em ocorrência ou
           avaliá-lo.
         </p>
       </div>
 
-      <div
-        className="rounded-2xl border"
-        style={{
-          borderColor: govTheme.border.subtle,
-          backgroundColor: govTheme.background.section,
-          boxShadow: govTheme.shadow.card,
-        }}
-      >
+      <div className="rounded-2xl border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>

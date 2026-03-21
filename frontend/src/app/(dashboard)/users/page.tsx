@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -58,8 +57,7 @@ function MaskedCpf({ cpf, userName }: { cpf: string; userName: string }) {
         // NRF10 — label descreve exatamente o que o botão faz e para quem
         aria-label={`${revealed ? "Ocultar" : "Revelar"} CPF de ${userName}`}
         aria-pressed={revealed}
-        className="flex items-center justify-center rounded p-1 transition-colors hover:bg-muted"
-        style={{ color: govTheme.text.muted }}
+        className="flex items-center justify-center rounded p-1 transition-colors hover:bg-muted text-muted-foreground"
       >
         {revealed ? (
           <EyeOff size={14} aria-hidden="true" />
@@ -107,38 +105,35 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex justify-between items-center">
-        <h2
-          className="text-3xl font-bold tracking-tight"
-          style={{ color: govTheme.text.primary }}
-        >
-          Usuários
-        </h2>
-      </div>
-      <p style={{ color: govTheme.text.secondary }}>
-        Listagem de usuários cadastrados.{" "}
-        {/* RN04 — aviso explícito sobre dado sensível */}
-        <span
-          className="text-xs font-medium"
-          style={{ color: govTheme.text.muted }}
-        >
-          CPF exibido mascarado — clique no ícone para revelar.
+      {/* Stat — total de usuários */}
+      <div
+        className="inline-flex items-center gap-3 rounded-xl border border-border px-4 py-3 bg-card shadow-sm"
+        role="status"
+        aria-label={`Total de usuários: ${users.length}`}
+      >
+        <span className="text-2xl font-extrabold tabular-nums text-foreground">
+          {loading ? "—" : users.length}
         </span>
-      </p>
+        <span className="text-sm text-muted-foreground">
+          usuário{users.length !== 1 ? "s" : ""} cadastrado
+          {users.length !== 1 ? "s" : ""}
+        </span>
+        {/* RN04 — aviso sobre mascaramento */}
+        <span className="ml-2 text-xs font-medium border-l border-border pl-3 text-muted-foreground">
+          CPF mascarado por padrão
+        </span>
+      </div>
 
       {loading ? (
-        <div aria-live="polite" aria-busy="true">
-          Carregando...
+        <div
+          aria-live="polite"
+          aria-busy="true"
+          className="animate-pulse text-sm text-muted-foreground"
+        >
+          Carregando usuários...
         </div>
       ) : (
-        <div
-          className="rounded-2xl border"
-          style={{
-            borderColor: govTheme.border.subtle,
-            backgroundColor: govTheme.background.section,
-            boxShadow: govTheme.shadow.card,
-          }}
-        >
+        <div className="rounded-2xl border border-border bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -180,9 +175,8 @@ export default function UsersPage() {
                         aria-label={`Excluir usuário ${user.name}`}
                       >
                         <Trash2
-                          className="h-4 w-4"
+                          className="h-4 w-4 text-destructive"
                           aria-hidden="true"
-                          style={{ color: govTheme.status.danger }}
                         />
                       </Button>
                     </TableCell>

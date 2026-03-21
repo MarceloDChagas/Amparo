@@ -11,7 +11,6 @@ import { ClockAlert } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { CheckIn } from "@/services/check-in-service";
 
 interface LateCheckInAlertProps {
@@ -42,7 +41,7 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity blur-2xl"
-        style={{ backgroundColor: govTheme.brand.sand }}
+        style={{ backgroundColor: "var(--chart-3)" }}
       />
 
       <div className="flex items-center gap-5 relative z-10">
@@ -51,7 +50,7 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
           className="p-4 rounded-xl flex items-center justify-center animate-pulse"
           style={{
             backgroundColor: "rgba(216, 191, 122, 0.18)",
-            color: govTheme.brand.sand,
+            color: "var(--chart-3)",
           }}
         >
           <ClockAlert size={32} />
@@ -59,11 +58,11 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
         <div>
           <h4
             className="font-bold text-lg mb-1"
-            style={{ color: govTheme.brand.blueStrong }}
+            style={{ color: "var(--chart-3)" }}
           >
             Atraso de Deslocamento
           </h4>
-          <p className="text-sm" style={{ color: govTheme.text.secondary }}>
+          <p className="text-sm text-muted-foreground">
             {/* RN04 — exibe apenas início do ID (não CPF ou dado completo) */}
             Usuário ID #{checkIn.user?.id?.substring(0, 8) ||
               "Desconhecido"}{" "}
@@ -76,8 +75,8 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
         href={`/check-ins/${checkIn.id}`}
         className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold shadow-lg transition-transform hover:scale-105 relative z-10 whitespace-nowrap text-center"
         style={{
-          backgroundColor: govTheme.brand.blue,
-          color: govTheme.text.inverse,
+          backgroundColor: "rgba(216, 191, 122, 0.85)",
+          color: "#1c1a14",
         }}
         aria-label={`Acompanhar check-in em atraso do usuário #${checkIn.user?.id?.substring(0, 8) || "Desconhecido"}`}
       >

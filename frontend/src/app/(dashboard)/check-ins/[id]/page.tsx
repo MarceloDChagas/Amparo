@@ -22,7 +22,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { Badge } from "@/components/ui/badge";
 import { CheckIn, checkInService } from "@/services/check-in-service";
 
@@ -77,10 +76,7 @@ export default function CheckInDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen p-6 flex justify-center items-center">
-        <p
-          className="animate-pulse text-xl"
-          style={{ color: govTheme.text.primary }}
-        >
+        <p className="animate-pulse text-xl text-foreground">
           Buscando detalhes do deslocamento...
         </p>
       </div>
@@ -128,37 +124,28 @@ export default function CheckInDetailsPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2
-              className="flex items-center gap-3 text-3xl font-bold tracking-tight"
-              style={{ color: govTheme.text.primary }}
-            >
+            <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-foreground">
               <span
                 aria-hidden="true"
                 className="rounded-lg p-2"
                 style={{
                   backgroundColor: isLate
                     ? "rgba(216, 191, 122, 0.18)"
-                    : govTheme.brand.blueSurface,
-                  color: isLate
-                    ? govTheme.brand.blueStrong
-                    : govTheme.brand.blue,
+                    : "var(--accent)",
+                  color: isLate ? "var(--accent-foreground)" : "var(--primary)",
                 }}
               >
                 <MapPin size={32} />
               </span>
               Monitoramento de Deslocamento
             </h2>
-            <p className="mt-2" style={{ color: govTheme.text.secondary }}>
+            <p className="mt-2 text-muted-foreground">
               Detalhes do monitoramento de trajeto do usuário.
             </p>
           </div>
           <Link
             href="/dashboard"
-            className="rounded-lg px-6 py-3 text-sm font-semibold transition hover:opacity-90"
-            style={{
-              backgroundColor: govTheme.brand.blue,
-              color: govTheme.text.inverse,
-            }}
+            className="rounded-lg px-6 py-3 text-sm font-semibold transition hover:opacity-90 bg-primary text-primary-foreground"
             aria-label="Voltar ao Dashboard"
           >
             Voltar
@@ -167,22 +154,9 @@ export default function CheckInDetailsPage() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <div
-              className="p-6 rounded-2xl border flex flex-col gap-6 h-full"
-              style={{
-                backgroundColor: govTheme.background.section,
-                borderColor: govTheme.border.subtle,
-                boxShadow: govTheme.shadow.card,
-              }}
-            >
-              <div
-                className="mb-2 flex items-center justify-between border-b pb-4"
-                style={{ borderColor: govTheme.border.subtle }}
-              >
-                <h3
-                  className="text-xl font-semibold"
-                  style={{ color: govTheme.text.primary }}
-                >
+            <div className="p-6 rounded-2xl border border-border flex flex-col gap-6 h-full bg-card shadow-sm">
+              <div className="mb-2 flex items-center justify-between border-b border-border pb-4">
+                <h3 className="text-xl font-semibold text-foreground">
                   Dados do Trajeto
                 </h3>
                 {/* RF13 — badge semântico do ciclo de vida */}
@@ -193,23 +167,14 @@ export default function CheckInDetailsPage() {
                 <User
                   size={24}
                   aria-hidden="true"
-                  className="mt-1 shrink-0"
-                  style={{ color: govTheme.text.muted }}
+                  className="mt-1 shrink-0 text-muted-foreground"
                 />
                 <div>
-                  <p className="text-sm" style={{ color: govTheme.text.muted }}>
-                    Usuário
-                  </p>
-                  <p
-                    className="font-semibold"
-                    style={{ color: govTheme.text.primary }}
-                  >
+                  <p className="text-sm text-muted-foreground">Usuário</p>
+                  <p className="font-semibold text-foreground">
                     {checkInData.user?.name || "Desconhecido"}
                   </p>
-                  <p
-                    className="mt-1 text-xs font-mono"
-                    style={{ color: govTheme.text.muted }}
-                  >
+                  <p className="mt-1 text-xs font-mono text-muted-foreground">
                     ID: {checkInData.user?.id || "N/A"}
                   </p>
                 </div>
@@ -219,11 +184,10 @@ export default function CheckInDetailsPage() {
                 <Clock
                   size={24}
                   aria-hidden="true"
-                  className="mt-1 shrink-0"
-                  style={{ color: govTheme.text.muted }}
+                  className="mt-1 shrink-0 text-muted-foreground"
                 />
                 <div className="w-full">
-                  <p className="text-sm" style={{ color: govTheme.text.muted }}>
+                  <p className="text-sm text-muted-foreground">
                     {checkInData.status === "ACTIVE"
                       ? "Tempo Restante"
                       : "Tempo Limite de Chegada"}
@@ -236,20 +200,14 @@ export default function CheckInDetailsPage() {
                       isLate={isLate}
                     />
                   ) : (
-                    <p
-                      className="text-lg font-semibold"
-                      style={{ color: govTheme.text.primary }}
-                    >
+                    <p className="text-lg font-semibold text-foreground">
                       {new Date(checkInData.expectedArrivalTime).toLocaleString(
                         "pt-BR",
                       )}
                     </p>
                   )}
 
-                  <p
-                    className="mt-1 text-xs"
-                    style={{ color: govTheme.text.muted }}
-                  >
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Início:{" "}
                     {new Date(checkInData.startTime).toLocaleString("pt-BR")} (
                     {checkInData.distanceType})
@@ -258,27 +216,18 @@ export default function CheckInDetailsPage() {
               </div>
 
               {checkInData.actualArrivalTime && (
-                <div
-                  className="flex items-start gap-4 border-t pt-4"
-                  style={{ borderColor: govTheme.border.subtle }}
-                >
+                <div className="flex items-start gap-4 border-t border-border pt-4">
                   <CheckCircle
                     size={24}
                     aria-hidden="true"
                     className="mt-1 shrink-0"
-                    style={{ color: govTheme.brand.green }}
+                    style={{ color: "var(--chart-2)" }}
                   />
                   <div>
-                    <p
-                      className="text-sm"
-                      style={{ color: govTheme.text.muted }}
-                    >
+                    <p className="text-sm text-muted-foreground">
                       Horário de Chegada Real
                     </p>
-                    <p
-                      className="font-semibold"
-                      style={{ color: govTheme.text.primary }}
-                    >
+                    <p className="font-semibold text-foreground">
                       {new Date(checkInData.actualArrivalTime).toLocaleString(
                         "pt-BR",
                       )}
@@ -290,22 +239,9 @@ export default function CheckInDetailsPage() {
           </div>
 
           <div className="space-y-6">
-            <div
-              className="p-6 rounded-2xl border flex flex-col gap-6 h-full"
-              style={{
-                backgroundColor: govTheme.background.section,
-                borderColor: govTheme.border.subtle,
-                boxShadow: govTheme.shadow.card,
-              }}
-            >
+            <div className="p-6 rounded-2xl border border-border flex flex-col gap-6 h-full bg-card shadow-sm">
               <div>
-                <h3
-                  className="mb-4 border-b pb-4 text-xl font-semibold"
-                  style={{
-                    color: govTheme.text.primary,
-                    borderColor: govTheme.border.subtle,
-                  }}
-                >
+                <h3 className="mb-4 border-b border-border pb-4 text-xl font-semibold text-foreground">
                   Estatísticas do Usuário
                 </h3>
               </div>
@@ -313,25 +249,17 @@ export default function CheckInDetailsPage() {
               <div className="flex items-center gap-6">
                 <div
                   aria-hidden="true"
-                  className="rounded-xl p-4 shrink-0"
-                  style={{
-                    backgroundColor: govTheme.brand.blueSurface,
-                    color: govTheme.brand.blue,
-                  }}
+                  className="rounded-xl p-4 shrink-0 bg-accent text-primary"
                 >
                   <History size={48} />
                 </div>
                 <div>
-                  <p
-                    className="mb-1 text-sm"
-                    style={{ color: govTheme.text.muted }}
-                  >
+                  <p className="mb-1 text-sm text-muted-foreground">
                     Total de viagens realizadas no Amparo
                   </p>
                   <p
-                    className="text-5xl font-black"
+                    className="text-5xl font-black text-foreground"
                     aria-label={`${checkInData.userCheckInCount ?? "..."} viagens realizadas`}
-                    style={{ color: govTheme.text.primary }}
                   >
                     {checkInData.userCheckInCount !== undefined
                       ? checkInData.userCheckInCount
@@ -340,17 +268,8 @@ export default function CheckInDetailsPage() {
                 </div>
               </div>
 
-              <div
-                className="mt-4 rounded-lg border p-4"
-                style={{
-                  backgroundColor: govTheme.background.alt,
-                  borderColor: govTheme.border.subtle,
-                }}
-              >
-                <p
-                  className="text-sm"
-                  style={{ color: govTheme.text.secondary }}
-                >
+              <div className="mt-4 rounded-lg border border-border p-4 bg-secondary">
+                <p className="text-sm text-muted-foreground">
                   A contagem de viagens baseia-se no histórico deste usuário.
                   Usuários com alto número de viagens bem sucedidas demonstram
                   forte engajamento com a ferramenta de monitoramento.
@@ -394,7 +313,7 @@ function ActiveCountdown({
         {isOverdue ? "+" : ""}
         {formatted}
       </span>
-      <span className="text-xs" style={{ color: govTheme.text.muted }}>
+      <span className="text-xs text-muted-foreground">
         {isOverdue ? "em atraso" : "restantes"}
       </span>
     </div>

@@ -51,19 +51,36 @@ export default function OccurrencesPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Ocorrências</h2>
+    <div className="space-y-5">
+      {/* Stat + ação */}
+      <div className="flex items-center justify-between">
+        <div
+          className="inline-flex items-center gap-3 rounded-xl border border-border px-4 py-3 bg-card shadow-sm"
+          role="status"
+          aria-label={`Total de ocorrências: ${occurrences.length}`}
+        >
+          <span className="text-2xl font-extrabold tabular-nums text-foreground">
+            {loading ? "—" : occurrences.length}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            ocorrência{occurrences.length !== 1 ? "s" : ""} registrada
+            {occurrences.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
         <Link href="/occurrences/create">
           <Button>Nova Ocorrência</Button>
         </Link>
       </div>
-      <p className="text-muted-foreground">
-        Listagem de ocorrências registradas.
-      </p>
 
       {loading ? (
-        <div>Carregando...</div>
+        <div
+          aria-live="polite"
+          aria-busy="true"
+          className="animate-pulse text-sm text-muted-foreground"
+        >
+          Carregando ocorrências...
+        </div>
       ) : (
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-[400px] grid-cols-3">
@@ -82,7 +99,7 @@ export default function OccurrencesPage() {
           </TabsList>
 
           <TabsContent value="list" className="mt-4">
-            <div className="rounded-md border">
+            <div className="rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
               <Table>
                 <TableHeader>
                   <TableRow>

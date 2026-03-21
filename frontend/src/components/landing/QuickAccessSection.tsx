@@ -6,8 +6,6 @@ import {
 } from "lucide-react";
 import React from "react";
 
-import { govTheme } from "./gov-theme";
-
 const quickAccessItems = [
   {
     icon: ShieldAlert,
@@ -44,32 +42,19 @@ const quickAccessItems = [
 ];
 
 export const QuickAccessSection: React.FC = () => (
-  <section
-    id="acesso-rapido"
-    className="py-20"
-    style={{ backgroundColor: govTheme.background.page }}
-  >
+  <section id="acesso-rapido" className="py-20 bg-background">
     <div className="mx-auto max-w-6xl px-6">
       <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
-          <p
-            className="mb-3 text-xs font-semibold uppercase tracking-[0.16em]"
-            style={{ color: govTheme.brand.blue }}
-          >
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             Acesso rápido
           </p>
-          <h2
-            className="text-3xl font-semibold tracking-tight sm:text-[2.2rem]"
-            style={{ color: govTheme.text.primary }}
-          >
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-[2.2rem] text-foreground">
             Um portal de acolhimento, orientação e encaminhamento.
           </h2>
         </div>
 
-        <p
-          className="max-w-xl text-sm leading-7 sm:text-base"
-          style={{ color: govTheme.text.secondary }}
-        >
+        <p className="max-w-xl text-sm leading-7 sm:text-base text-muted-foreground">
           A página inicial prioriza caminhos objetivos para ajuda, informação e
           articulação institucional, sem depender de linguagem comercial ou
           excesso de elementos promocionais.
@@ -81,43 +66,26 @@ export const QuickAccessSection: React.FC = () => (
           <a
             key={item.title}
             href={item.href}
-            className="group rounded-[1.75rem] border p-6 transition-transform duration-200 hover:-translate-y-1"
-            style={{
-              backgroundColor: govTheme.background.section,
-              borderColor: govTheme.border.subtle,
-              boxShadow: govTheme.shadow.card,
-            }}
+            className="group rounded-[1.75rem] border border-border p-6 transition-transform duration-200 hover:-translate-y-1 bg-card shadow-sm"
           >
-            <div
-              className="mb-5 inline-flex rounded-2xl p-3"
-              style={{ backgroundColor: govTheme.brand.blueSurface }}
-            >
-              <item.icon size={20} style={{ color: govTheme.brand.blue }} />
+            <div className="mb-5 inline-flex rounded-2xl p-3 bg-accent">
+              <item.icon size={20} className="text-primary" />
             </div>
 
             <p
               className="mb-2 text-xs font-semibold uppercase tracking-[0.14em]"
-              style={{ color: govTheme.brand.green }}
+              style={{ color: "var(--chart-2)" }}
             >
               {item.eyebrow}
             </p>
-            <h3
-              className="text-lg font-semibold leading-snug"
-              style={{ color: govTheme.text.primary }}
-            >
+            <h3 className="text-lg font-semibold leading-snug text-foreground">
               {item.title}
             </h3>
-            <p
-              className="mt-3 text-sm leading-7"
-              style={{ color: govTheme.text.secondary }}
-            >
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
               {item.description}
             </p>
 
-            <span
-              className="mt-6 inline-flex text-sm font-semibold transition-colors group-hover:opacity-80"
-              style={{ color: govTheme.brand.blueStrong }}
-            >
+            <span className="mt-6 inline-flex text-sm font-semibold transition-colors group-hover:opacity-80 text-accent-foreground">
               Acessar caminho
             </span>
           </a>

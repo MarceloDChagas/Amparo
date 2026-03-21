@@ -1,6 +1,5 @@
 import { Plus } from "lucide-react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { EmergencyContactForm } from "@/presentation/components/forms/emergency-contact-form";
 
 export function ContactsFormSection() {
@@ -17,16 +16,10 @@ export function ContactsFormSection() {
       }}
     >
       <div className="mb-5 flex items-center gap-2">
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-full"
-          style={{ backgroundColor: govTheme.brand.blueSurface }}
-        >
-          <Plus size={16} style={{ color: govTheme.brand.blue }} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
+          <Plus size={16} className="text-primary" />
         </div>
-        <h3
-          className="text-base font-semibold"
-          style={{ color: govTheme.text.primary }}
-        >
+        <h3 className="text-base font-semibold text-foreground">
           Adicionar contato
         </h3>
       </div>

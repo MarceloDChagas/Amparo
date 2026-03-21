@@ -11,46 +11,52 @@
  * NRF09 — Usabilidade Sob Estresse: min-h-11 garante área clicável de 44px.
  * RN04 — Ícone de "Agressores" em vermelho (destructive) sinaliza dado sensível.
  */
-import { Bell, FileText, Home, LogOut, ShieldAlert, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  FileText,
+  Home,
+  LogOut,
+  ShieldAlert,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
+// Cor neutra para ícones — diferenciação vem do estado ativo, não da cor
+const iconNeutral = "rgba(249, 250, 251, 0.55)";
+
 const routes = [
-  {
-    label: "Dashboard",
-    icon: Home,
-    href: "/dashboard",
-    color: govTheme.brand.blue,
-  },
-  {
-    label: "Usuários",
-    icon: Users,
-    href: "/users",
-    color: govTheme.brand.green,
-  },
+  { label: "Dashboard", icon: Home, href: "/dashboard", color: iconNeutral },
+  { label: "Usuários", icon: Users, href: "/users", color: iconNeutral },
+  // RN04 — vermelho reservado para seção de dado sensível/restrito
   {
     label: "Agressores",
     icon: ShieldAlert,
     href: "/aggressors",
-    // RN04 — vermelho sinaliza seção de dado sensível/restrito
-    color: govTheme.status.danger,
+    color: "var(--destructive)",
+  },
+  {
+    label: "Alertas",
+    icon: AlertTriangle,
+    href: "/alerts",
+    color: iconNeutral,
   },
   {
     label: "Ocorrências",
     icon: FileText,
     href: "/occurrences",
-    color: govTheme.brand.sand,
+    color: iconNeutral,
   },
   {
     label: "Notificações",
     icon: Bell,
     href: "/notifications",
-    color: govTheme.brand.blueStrong,
+    color: iconNeutral,
   },
 ];
 
@@ -60,17 +66,16 @@ export function Sidebar() {
 
   return (
     <div
-      className="flex h-full flex-col space-y-4 py-4"
+      className="flex h-full flex-col space-y-4 py-4 text-primary-foreground"
       style={{
-        backgroundColor: govTheme.background.emphasis,
-        color: govTheme.text.inverse,
-        borderRight: `1px solid ${govTheme.border.strong}`,
+        backgroundColor: "var(--surface-emphasis)",
+        borderRight: "1px solid var(--ring)",
       }}
     >
       <div className="px-3 py-2 flex-1">
         <Link
           href="/dashboard"
-          className="flex items-center pl-3 mb-14"
+          className="flex items-center pl-3 mb-6"
           aria-label="Amparo — Painel institucional"
         >
           <div>
@@ -105,7 +110,7 @@ export function Sidebar() {
                         ? "rgba(255,255,255,0.12)"
                         : "transparent",
                       color: isActive
-                        ? govTheme.text.inverse
+                        ? "var(--primary-foreground)"
                         : "rgba(249, 250, 251, 0.72)",
                     }}
                   >

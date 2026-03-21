@@ -9,7 +9,6 @@ import {
   EmergencyHeader,
   MainTabType,
 } from "@/components/emergency";
-import { govTheme } from "@/components/landing/gov-theme";
 import { CATEGORY_CONFIG } from "@/data/constants/notification-config";
 import {
   useMarkAllRead,
@@ -73,36 +72,26 @@ export default function UserMessagesPage() {
       <main className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 pb-28 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-245 space-y-6">
           <div>
-            <h2
-              className="text-xl font-bold leading-tight sm:text-2xl"
-              style={{ color: govTheme.text.primary }}
-            >
+            <h2 className="text-xl font-bold leading-tight sm:text-2xl text-foreground">
               Mensagens
             </h2>
-            <p
-              className="mt-1 text-sm"
-              style={{ color: govTheme.text.secondary }}
-            >
+            <p className="mt-1 text-sm text-muted-foreground">
               Acompanhe avisos, orientações e comunicações importantes da sua
               rede de proteção.
             </p>
           </div>
 
           <div
-            className="flex items-start gap-3 rounded-4xl border px-4 py-4"
+            className="flex items-start gap-3 rounded-4xl border px-4 py-4 shadow-sm"
             style={{
               backgroundColor: "rgba(255,255,255,0.9)",
               borderColor: "rgba(168, 184, 203, 0.65)",
-              boxShadow: govTheme.shadow.card,
             }}
           >
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: govTheme.brand.blueSurface }}
-            >
-              <MessageCircle size={18} style={{ color: govTheme.brand.blue }} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+              <MessageCircle size={18} className="text-primary" />
             </div>
-            <p className="text-sm" style={{ color: govTheme.text.secondary }}>
+            <p className="text-sm text-muted-foreground">
               Todas as mensagens desta área ficam registradas para você retomar
               orientações e comunicados quando precisar.
             </p>
@@ -110,32 +99,16 @@ export default function UserMessagesPage() {
 
           <div className="space-y-4">
             {isLoading ? (
-              <div
-                className="rounded-[24px] border p-6 text-sm"
-                style={{
-                  borderColor: govTheme.border.subtle,
-                  backgroundColor: govTheme.background.section,
-                  boxShadow: govTheme.shadow.card,
-                  color: govTheme.text.secondary,
-                }}
-              >
+              <div className="rounded-[24px] border border-border p-6 text-sm bg-card shadow-sm text-muted-foreground">
                 Carregando mensagens...
               </div>
             ) : notifications.length === 0 ? (
-              <div
-                className="rounded-[24px] border p-8 text-center"
-                style={{
-                  borderColor: govTheme.border.subtle,
-                  backgroundColor: govTheme.background.section,
-                  boxShadow: govTheme.shadow.card,
-                }}
-              >
+              <div className="rounded-[24px] border border-border p-8 text-center bg-card shadow-sm">
                 <Bell
                   size={24}
-                  className="mx-auto mb-3"
-                  style={{ color: govTheme.text.muted }}
+                  className="mx-auto mb-3 text-muted-foreground"
                 />
-                <p style={{ color: govTheme.text.secondary }}>
+                <p className="text-muted-foreground">
                   Nenhuma mensagem por enquanto.
                 </p>
               </div>
@@ -147,12 +120,7 @@ export default function UserMessagesPage() {
                 return (
                   <div
                     key={notification.id}
-                    className="rounded-[24px] border p-5"
-                    style={{
-                      borderColor: govTheme.border.subtle,
-                      backgroundColor: govTheme.background.section,
-                      boxShadow: govTheme.shadow.card,
-                    }}
+                    className="rounded-[24px] border border-border p-5 bg-card shadow-sm"
                   >
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span
@@ -164,25 +132,16 @@ export default function UserMessagesPage() {
                       >
                         {category.label}
                       </span>
-                      <span
-                        className="text-xs"
-                        style={{ color: govTheme.text.muted }}
-                      >
+                      <span className="text-xs text-muted-foreground">
                         {new Date(notification.createdAt).toLocaleString(
                           "pt-BR",
                         )}
                       </span>
                     </div>
-                    <h3
-                      className="text-base font-semibold"
-                      style={{ color: govTheme.text.primary }}
-                    >
+                    <h3 className="text-base font-semibold text-foreground">
                       {notification.title}
                     </h3>
-                    <p
-                      className="mt-2 text-sm"
-                      style={{ color: govTheme.text.secondary }}
-                    >
+                    <p className="mt-2 text-sm text-muted-foreground">
                       {notification.body}
                     </p>
                   </div>

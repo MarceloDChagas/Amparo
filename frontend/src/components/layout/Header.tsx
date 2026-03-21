@@ -11,13 +11,13 @@ import { Moon, Sun } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 const pathToTitle: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/users": "Usuários",
   "/aggressors": "Agressores",
+  "/alerts": "Alertas",
   "/occurrences": "Ocorrências",
   "/notifications": "Notificações",
 };
@@ -50,17 +50,12 @@ export function Header() {
 
   return (
     <header
-      className="flex h-16 items-center justify-between px-6"
-      style={{
-        borderBottom: `1px solid ${govTheme.border.subtle}`,
-        backgroundColor: "rgba(255,255,255,0.94)",
-        backdropFilter: "blur(10px)",
-      }}
+      className="flex h-16 items-center justify-between px-6 bg-card border-b border-border"
+      style={{ backdropFilter: "blur(10px)" }}
     >
       {/* RF04 — breadcrumb dinâmico via usePathname */}
       <div
-        className="text-lg font-semibold"
-        style={{ color: govTheme.text.primary }}
+        className="text-lg font-semibold text-foreground"
         aria-label={`Seção atual: ${title}`}
       >
         {title}
@@ -72,8 +67,7 @@ export function Header() {
           onClick={toggle}
           aria-pressed={isDark}
           aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
-          className="flex items-center justify-center h-9 w-9 rounded-lg transition-colors hover:bg-muted"
-          style={{ color: govTheme.text.muted }}
+          className="flex items-center justify-center h-9 w-9 rounded-lg transition-colors hover:bg-muted text-muted-foreground"
         >
           {isDark ? (
             <Sun size={18} aria-hidden="true" />
@@ -83,23 +77,17 @@ export function Header() {
         </button>
 
         <div className="text-sm text-right">
-          <p className="font-medium" style={{ color: govTheme.text.primary }}>
+          <p className="font-medium text-foreground">
             {user?.name || "Usuário"}
           </p>
-          <p className="text-xs" style={{ color: govTheme.text.muted }}>
-            {user?.email}
-          </p>
+          <p className="text-xs text-muted-foreground">{user?.email}</p>
         </div>
 
         {/* NRF10 — aria-label com nome completo para leitores de tela */}
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm text-primary-foreground bg-primary"
           role="img"
           aria-label={`Avatar de ${user?.name || "Usuário"}`}
-          style={{
-            color: govTheme.text.inverse,
-            backgroundColor: govTheme.brand.blue,
-          }}
         >
           {user?.name?.charAt(0).toUpperCase() || "U"}
         </div>

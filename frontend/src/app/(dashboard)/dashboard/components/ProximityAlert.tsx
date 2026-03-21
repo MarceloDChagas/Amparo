@@ -11,7 +11,6 @@ import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-import { govTheme } from "@/components/landing/gov-theme";
 import { EmergencyAlert } from "@/services/emergency-alert-service";
 
 interface ProximityAlertProps {
@@ -27,39 +26,34 @@ export const ProximityAlert: React.FC<ProximityAlertProps> = ({ alert }) => {
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
-      className="p-6 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden group"
+      className="p-6 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden group animate-pulse-border bg-destructive/10"
       style={{
-        backgroundColor: govTheme.status.dangerSoft,
-        borderColor: "rgba(166, 60, 60, 0.28)",
+        borderColor: "rgba(166, 60, 60, 0.5)",
+        boxShadow:
+          "0 0 0 1px rgba(166,60,60,0.25), 0 4px 24px rgba(166,60,60,0.12)",
+        animation: "pulse-border 2s ease-in-out infinite",
       }}
     >
       {/* aria-hidden — animação decorativa, não anuncia nada ao leitor de tela */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity blur-2xl"
-        style={{ backgroundColor: govTheme.status.danger }}
+        className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity blur-2xl bg-destructive"
       />
 
       <div className="flex items-center gap-5 relative z-10">
         <div
           // aria-hidden — ícone decorativo; o texto "Alerta de Emergência" já anuncia
           aria-hidden="true"
-          className="p-4 rounded-xl flex items-center justify-center animate-pulse"
-          style={{
-            backgroundColor: "rgba(166, 60, 60, 0.12)",
-            color: govTheme.status.danger,
-          }}
+          className="p-4 rounded-xl flex items-center justify-center animate-pulse text-destructive"
+          style={{ backgroundColor: "rgba(166, 60, 60, 0.12)" }}
         >
           <ShieldAlert size={32} />
         </div>
         <div>
-          <h4
-            className="font-bold text-lg mb-1"
-            style={{ color: govTheme.status.danger }}
-          >
+          <h4 className="font-bold text-lg mb-1 text-destructive">
             Alerta de Emergência
           </h4>
-          <p className="text-sm" style={{ color: govTheme.text.secondary }}>
+          <p className="text-sm text-muted-foreground">
             {alert.address
               ? `Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} necessita de ajuda na localização: ${alert.address}.`
               : `Alerta recebido do Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} próximo às coordenadas (${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}).`}
@@ -69,11 +63,7 @@ export const ProximityAlert: React.FC<ProximityAlertProps> = ({ alert }) => {
 
       <Link
         href={`/alerts/${alert.id}`}
-        className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold shadow-lg transition-transform hover:scale-105 relative z-10 whitespace-nowrap text-center"
-        style={{
-          backgroundColor: govTheme.status.danger,
-          color: govTheme.text.inverse,
-        }}
+        className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold shadow-lg transition-transform hover:scale-105 relative z-10 whitespace-nowrap text-center bg-destructive text-primary-foreground"
         aria-label={`Ver detalhes do alerta de emergência do usuário #${alert.userId?.substring(0, 8) || "Desconhecido"}`}
       >
         Ver Detalhes

@@ -1,34 +1,29 @@
 import { ArrowRight } from "lucide-react";
 import React from "react";
 
-import { govTheme } from "./gov-theme";
-
 export const CTASection: React.FC = () => (
   <section
     id="cta-rede"
     className="py-24"
     style={{
-      backgroundColor: govTheme.background.emphasis,
-      borderTop: `1px solid ${govTheme.border.strong}`,
-      borderBottom: `1px solid ${govTheme.border.strong}`,
+      backgroundColor: "var(--surface-emphasis)",
+      borderTop: "1px solid var(--ring)",
+      borderBottom: "1px solid var(--ring)",
     }}
   >
     <div className="max-w-6xl mx-auto px-6">
       <div className="max-w-2xl">
         <p
           className="text-xs font-semibold tracking-widest uppercase mb-5 flex items-center gap-2"
-          style={{ color: govTheme.brand.sand }}
+          style={{ color: "var(--chart-3)" }}
         >
           <span
             className="inline-block w-5 h-px"
-            style={{ backgroundColor: govTheme.brand.sand }}
+            style={{ backgroundColor: "var(--chart-3)" }}
           />
           Para a rede pública
         </p>
-        <h2
-          className="text-3xl font-bold mb-4 leading-tight"
-          style={{ color: govTheme.text.inverse }}
-        >
+        <h2 className="text-3xl font-bold mb-4 leading-tight text-primary-foreground">
           Sua instituição pode integrar uma resposta pública mais coordenada.
         </h2>
         <p
@@ -42,11 +37,8 @@ export const CTASection: React.FC = () => (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <a
             href="/register"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90"
-            style={{
-              color: govTheme.text.primary,
-              backgroundColor: govTheme.brand.sand,
-            }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90 text-foreground"
+            style={{ backgroundColor: "var(--chart-3)" }}
           >
             Solicitar acesso institucional
             <ArrowRight size={15} />
