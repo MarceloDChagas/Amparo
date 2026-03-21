@@ -10,6 +10,23 @@ export interface NotificationResult {
   emailsFailed: number;
 }
 
+/**
+ * RF12 — Comunicação Multicanal (HIGH)
+ * Despacha notificações de emergência por e-mail para todos os Contatos
+ * de Confiança da usuária. O e-mail inclui link do Google Maps com a localização.
+ *
+ * RN05 — Duplo Envio de Alertas
+ * Além do alerta no Dashboard, o sistema obrigatoriamente notifica os contatos
+ * cadastrados da vítima quando uma ocorrência é criada (RF05).
+ *
+ * RF08 — Sistema de Notificações (LOW)
+ * As notificações aumentam a percepção de segurança e mantêm a rede de apoio
+ * da usuária informada em tempo real.
+ *
+ * NRF08 — Segurança contra Ameaças Multivariadas
+ * Dados inseridos pela usuária (nome, endereço) são escapados com `escapeHtml`
+ * antes de compor o corpo do e-mail, prevenindo XSS no cliente de e-mail.
+ */
 @Injectable()
 export class SendEmergencyNotificationUseCase {
   private readonly logger = new Logger(SendEmergencyNotificationUseCase.name);
@@ -29,7 +46,7 @@ export class SendEmergencyNotificationUseCase {
       `Sending emergency notifications for user ${userId}, occurrence ${occurrence.id}`,
     );
 
-    // Fetch all emergency contacts for the user
+    // RN05 — busca todos os contatos de confiança para notificação obrigatória.
     const contacts = await this.emergencyContactRepository.findByUserId(userId);
 
     if (contacts.length === 0) {

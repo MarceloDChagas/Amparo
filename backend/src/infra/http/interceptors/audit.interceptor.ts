@@ -22,6 +22,22 @@ interface RequestWithUser {
   ip: string;
 }
 
+/**
+ * RF14 — Log de Auditoria (MEDIUM — NOK: implementação parcial)
+ * Registra automaticamente toda requisição HTTP autenticada: quem acessou,
+ * qual recurso, qual método e de qual IP. Aplicado globalmente via interceptor.
+ *
+ * RN07 — Histórico Imutável de Ocorrências (Append-only)
+ * Logs de auditoria são sempre inseridos (nunca atualizados), garantindo
+ * trilha de rastreabilidade com validade jurídica.
+ *
+ * NRF01 — Conformidade Legal (LGPD)
+ * Rastreia qual gestor/autoridade acessou dados sensíveis das vítimas,
+ * em conformidade com os requisitos de transparência da LGPD.
+ *
+ * Nota: RF14 está como NOK pois ainda não há interface no Dashboard Operacional
+ * para consulta dos logs de auditoria — o backend registra, mas não expõe.
+ */
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   constructor(private auditLogger: AuditLoggerPort) {}
@@ -42,7 +58,7 @@ export class AuditInterceptor implements NestInterceptor {
             ipAddress: ip,
             createdAt: new Date(),
           });
-          // Fire and forget - don't await to avoid blocking response
+          // RN07 — fire and forget: não bloqueia a resposta, mas garante o registro assíncrono.
           void this.auditLogger.log(log);
         }
       }),

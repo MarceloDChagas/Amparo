@@ -1,3 +1,13 @@
+/**
+ * RN04 — Restrição de Acesso e Sigilo
+ * Utilitários de mascaramento usados nos Presenters para garantir que dados
+ * sensíveis (CPF, telefone, e-mail) sejam exibidos de forma anonimizada
+ * para usuários que não possuem Role de Admin no Dashboard Operacional.
+ *
+ * NRF01 — Conformidade Legal (LGPD)
+ * Minimização de exposição de dados pessoais identificáveis em respostas
+ * de API, reduzindo o risco de vazamento mesmo em caso de interceptação.
+ */
 export class MaskingUtils {
   static maskCPF(cpf: string): string {
     if (!cpf) return "";
