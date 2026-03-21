@@ -18,6 +18,19 @@ interface CompleteCheckInRequest {
   finalLongitude?: number;
 }
 
+/**
+ * RF03 — Check-in Inteligente (HIGH)
+ * Confirma a chegada da usuária ao destino e encerra o monitoramento de rota.
+ *
+ * RN03 — Tolerância de Atraso no Check-in
+ * O `CheckInValidationService` compara o horário real de chegada com o
+ * `expectedArrivalTime`. Se o check-in for confirmado fora do prazo
+ * (status LATE), um alerta de emergência é automaticamente disparado.
+ *
+ * RF01 — Botão de Emergência (integração indireta)
+ * Check-in atrasado confirmado manualmente também aciona o fluxo de
+ * `CreateEmergencyAlert`, garantindo que a segurança da usuária seja escalada.
+ */
 @Injectable()
 export class CompleteCheckInUseCase {
   constructor(
@@ -40,6 +53,7 @@ export class CompleteCheckInUseCase {
     const actualArrivalTime = new Date();
     const distanceType = checkIn.distanceType;
 
+    // RN03 — valida se a chegada ocorreu dentro da janela de tolerância.
     const resultStatus = this.checkInValidationService.validateCheckIn(
       checkIn.expectedArrivalTime,
       actualArrivalTime,
@@ -58,6 +72,7 @@ export class CompleteCheckInUseCase {
       completeData,
     );
 
+    // RN03 — se chegou atrasada, escala para alerta de emergência (RF01).
     if (resultStatus === CheckInStatus.LATE) {
       const lat = finalLatitude ?? checkIn.startLatitude ?? 0;
       const lng = finalLongitude ?? checkIn.startLongitude ?? 0;

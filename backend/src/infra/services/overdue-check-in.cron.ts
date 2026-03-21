@@ -5,6 +5,20 @@ import { CheckInStatus } from "@/core/domain/enums/distance-type.enum";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { PrismaService } from "@/infra/database/prisma.service";
 
+/**
+ * RF03 — Check-in Inteligente (HIGH)
+ * Monitora check-ins que ultrapassaram o `expectedArrivalTime` sem confirmação
+ * de chegada. Executa a cada minuto para detectar vencimentos em tempo hábil.
+ *
+ * RN03 — Tolerância de Atraso no Check-in (NOK — parcialmente implementado)
+ * A regra prevê alertas progressivos (in-app +5min → e-mail contato P1 +15min →
+ * contatos P2/P3 +30min → alerta crítico no dashboard +45min). Atualmente o cron
+ * dispara o alerta de emergência diretamente ao detectar o vencimento, sem
+ * os estágios intermediários de "alertas de desperta" para os contatos.
+ *
+ * RF13/RF17 — Gestão e Evolução de Casos
+ * O cron marca o check-in como LATE, alterando seu ciclo de vida no dashboard.
+ */
 @Injectable()
 export class OverdueCheckInCron {
   private readonly logger = new Logger(OverdueCheckInCron.name);
@@ -20,6 +34,7 @@ export class OverdueCheckInCron {
 
     const now = new Date();
 
+    // RN03 — busca check-ins ativos cujo prazo já passou.
     const overdueCheckIns = await this.prisma.checkIn.findMany({
       where: {
         status: "ACTIVE",
@@ -42,6 +57,7 @@ export class OverdueCheckInCron {
 
     for (const checkIn of overdueCheckIns) {
       try {
+        // RF13/RF17 — atualiza o status do check-in para LATE no ciclo de vida.
         await this.prisma.checkIn.update({
           where: { id: checkIn.id },
           data: {
@@ -53,6 +69,8 @@ export class OverdueCheckInCron {
         const lat = checkIn.startLatitude ?? 0;
         const lng = checkIn.startLongitude ?? 0;
 
+        // RN03 / RF01 — escala para alerta de emergência completo (RF01)
+        // por não ter confirmação de chegada dentro do prazo esperado.
         await this.createEmergencyAlert.execute({
           userId: checkIn.userId,
           latitude: lat,

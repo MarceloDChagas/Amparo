@@ -4,6 +4,19 @@ import { Occurrence } from "@/core/domain/entities/occurrence.entity";
 import type { IOccurrenceRepository } from "@/core/domain/repositories/occurrence-repository.interface";
 import { SendEmergencyNotificationUseCase } from "@/core/use-cases/notification/send-emergency-notification.use-case";
 
+/**
+ * RF05 — Banco de Dados Unificado (HIGH)
+ * Registra uma nova ocorrência no prontuário unificado da vítima.
+ * Cada ocorrência é persistida de forma permanente (append-only).
+ *
+ * RN07 — Histórico Imutável de Ocorrências (Append-only)
+ * Ocorrências nunca são deletadas — apenas criadas ou atualizadas de status.
+ * Isso garante validade jurídica do histórico para anexar a inquéritos (RF16).
+ *
+ * RN05 — Duplo Envio de Alertas / RF12 — Comunicação Multicanal
+ * Após persistir, dispara `sendNotifications` de forma assíncrona (fire-and-forget)
+ * para não bloquear a resposta ao usuário, mas garantindo o envio aos contatos.
+ */
 @Injectable()
 export class CreateOccurrenceUseCase {
   private readonly logger = new Logger(CreateOccurrenceUseCase.name);
@@ -18,6 +31,7 @@ export class CreateOccurrenceUseCase {
     const createdOccurrence =
       await this.occurrenceRepository.create(occurrence);
 
+    // RN05 — notificação assíncrona para não impactar latência da criação (NRF05).
     this.sendNotifications(createdOccurrence).catch((error: unknown) => {
       const errorMessage =
         error instanceof Error ? error.message : String(error);

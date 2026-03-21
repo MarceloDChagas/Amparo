@@ -19,6 +19,22 @@ interface CreateEmergencyAlertRequest {
   userId?: string;
 }
 
+/**
+ * RF01 — Botão de Emergência (HIGH)
+ * Criação do alerta de emergência com envio automático de geolocalização
+ * para as forças de segurança e contatos de confiança.
+ *
+ * RN02 — Impossibilidade de Autocancelamento
+ * O alerta é irreversível pelo lado da usuária: não há método de cancel
+ * exposto a ela. O encerramento só pode ser feito pelo operador do Dashboard.
+ *
+ * RN05 — Duplo Envio de Alertas
+ * Além de persistir o alerta, o use case aciona `emergencyAlertNotificationPort`
+ * que despacha notificações para os Contatos de Confiança da vítima (RF12).
+ *
+ * NRF05 — Desempenho de Carga
+ * Operação crítica: deve responder em menos de 200ms no servidor.
+ */
 @Injectable()
 export class CreateEmergencyAlert {
   private readonly logger = new Logger(CreateEmergencyAlert.name);
@@ -40,7 +56,8 @@ export class CreateEmergencyAlert {
 
     await this.emergencyAlertRepository.create(alert);
 
-    // Record CREATED event
+    // RN07 — Histórico Imutável: cada mudança de estado gera um novo registro de evento,
+    // nunca sobrescreve o anterior, garantindo trilha de auditoria com validade jurídica.
     await this.recordAlertEvent.execute({
       alertId: alert.id,
       type: AlertEventType.CREATED,
@@ -59,6 +76,7 @@ export class CreateEmergencyAlert {
       `Emergency Alert created: ${alert.id} at [${alert.latitude}, ${alert.longitude}]`,
     );
 
+    // RN05 — Duplo Envio: notifica contatos de confiança via e-mail com localização (RF12).
     await this.emergencyAlertNotificationPort.notify(alert);
   }
 }

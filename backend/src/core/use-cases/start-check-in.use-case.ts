@@ -20,6 +20,17 @@ interface StartCheckInRequest {
   startLongitude?: number;
 }
 
+/**
+ * RF03 — Check-in Inteligente (HIGH)
+ * Inicia o monitoramento de rota segura para a usuária.
+ * O prazo de chegada (`expectedArrivalTime`) é calculado com base no tipo
+ * de distância escolhido, usando as tolerâncias definidas em `DistanceTolerances`.
+ *
+ * RN03 — Tolerância de Atraso no Check-in
+ * O `expectedArrivalTime` define a janela de tolerância. Se a usuária não
+ * confirmar chegada antes desse prazo, o `OverdueCheckInCron` detecta e
+ * escalona alertas progressivamente (ver overdue-check-in.cron.ts).
+ */
 @Injectable()
 export class StartCheckInUseCase {
   constructor(
@@ -38,6 +49,7 @@ export class StartCheckInUseCase {
       throw new ActiveCheckInAlreadyExistsError();
     }
 
+    // RN03 — calcula o prazo máximo de chegada com base no tipo de distância selecionado.
     // eslint-disable-next-line security/detect-object-injection
     const toleranceMinutes = DistanceTolerances[distanceType];
     const now = new Date();

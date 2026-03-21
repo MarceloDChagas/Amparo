@@ -15,6 +15,22 @@ import {
   RegisterUserInput,
 } from "@/core/use-cases/auth/auth.types";
 
+/**
+ * RF10 — Autenticação e Autorização Segura (HIGH)
+ * Registro de novo usuário com geração de JWT. Senhas são armazenadas
+ * com hash via `PasswordHasherPort` (bcrypt na implementação atual).
+ *
+ * RF05 — Banco de Dados Unificado (HIGH)
+ * Todo perfil criado aqui compõe o cadastro unificado de vítimas.
+ *
+ * RN08 — Unicidade de Cadastro via CPF
+ * O CPF é a chave de identificação principal. O sistema rejeita cadastros
+ * duplicados por e-mail ou CPF para manter integridade do prontuário.
+ *
+ * NRF01 — Conformidade Legal (LGPD)
+ * Dados pessoais (CPF, senha) tratados com sigilo: senha hasheada,
+ * CPF criptografado em repouso via `EncryptionService`.
+ */
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
@@ -32,6 +48,7 @@ export class RegisterUserUseCase {
       throw new UserAlreadyExistsError("email");
     }
 
+    // RN08 — rejeita CPF duplicado para evitar múltiplos perfis para a mesma vítima.
     if (data.cpf) {
       const existingCpf = await this.userRepository.findByCpf(data.cpf);
       if (existingCpf) {
@@ -39,6 +56,7 @@ export class RegisterUserUseCase {
       }
     }
 
+    // NRF01 / RF10 — senha nunca armazenada em texto claro.
     const hashedPassword = await this.passwordHasher.hash(data.password);
 
     const newUser = new User({
