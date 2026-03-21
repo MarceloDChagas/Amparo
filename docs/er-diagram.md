@@ -150,6 +150,7 @@ erDiagram
 
     HeatMapCell {
         string   id PK
+        string   cellKey UK "geohash ou tile index"
         float    latitude UK
         float    longitude UK
         int      intensity "contagem de ocorrencias"
@@ -189,24 +190,24 @@ erDiagram
     EmergencyAlert ||--o{ AlertEvent      : "registra"
 ```
 
-## Indices notaveis
+## Índices notáveis
 
-| Tabela | Indice | Finalidade |
+| Tabela | Índice | Finalidade |
 |---|---|---|
-| `CheckIn` | `[userId, status]` | Check-in ativo por usuario |
+| `CheckIn` | `[userId, status]` | Check-in ativo por usuário |
 | `CheckIn` | `[status, expectedArrivalTime]` | Cron de check-ins vencidos |
-| `CheckIn` | `[userId, createdAt]` | Historico de check-ins |
+| `CheckIn` | `[userId, createdAt]` | Histórico de check-ins |
 | `EmergencyAlert` | `[status, createdAt]` | Listagem do dashboard |
 | `AlertEvent` | `[alertId, createdAt]` | Timeline de eventos |
 | `NotificationLog` | `[alertId, createdAt]` | Logs de entrega por alerta |
-| `Notification` | `[targetId, createdAt]` | Notificacoes por usuario |
-| `Note` | `[userId, createdAt]` | Notas por usuario |
-| `Document` | `[userId, createdAt]` | Documentos por usuario |
-| `HeatMapCell` | `[latitude, longitude]` UK | Uma celula por coordenada |
+| `Notification` | `[targetId, createdAt]` | Notificações por usuário |
+| `Note` | `[userId, createdAt]` | Notas por usuário |
+| `Document` | `[userId, createdAt]` | Documentos por usuário |
+| `HeatMapCell` | `[latitude, longitude]` UK | Uma célula por coordenada |
 | `PatrolRoute` | `[status]`, `[scheduledAt]` | Rotas por estado e agenda |
 
-## Entidades futuras (esbocos — sem use-cases implementados)
+## Entidades futuras (esboços — sem use-cases implementados)
 
-- **`SafeLocation`** — locais seguros da vitima para geofencing (RN06)
-- **`HeatMapCell`** — celulas agregadas do mapa de calor para RF02
+- **`SafeLocation`** — locais seguros da vítima para geofencing (RN06)
+- **`HeatMapCell`** — células agregadas do mapa de calor para RF02
 - **`PatrolRoute`** — rotas de patrulhamento para RF06

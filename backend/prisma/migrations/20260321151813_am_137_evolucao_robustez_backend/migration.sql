@@ -33,12 +33,19 @@ DROP INDEX "NotificationLog_alertId_idx";
 
 -- AlterTable
 ALTER TABLE "Occurrence" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
+ADD COLUMN     "updatedAt" TIMESTAMP(3),
 ALTER COLUMN "aggressorId" DROP NOT NULL;
+
+-- Backfill updatedAt for existing Occurrence rows before enforcing NOT NULL
+UPDATE "Occurrence" SET "updatedAt" = "createdAt";
+
+-- Enforce NOT NULL on updatedAt after backfill
+ALTER TABLE "Occurrence" ALTER COLUMN "updatedAt" SET NOT NULL;
 
 -- CreateTable
 CREATE TABLE "HeatMapCell" (
     "id" TEXT NOT NULL,
+    "cellKey" TEXT NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "intensity" INTEGER NOT NULL DEFAULT 1,
@@ -79,6 +86,9 @@ CREATE TABLE "SafeLocation" (
 
     CONSTRAINT "SafeLocation_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HeatMapCell_cellKey_key" ON "HeatMapCell"("cellKey");
 
 -- CreateIndex
 CREATE INDEX "HeatMapCell_intensity_idx" ON "HeatMapCell"("intensity");
