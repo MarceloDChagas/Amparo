@@ -88,15 +88,17 @@ export function BottomNavigation({
               />
 
               {/* NRF10 — ícone decorativo, label visível carrega o significado */}
-              <Icon
-                size={21}
+              <span
                 aria-hidden={true}
                 style={{
                   color: isActive
                     ? "var(--primary)"
                     : "var(--muted-foreground)",
+                  display: "flex",
                 }}
-              />
+              >
+                <Icon size={21} />
+              </span>
               <span
                 className="text-center text-[10px] leading-tight"
                 style={{

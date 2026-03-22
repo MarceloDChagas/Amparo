@@ -77,7 +77,18 @@ export default function DashboardPage() {
         console.error("Failed to load dashboard data", error);
       }
     }
+
+    async function refreshActivity() {
+      try {
+        setActivities(await auditLogService.getRecent());
+      } catch {
+        // silently ignore — não travar o dashboard por falha de polling
+      }
+    }
+
     loadData();
+    const interval = setInterval(refreshActivity, 15_000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

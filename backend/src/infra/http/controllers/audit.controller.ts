@@ -15,7 +15,8 @@ export class AuditController {
   @Roles(Role.ADMIN)
   async getRecent() {
     return this.prisma.auditLog.findMany({
-      take: 4,
+      where: { action: { not: "GET" } },
+      take: 5,
       orderBy: { createdAt: "desc" },
     });
   }

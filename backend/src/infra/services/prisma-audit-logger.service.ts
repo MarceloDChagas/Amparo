@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { AuditLog } from "@/core/domain/entities/audit-log.entity";
 import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
@@ -6,11 +6,15 @@ import { PrismaService } from "@/infra/database/prisma.service";
 
 @Injectable()
 export class PrismaAuditLoggerService implements AuditLoggerPort {
+  private readonly logger = new Logger(PrismaAuditLoggerService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async log(auditLog: AuditLog): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-    await (this.prisma as any).auditLog.create({
+    this.logger.debug(
+      `Salvando audit log: ${auditLog.action} ${auditLog.resource}`,
+    );
+    await this.prisma.auditLog.create({
       data: {
         userId: auditLog.userId,
         action: auditLog.action,
@@ -20,5 +24,6 @@ export class PrismaAuditLoggerService implements AuditLoggerPort {
         createdAt: auditLog.createdAt,
       },
     });
+    this.logger.debug("Audit log salvo com sucesso.");
   }
 }

@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { ScheduleModule } from "@nestjs/schedule";
 
+import { AuditLoggerPort } from "@/core/domain/ports/audit-logger.port";
 import { AuditInterceptor } from "@/infra/http/interceptors/audit.interceptor";
 import { AggressorModule } from "@/infra/modules/aggressor.module";
 import { AuditModule } from "@/infra/modules/audit.module";
@@ -46,7 +47,9 @@ import { AppService } from "./app.service";
     AppService,
     {
       provide: APP_INTERCEPTOR,
-      useClass: AuditInterceptor,
+      useFactory: (auditLogger: AuditLoggerPort) =>
+        new AuditInterceptor(auditLogger),
+      inject: [AuditLoggerPort],
     },
   ],
 })

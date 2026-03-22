@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { AuditLog } from "@/services/audit-log-service";
 
@@ -6,14 +6,54 @@ interface RecentActivityProps {
   activities?: AuditLog[];
 }
 
-// Dot color por tipo de ação — verde=criação, vermelho=remoção, amber=edição, azul=leitura
-function actionAccent(action: string): string {
+// Cor semântica por tipo de recurso — reflete a gravidade/natureza, não o método HTTP
+function actionAccent(action: string, resource: string): string {
+  const segment = resource.split("/").filter(Boolean)[0] ?? resource;
+
+  const byResource: Record<string, string> = {
+    "emergency-alerts": "#dc2626", // vermelho — urgência máxima
+    occurrences: "#ea580c", // laranja — situação grave
+    aggressors: "#b91c1c", // vermelho escuro — risco
+    "emergency-contacts": "#7c3aed", // violeta — rede de apoio
+    "check-ins": "#0891b2", // ciano — monitoramento
+    users: "#2563eb", // azul — gestão de conta
+    documents: "#64748b", // slate — arquivos
+    notes: "#64748b", // slate — anotações
+    notifications: "#d97706", // âmbar — avisos
+  };
+
+  if (byResource[segment]) return byResource[segment];
+
+  // Fallback por método
   const a = action.toUpperCase();
-  if (a.includes("CREATE") || a.includes("POST")) return "#16a34a";
-  if (a.includes("DELETE")) return "#dc2626";
-  if (a.includes("UPDATE") || a.includes("PUT") || a.includes("PATCH"))
-    return "#d97706";
+  if (a === "DELETE") return "#dc2626";
+  if (a === "PUT" || a === "PATCH") return "#d97706";
   return "var(--primary)";
+}
+
+// Traduz método HTTP + resource para uma frase legível ao usuário
+function describeActivity(action: string, resource: string): string {
+  const method = action.toUpperCase();
+
+  // Extrai o recurso principal do path (ex: /occurrences/123 → ocorrência)
+  const segment = resource.split("/").filter(Boolean)[0] ?? resource;
+  const labels: Record<string, string> = {
+    occurrences: "ocorrência",
+    users: "usuário",
+    aggressors: "agressor",
+    "emergency-alerts": "alerta de emergência",
+    "emergency-contacts": "contato de emergência",
+    "check-ins": "check-in",
+    notes: "anotação",
+    documents: "documento",
+    notifications: "notificação",
+  };
+  const label = labels[segment] ?? segment;
+
+  if (method === "POST") return `Novo(a) ${label} registrado(a)`;
+  if (method === "DELETE") return `${label} removido(a)`;
+  if (method === "PUT" || method === "PATCH") return `${label} atualizado(a)`;
+  return `${method} ${label}`;
 }
 
 function relativeTime(date: string): string {
@@ -29,6 +69,13 @@ function relativeTime(date: string): string {
 export const RecentActivity: React.FC<RecentActivityProps> = ({
   activities = [],
 }) => {
+  // Força re-render a cada 30s para atualizar os tempos relativos
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <div className="p-6 rounded-2xl border border-border h-fit bg-card shadow-sm">
       <div className="text-sm font-semibold uppercase tracking-wider mb-5 text-muted-foreground">
@@ -48,7 +95,7 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
           />
 
           {activities.map((activity, i) => {
-            const accent = actionAccent(activity.action);
+            const accent = actionAccent(activity.action, activity.resource);
             return (
               <li key={activity.id || i} className="flex gap-4 pb-5 last:pb-0">
                 {/* dot colorido */}
@@ -60,10 +107,7 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
 
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate text-foreground">
-                    {activity.action}
-                    <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                      {activity.resource}
-                    </span>
+                    {describeActivity(activity.action, activity.resource)}
                   </p>
                   <p className="text-xs mt-0.5 text-muted-foreground">
                     {relativeTime(activity.createdAt)}
