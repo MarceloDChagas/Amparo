@@ -1,5 +1,5 @@
 /**
- * Navegação inferior do app da vítima.
+ * Navegação inferior do app do usuário.
  *
  * NRF10 — Acessibilidade:
  *   - aria-label na <nav> identifica a região de navegação
@@ -37,10 +37,10 @@ const tabs: Array<{
   icon: React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
 }> = [
   { id: "HOME", label: "Início", icon: House },
-  { id: "REGISTERS", label: "Registros", icon: FileText },
+  { id: "REGISTERS", label: "Documentos", icon: FileText },
   { id: "SUPPORT", label: "Rede de apoio", icon: Users },
   { id: "MESSAGES", label: "Mensagens", icon: MessageCircle },
-  { id: "PROFILE", label: "Perfil e segurança", icon: ShieldCheck },
+  { id: "PROFILE", label: "Perfil", icon: ShieldCheck },
 ];
 
 export function BottomNavigation({

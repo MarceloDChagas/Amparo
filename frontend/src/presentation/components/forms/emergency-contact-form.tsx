@@ -8,13 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -53,10 +47,7 @@ const formSchema = z.object({
     .optional()
     .or(z.literal("")),
   relationship: z.string().min(1, {
-    message: "O parentesco é obrigatório.",
-  }),
-  priority: z.number().int().min(1, {
-    message: "A prioridade deve ser pelo menos 1.",
+    message: "O vínculo é obrigatório.",
   }),
 });
 
@@ -76,7 +67,6 @@ export function EmergencyContactForm() {
       phone: "",
       email: "",
       relationship: "",
-      priority: 1,
     },
   });
 
@@ -92,18 +82,16 @@ export function EmergencyContactForm() {
         phone: values.phone,
         email: values.email || undefined,
         relationship: values.relationship,
-        priority: values.priority,
+        priority: (contacts?.length ?? 0) + 1,
         userId: user?.id ?? "",
       },
       {
         onSuccess: () => {
-          toast.success("Contato de emergência cadastrado com sucesso!");
+          toast.success("Contato adicionado com sucesso!");
           form.reset();
         },
-        onError: (error) => {
-          toast.error(
-            `Erro ao cadastrar contato de emergência: ${error.message}`,
-          );
+        onError: () => {
+          toast.error("Não foi possível adicionar o contato. Tente novamente.");
         },
       },
     );
@@ -111,15 +99,6 @@ export function EmergencyContactForm() {
 
   return (
     <Card className="w-full max-w-none border-0 bg-transparent shadow-none">
-      <CardHeader className="px-0 pt-0">
-        <CardTitle className="text-foreground">
-          Cadastrar Contato de Emergência
-        </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Adicione um contato de confiança que será notificado em caso de
-          emergência.
-        </CardDescription>
-      </CardHeader>
       <CardContent className="px-0 pb-0">
         {isLimitReached && (
           <div
@@ -133,9 +112,8 @@ export function EmergencyContactForm() {
               className="mt-0.5 shrink-0 text-destructive"
             />
             <p className="text-sm text-destructive">
-              <strong>Limite atingido:</strong> Você já alcançou o limite máximo
-              de 3 contatos de confiança. Para adicionar um novo contato, remova
-              um dos contatos existentes.
+              Limite de 3 contatos atingido. Remova um contato para adicionar
+              outro.
             </p>
           </div>
         )}
@@ -173,7 +151,7 @@ export function EmergencyContactForm() {
                   render={({ field }) => (
                     <FormItem className="space-y-2.5">
                       <FormLabel className="text-sm font-semibold text-foreground">
-                        Parentesco / Relação
+                        Vínculo
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -184,7 +162,7 @@ export function EmergencyContactForm() {
                           <SelectTrigger
                             className={`${inputClassName} text-foreground`}
                           >
-                            <SelectValue placeholder="Selecione o parentesco" />
+                            <SelectValue placeholder="Selecione..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -241,36 +219,7 @@ export function EmergencyContactForm() {
                         />
                       </FormControl>
                       <FormDescription className="text-muted-foreground">
-                        O email é usado para notificações de emergência
-                      </FormDescription>
-                      <FormMessage className="text-sm text-destructive" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field: { value, onChange, ...fieldProps } }) => (
-                    <FormItem className="space-y-2.5">
-                      <FormLabel className="text-sm font-semibold text-foreground">
-                        Prioridade
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="1"
-                          placeholder="1"
-                          className={`${inputClassName} text-foreground`}
-                          value={value}
-                          onChange={(e) =>
-                            onChange(parseInt(e.target.value, 10) || 1)
-                          }
-                          {...fieldProps}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-muted-foreground">
-                        Números menores = maior prioridade
+                        Usado para alertas de emergência
                       </FormDescription>
                       <FormMessage className="text-sm text-destructive" />
                     </FormItem>
@@ -289,10 +238,10 @@ export function EmergencyContactForm() {
                 }}
               >
                 {isLimitReached
-                  ? "Limite máximo alcançado"
+                  ? "Limite atingido"
                   : isPending
-                    ? "Cadastrando..."
-                    : "Cadastrar Contato de Emergência"}
+                    ? "Salvando..."
+                    : "Salvar contato"}
               </Button>
             </fieldset>
           </form>

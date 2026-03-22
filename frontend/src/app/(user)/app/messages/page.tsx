@@ -131,11 +131,16 @@ export default function UserMessagesPage() {
                   size={24}
                   className="mx-auto mb-3 text-muted-foreground"
                 />
-                <p className="text-muted-foreground">
+                <p className="text-sm font-medium text-muted-foreground">
                   {activeFilter === "ALL"
-                    ? "Nenhuma mensagem por enquanto."
-                    : "Nenhuma mensagem nesta categoria."}
+                    ? "Nenhuma mensagem ainda"
+                    : "Nenhuma mensagem nesta categoria"}
                 </p>
+                {activeFilter === "ALL" && (
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    Avisos da sua rede de apoio aparecerão aqui.
+                  </p>
+                )}
               </div>
             ) : (
               filtered.map((notification) => {

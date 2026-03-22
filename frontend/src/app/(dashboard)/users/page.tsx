@@ -6,7 +6,7 @@
  * O botão "revelar" expõe o dado completo sob demanda, com feedback visual claro
  * entre estado mascarado (muted + mono) e revelado (semibold + foreground).
  *
- * RF05 — Banco de Dados Unificado: lista todas as vítimas cadastradas.
+ * RF05 — Banco de Dados Unificado: lista todos os usuários cadastrados.
  * RF15 — Direito ao Esquecimento: botão de exclusão disponível para Admin.
  * NRF01 — LGPD: minimização de exposição de dados pessoais identificáveis.
  * NRF10 — Acessibilidade: aria-label dinâmico no botão de revelar CPF.

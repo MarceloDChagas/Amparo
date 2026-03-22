@@ -107,10 +107,16 @@ export function NotificationPanel({
           <div className="px-4 py-8 flex flex-col items-center gap-2">
             <Bell size={28} color={colors.functional.text.tertiary} />
             <p
-              className="text-sm text-center"
+              className="text-sm text-center font-medium"
+              style={{ color: colors.functional.text.secondary }}
+            >
+              Tudo em dia
+            </p>
+            <p
+              className="text-xs text-center"
               style={{ color: colors.functional.text.tertiary }}
             >
-              Nenhuma notificação
+              Novas notificações aparecerão aqui.
             </p>
           </div>
         ) : (

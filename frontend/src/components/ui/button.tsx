@@ -27,7 +27,7 @@ const buttonVariants = cva(
         emergency:
           "bg-emergency text-emergency-foreground hover:bg-emergency/90 focus-visible:ring-emergency/40 active:scale-95",
         /**
-         * NRF09 — Usabilidade Sob Estresse (App da Vítima)
+         * NRF09 — Usabilidade Sob Estresse (App do Usuário)
          * Bordas mais arredondadas e active:scale para feedback tátil imediato.
          */
         "user-primary":

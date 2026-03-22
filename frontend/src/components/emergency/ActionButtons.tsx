@@ -1,5 +1,5 @@
 /**
- * Atalhos de ação rápida do app da vítima.
+ * Atalhos de ação rápida do app do usuário.
  *
  * RF11 — Gestão de Contatos de Emergência: atalho para a rede de apoio.
  * RF09 — Registro de Notas de Segurança: atalho para memória do caso.

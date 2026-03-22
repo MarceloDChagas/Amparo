@@ -93,7 +93,12 @@ export function NotesSection({ userId }: NotesSectionProps) {
         ) : notes.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center">
             <FileText className="h-10 w-10 text-white/20 mb-2" />
-            <p className="text-white/40 text-sm">Nenhuma nota registrada.</p>
+            <p className="text-white/50 text-sm font-medium">
+              Nenhuma nota ainda
+            </p>
+            <p className="text-white/30 text-xs mt-1">
+              Use o campo acima para registrar sua primeira observação.
+            </p>
           </div>
         ) : (
           notes.map((note) => (

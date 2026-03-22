@@ -105,7 +105,7 @@ export default function OccurrencesPage() {
                   <TableRow>
                     <TableHead>Descrição</TableHead>
                     <TableHead>Localização</TableHead>
-                    <TableHead>ID da Vítima</TableHead>
+                    <TableHead>ID do Usuário</TableHead>
                     <TableHead>ID do Agressor</TableHead>
                   </TableRow>
                 </TableHeader>

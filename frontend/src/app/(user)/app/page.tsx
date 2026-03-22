@@ -108,7 +108,7 @@ export default function UserAppPage() {
                     : undefined
                 }
               >
-                Deslocamento
+                Trajeto seguro
               </button>
             </div>
           </motion.div>

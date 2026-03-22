@@ -4,6 +4,7 @@ import { AuditLog } from "@/services/audit-log-service";
 
 interface RecentActivityProps {
   activities?: AuditLog[];
+  userNames?: Record<string, string>;
 }
 
 // Cor semântica por tipo de recurso — reflete a gravidade/natureza, não o método HTTP
@@ -43,7 +44,7 @@ function describeActivity(action: string, resource: string): string {
     aggressors: "agressor",
     "emergency-alerts": "alerta de emergência",
     "emergency-contacts": "contato de emergência",
-    "check-ins": "check-in",
+    "check-ins": "deslocamento",
     notes: "anotação",
     documents: "documento",
     notifications: "notificação",
@@ -68,6 +69,7 @@ function relativeTime(date: string): string {
 
 export const RecentActivity: React.FC<RecentActivityProps> = ({
   activities = [],
+  userNames = {},
 }) => {
   // Força re-render a cada 30s para atualizar os tempos relativos
   const [, setTick] = useState(0);
@@ -84,7 +86,8 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
 
       {activities.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nenhuma atividade registrada.
+          Nenhuma atividade ainda. Ações dos usuários aparecerão aqui em tempo
+          real.
         </p>
       ) : (
         <ol className="relative" aria-label="Histórico de atividades">
@@ -110,6 +113,9 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
                     {describeActivity(activity.action, activity.resource)}
                   </p>
                   <p className="text-xs mt-0.5 text-muted-foreground">
+                    {activity.userId && userNames[activity.userId]
+                      ? `${userNames[activity.userId]} · `
+                      : ""}
                     {relativeTime(activity.createdAt)}
                   </p>
                 </div>

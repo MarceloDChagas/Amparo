@@ -97,7 +97,7 @@ export default function EmergencyAlertDetailsPage() {
               Alerta de Emergência
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Acionamento geolocalizado gerado pela vítima via botão de pânico.
+              Alerta acionado pelo usuário via botão de emergência.
             </p>
           </div>
           <div className="flex items-center gap-3">

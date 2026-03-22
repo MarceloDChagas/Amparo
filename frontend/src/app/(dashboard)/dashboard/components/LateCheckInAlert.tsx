@@ -64,9 +64,8 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
           </h4>
           <p className="text-sm text-muted-foreground">
             {/* RN04 — exibe apenas início do ID (não CPF ou dado completo) */}
-            Usuário ID #{checkIn.user?.id?.substring(0, 8) ||
-              "Desconhecido"}{" "}
-            passou do tempo limite de chegada prevista às {arrivalTime}.
+            Usuário #{checkIn.user?.id?.substring(0, 8) || "?"} não confirmou
+            chegada prevista às {arrivalTime}.
           </p>
         </div>
       </div>
@@ -78,7 +77,7 @@ export const LateCheckInAlert: React.FC<LateCheckInAlertProps> = ({
           backgroundColor: "rgba(216, 191, 122, 0.85)",
           color: "#1c1a14",
         }}
-        aria-label={`Acompanhar check-in em atraso do usuário #${checkIn.user?.id?.substring(0, 8) || "Desconhecido"}`}
+        aria-label={`Acompanhar deslocamento em atraso do usuário #${checkIn.user?.id?.substring(0, 8) || "?"}`}
       >
         Acompanhar
       </Link>

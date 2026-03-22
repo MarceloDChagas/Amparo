@@ -169,8 +169,12 @@ export function DocumentsTab() {
         ) : documents.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center">
             <FileText className="h-10 w-10 text-white/20 mb-2" />
-            <p className="text-white/40 text-sm">
-              Nenhum documento encontrado.
+            <p className="text-white/50 text-sm font-medium">
+              Nenhum documento ainda
+            </p>
+            <p className="text-white/30 text-xs mt-1">
+              Toque em &quot;Adicionar documento&quot; acima para enviar o
+              primeiro.
             </p>
           </div>
         ) : (

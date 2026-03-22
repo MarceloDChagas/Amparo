@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type CardVariant = "default" | "user";
 
 /**
- * `variant="user"` — card translúcido para uso no app da vítima (fundo navy).
+ * `variant="user"` — card translúcido para uso no app do usuário (fundo navy).
  * Usa backdrop-blur para manter legibilidade sobre o background escuro.
  * Ativado junto com data-surface="user" no layout (user).
  *

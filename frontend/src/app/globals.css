@@ -121,7 +121,7 @@
   --touch-target: 2.75rem;
 }
 
-/* Superfície do App da Vítima — índigo escuro + violeta acolhedor */
+/* Superfície do App do Usuário — índigo escuro + violeta acolhedor */
 /* Ativado via data-surface="user" no layout da rota (user) */
 /* --background corresponde a colors.primary[900] = #1a1d3a (índigo profundo, tom roxo) */
 [data-surface="user"] {

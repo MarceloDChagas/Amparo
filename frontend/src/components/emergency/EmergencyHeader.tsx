@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Cabeçalho do app da vítima.
+ * Cabeçalho do app do usuário.
  *
  * NRF09 — Usabilidade Sob Estresse: botão de notificações com min-w/h 44px.
  * NRF10 — Acessibilidade:

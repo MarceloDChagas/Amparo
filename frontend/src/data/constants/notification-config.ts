@@ -11,12 +11,12 @@ export const CATEGORY_CONFIG: Record<
   NotificationCategoryConfig
 > = {
   ALERT: {
-    label: "Alerta de Risco",
+    label: "Alerta",
     color: "#E11D48",
     bg: "rgba(225, 29, 72, 0.12)",
   },
   SUCCESS: {
-    label: "Caso de Sucesso",
+    label: "Sucesso",
     color: "#10B981",
     bg: "rgba(16, 185, 129, 0.12)",
   },

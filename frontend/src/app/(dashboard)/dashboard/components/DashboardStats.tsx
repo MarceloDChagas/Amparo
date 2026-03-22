@@ -38,7 +38,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
       label: "Em Deslocamento",
       value: stats.activeCheckIns,
       icon: MapPin,
-      // teal — mesmo token de identidade da tela de deslocamento no app da vítima
+      // teal — mesmo token de identidade da tela de deslocamento no app do usuário
       accent: "#0d9488",
       // destaque quando há monitoramento ativo — dado operacional vivo
       highlight: stats.activeCheckIns > 0,

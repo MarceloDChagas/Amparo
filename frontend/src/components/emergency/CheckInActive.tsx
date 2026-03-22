@@ -85,7 +85,7 @@ const phaseConfig = {
     pulseColor: "rgba(220, 38, 38, 0.5)",
     textColor: "#ffffff",
     label: "CHEGADA ATRASADA",
-    ariaLabel: "Confirmar chegada — você está atrasada",
+    ariaLabel: "Confirmar chegada — prazo esgotado",
     counterPrefix: "+",
   },
 } as const;
@@ -189,7 +189,7 @@ export function CheckInActive({
           <button
             onClick={onComplete}
             disabled={isPending}
-            aria-label={isPending ? "Finalizando check-in" : config.ariaLabel}
+            aria-label={isPending ? "Finalizando trajeto" : config.ariaLabel}
             className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
             style={{
               backgroundColor: isPending

@@ -36,4 +36,8 @@ export const emergencyContactService = {
   getByUserId: async (userId: string): Promise<EmergencyContact[]> => {
     return apiClient(`/emergency-contacts/user/${userId}`);
   },
+
+  delete: async (id: string): Promise<void> => {
+    return apiClient(`/emergency-contacts/${id}`, { method: "DELETE" });
+  },
 };

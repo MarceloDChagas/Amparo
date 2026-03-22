@@ -55,8 +55,8 @@ export const ProximityAlert: React.FC<ProximityAlertProps> = ({ alert }) => {
           </h4>
           <p className="text-sm text-muted-foreground">
             {alert.address
-              ? `Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} necessita de ajuda na localização: ${alert.address}.`
-              : `Alerta recebido do Usuário ID #${alert.userId?.substring(0, 8) || "Desconhecido"} próximo às coordenadas (${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}).`}
+              ? `Usuário #${alert.userId?.substring(0, 8) || "?"} precisa de ajuda — ${alert.address}`
+              : `Usuário #${alert.userId?.substring(0, 8) || "?"} acionou alerta — coordenadas ${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}`}
           </p>
         </div>
       </div>

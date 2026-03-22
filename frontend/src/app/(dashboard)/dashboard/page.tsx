@@ -39,6 +39,7 @@ export default function DashboardPage() {
     activeCheckIns: 0,
   });
   const [activities, setActivities] = useState<AuditLog[]>([]);
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [activeAlert, setActiveAlert] = useState<EmergencyAlert | null>(null);
   const [activeCheckIns, setActiveCheckIns] = useState<CheckIn[]>([]);
   const [allOccurrences, setAllOccurrences] = useState<Occurrence[]>([]);
@@ -73,6 +74,11 @@ export default function DashboardPage() {
         setActiveAlert(alert);
         setActiveCheckIns(checkIns);
         setAllOccurrences(occurrencesData);
+        setUserNames(
+          Object.fromEntries(
+            users.map((u: { id: string; name: string }) => [u.id, u.name]),
+          ),
+        );
       } catch (error) {
         console.error("Failed to load dashboard data", error);
       }
@@ -108,13 +114,13 @@ export default function DashboardPage() {
 
             <div className="rounded-2xl border border-border p-6 bg-card shadow-sm">
               <h3 className="mb-4 text-lg font-semibold text-foreground">
-                Mapa de Calor de Vítimas
+                Mapa de Ocorrências
               </h3>
               <OccurrencesMap occurrences={allOccurrences} viewMode="heatmap" />
             </div>
           </div>
 
-          <RecentActivity activities={activities} />
+          <RecentActivity activities={activities} userNames={userNames} />
         </div>
       </div>
     </div>

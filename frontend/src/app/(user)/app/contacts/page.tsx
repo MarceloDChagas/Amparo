@@ -10,6 +10,7 @@ import {
 } from "@/components/emergency";
 
 import { ContactsFormSection } from "./components/ContactsFormSection";
+import { ContactsList } from "./components/ContactsList";
 import { ContactsPageBackground } from "./components/ContactsPageBackground";
 import { ContactsPageIntro } from "./components/ContactsPageIntro";
 
@@ -56,6 +57,7 @@ export default function UserContactsPage() {
       <main className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 pb-28 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-245 space-y-6">
           <ContactsPageIntro onBack={() => router.back()} />
+          <ContactsList />
           <ContactsFormSection />
         </div>
       </main>
