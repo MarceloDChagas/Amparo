@@ -12,7 +12,7 @@ import {
 function StatusBadge({ status }: { status: string }) {
   const s = status.toUpperCase();
 
-  if (s === "ACTIVE" || s === "ATIVO") {
+  if (s === "ACTIVE" || s === "ATIVO" || s === "PENDING") {
     return (
       <span
         className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold animate-pulse text-destructive bg-destructive/10"
@@ -74,9 +74,15 @@ function relativeTime(date: string): string {
   });
 }
 
+function isActiveStatus(status: string) {
+  const s = status.toUpperCase();
+  return s === "ACTIVE" || s === "ATIVO" || s === "PENDING";
+}
+
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<EmergencyAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resolving, setResolving] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAlerts = async () => {
@@ -93,20 +99,41 @@ export default function AlertsPage() {
     void loadAlerts();
   }, []);
 
-  const activeCount = alerts.filter(
-    (a) =>
-      a.status.toUpperCase() === "ACTIVE" || a.status.toUpperCase() === "ATIVO",
-  ).length;
+  async function handleResolve(id: string) {
+    setResolving(id);
+    try {
+      const updated = await emergencyAlertService.resolve(id);
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: updated.status } : a)),
+      );
+    } catch (error) {
+      console.error("Falha ao resolver alerta", error);
+    } finally {
+      setResolving(null);
+    }
+  }
+
+  const activeCount = alerts.filter((a) => isActiveStatus(a.status)).length;
   const resolvedCount = alerts.length - activeCount;
 
   return (
     <div className="min-h-screen p-6 md:p-10 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Alertas de Emergência
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Acionamentos gerados pelas vítimas via botão de pânico.
+          </p>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
             {
-              label: "Total de Alertas",
+              label: "Total",
               value: alerts.length,
               accent: "var(--primary)",
               highlight: false,
@@ -149,12 +176,14 @@ export default function AlertsPage() {
         <div className="rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center h-48 text-sm animate-pulse text-muted-foreground">
-              Carregando alertas...
+              Carregando alertas de emergência...
             </div>
           ) : alerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-2 text-muted-foreground">
               <CheckCircle2 size={32} style={{ color: "#16a34a" }} />
-              <p className="text-sm font-medium">Nenhum alerta registrado.</p>
+              <p className="text-sm font-medium">
+                Nenhum alerta de emergência registrado.
+              </p>
             </div>
           ) : (
             <table className="w-full text-sm">
@@ -175,9 +204,8 @@ export default function AlertsPage() {
               </thead>
               <tbody>
                 {alerts.map((alert, i) => {
-                  const isActive =
-                    alert.status.toUpperCase() === "ACTIVE" ||
-                    alert.status.toUpperCase() === "ATIVO";
+                  const active = isActiveStatus(alert.status);
+                  const isResolving = resolving === alert.id;
                   return (
                     <tr
                       key={alert.id}
@@ -187,7 +215,7 @@ export default function AlertsPage() {
                           i < alerts.length - 1
                             ? "1px solid var(--border)"
                             : undefined,
-                        backgroundColor: isActive
+                        backgroundColor: active
                           ? "color-mix(in srgb, var(--destructive) 3%, transparent)"
                           : undefined,
                       }}
@@ -220,19 +248,37 @@ export default function AlertsPage() {
                         {relativeTime(alert.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/alerts/${alert.id}`}
-                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 text-primary-foreground"
-                          style={{
-                            backgroundColor: isActive
-                              ? "var(--destructive)"
-                              : "var(--primary)",
-                          }}
-                          aria-label={`Ver detalhes do alerta #${alert.id.substring(0, 8)}`}
-                        >
-                          <Eye size={12} aria-hidden="true" />
-                          Ver
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/alerts/${alert.id}`}
+                            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 text-primary-foreground"
+                            style={{
+                              backgroundColor: active
+                                ? "var(--destructive)"
+                                : "var(--primary)",
+                            }}
+                            aria-label={`Ver alerta de emergência #${alert.id.substring(0, 8)}`}
+                          >
+                            <Eye size={12} aria-hidden="true" />
+                            Ver
+                          </Link>
+                          {active && (
+                            <button
+                              onClick={() => void handleResolve(alert.id)}
+                              disabled={isResolving}
+                              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{
+                                backgroundColor: "#16a34a18",
+                                color: "#16a34a",
+                                border: "1px solid #16a34a40",
+                              }}
+                              aria-label={`Marcar alerta #${alert.id.substring(0, 8)} como resolvido`}
+                            >
+                              <CheckCircle2 size={12} aria-hidden="true" />
+                              {isResolving ? "Resolvendo…" : "Resolver"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

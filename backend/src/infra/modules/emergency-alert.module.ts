@@ -10,6 +10,7 @@ import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-c
 import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
+import { ResolveEmergencyAlertUseCase } from "@/core/use-cases/resolve-emergency-alert.use-case";
 import { EmailEmergencyAlertNotificationAdapter } from "@/infra/adapters/email-emergency-alert-notification.adapter";
 import { EmergencyAlertTemplateRendererAdapter } from "@/infra/adapters/emergency-alert-template-renderer.adapter";
 import { PrismaService } from "@/infra/database/prisma.service";
@@ -34,6 +35,7 @@ import { UserModule } from "./user.module";
     GetEmergencyAlertByIdUseCase,
     RecordAlertEventUseCase,
     GetAlertHistoryUseCase,
+    ResolveEmergencyAlertUseCase,
     EmailEmergencyAlertNotificationAdapter,
     {
       provide: EmergencyAlertRepository,

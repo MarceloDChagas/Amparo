@@ -22,6 +22,13 @@ export class PrismaEmergencyAlertRepository implements EmergencyAlertRepository 
     });
   }
 
+  async update(alert: EmergencyAlert): Promise<void> {
+    await this.prisma.emergencyAlert.update({
+      where: { id: alert.id },
+      data: { status: alert.status },
+    });
+  }
+
   async findActive(): Promise<EmergencyAlert | null> {
     const alert = await this.prisma.emergencyAlert.findFirst({
       where: { status: "PENDING" },

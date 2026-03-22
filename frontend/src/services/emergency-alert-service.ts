@@ -71,6 +71,15 @@ export const emergencyAlertService = {
     return text ? JSON.parse(text) : null;
   },
 
+  async resolve(id: string): Promise<EmergencyAlert> {
+    const response = await fetch(`${API_URL}/emergency-alerts/${id}/resolve`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`Failed to resolve alert ${id}`);
+    return response.json() as Promise<EmergencyAlert>;
+  },
+
   async getEvents(id: string): Promise<AlertEvent[]> {
     const response = await fetch(`${API_URL}/emergency-alerts/${id}/events`, {
       headers: getAuthHeaders(),

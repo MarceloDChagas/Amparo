@@ -4,7 +4,9 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
+  Request,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
@@ -18,6 +20,7 @@ import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emer
 import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
 import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
+import { ResolveEmergencyAlertUseCase } from "@/core/use-cases/resolve-emergency-alert.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
@@ -32,6 +35,7 @@ export class EmergencyAlertController {
     private getAllEmergencyAlerts: GetAllEmergencyAlertsUseCase,
     private getEmergencyAlertById: GetEmergencyAlertByIdUseCase,
     private getAlertHistory: GetAlertHistoryUseCase,
+    private resolveEmergencyAlert: ResolveEmergencyAlertUseCase,
   ) {}
 
   @Get("active")
@@ -64,6 +68,25 @@ export class EmergencyAlertController {
   @Roles(Role.ADMIN)
   async getEvents(@Param("id") id: string) {
     return this.getAlertHistory.execute({ alertId: id });
+  }
+
+  @Patch(":id/resolve")
+  @Roles(Role.ADMIN)
+  async resolve(
+    @Param("id") id: string,
+    @Request() req: { user?: { email?: string } },
+  ) {
+    try {
+      return await this.resolveEmergencyAlert.execute({
+        alertId: id,
+        resolvedBy: req.user?.email,
+      });
+    } catch (error) {
+      if (error instanceof EmergencyAlertNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @Post()
