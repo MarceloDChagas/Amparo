@@ -190,12 +190,16 @@ model CheckIn {
   status              String    @default("ACTIVE") // ACTIVE | ON_TIME | LATE | CANCELLED
   userId              String
   user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // RN03 — escalonamento progressivo: +5min in-app → +15min email P1 → +30min email P2/P3 → +45min alerta crítico
+  overdueAt           DateTime? // quando o check-in se tornou LATE pela primeira vez
+  escalationStage     Int       @default(0) // 0=nenhum 1=in-app 2=email P1 3=email P2/P3 4=alerta crítico
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  @@index([userId, status])      
+  @@index([userId, status])
   @@index([status, expectedArrivalTime])
-  @@index([userId, createdAt])        
+  @@index([status, escalationStage, overdueAt])
+  @@index([userId, createdAt])
 }
 
 model Note {

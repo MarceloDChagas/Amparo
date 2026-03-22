@@ -17,6 +17,7 @@ import {
   FileText,
   Home,
   LogOut,
+  Navigation,
   ShieldAlert,
   Users,
 } from "lucide-react";
@@ -44,6 +45,12 @@ const routes = [
     label: "Alertas",
     icon: AlertTriangle,
     href: "/alerts",
+    color: iconNeutral,
+  },
+  {
+    label: "Deslocamentos",
+    icon: Navigation,
+    href: "/check-ins",
     color: iconNeutral,
   },
   {

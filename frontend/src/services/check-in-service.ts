@@ -17,11 +17,14 @@ export interface CheckIn {
   finalLongitude?: number;
   distanceType: DistanceType;
   status: string;
+  /** RN03 — campos de escalonamento */
+  overdueAt?: string | null;
+  escalationStage?: number;
   user?: {
     id: string;
     name: string;
-    phone: string;
-    cpf?: string | null;
+    email: string;
+    role?: string;
   };
   userCheckInCount?: number;
 }
@@ -34,59 +37,43 @@ function getAuthHeaders() {
   };
 }
 
+async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, { headers: getAuthHeaders(), ...options });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  return text ? (JSON.parse(text) as T) : (undefined as T);
+}
+
 export const checkInService = {
   async startCheckIn(
     distanceType: DistanceType,
     startLatitude?: number,
     startLongitude?: number,
   ): Promise<CheckIn> {
-    const response = await fetch(`${API_URL}/check-ins/start`, {
+    return fetchJSON<CheckIn>(`${API_URL}/check-ins/start`, {
       method: "POST",
-      headers: getAuthHeaders(),
       body: JSON.stringify({ distanceType, startLatitude, startLongitude }),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to start check-in");
-    }
-
-    const text = await response.text();
-    if (!text) throw new Error("Empty response");
-    return JSON.parse(text);
   },
 
   async completeCheckIn(
     finalLatitude?: number,
     finalLongitude?: number,
   ): Promise<CheckIn> {
-    const response = await fetch(`${API_URL}/check-ins/complete`, {
+    return fetchJSON<CheckIn>(`${API_URL}/check-ins/complete`, {
       method: "POST",
-      headers: getAuthHeaders(),
       body: JSON.stringify({ finalLatitude, finalLongitude }),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to complete check-in");
-    }
-
-    const text = await response.text();
-    if (!text) throw new Error("Empty response");
-    return JSON.parse(text);
   },
 
   async getActiveCheckIn(): Promise<CheckIn | null> {
     try {
-      const response = await fetch(`${API_URL}/check-ins/active`, {
+      const res = await fetch(`${API_URL}/check-ins/active`, {
         headers: getAuthHeaders(),
       });
-
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error("Failed to fetch active check-in");
-      }
-
-      const text = await response.text();
-      return text ? JSON.parse(text) : null;
+      if (!res.ok) return null;
+      const text = await res.text();
+      return text ? (JSON.parse(text) as CheckIn) : null;
     } catch {
       return null;
     }
@@ -94,16 +81,17 @@ export const checkInService = {
 
   async getAllActive(): Promise<CheckIn[]> {
     try {
-      const response = await fetch(`${API_URL}/check-ins/all-active`, {
-        headers: getAuthHeaders(),
-      });
+      return await fetchJSON<CheckIn[]>(`${API_URL}/check-ins/all-active`);
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  },
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch all active check-ins");
-      }
-
-      const text = await response.text();
-      return text ? JSON.parse(text) : [];
+  /** RN03 — lista check-ins LATE com estágio de escalonamento (Admin) */
+  async getAllLate(): Promise<CheckIn[]> {
+    try {
+      return await fetchJSON<CheckIn[]>(`${API_URL}/check-ins/late`);
     } catch (error) {
       console.error(error);
       return [];
@@ -112,20 +100,23 @@ export const checkInService = {
 
   async getById(id: string): Promise<CheckIn | null> {
     try {
-      const response = await fetch(`${API_URL}/check-ins/${id}`, {
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error("Failed to fetch check-in details");
-      }
-
-      const text = await response.text();
-      return text ? JSON.parse(text) : null;
-    } catch (error) {
-      console.error(error);
+      return await fetchJSON<CheckIn>(`${API_URL}/check-ins/${id}`);
+    } catch {
       return null;
     }
+  },
+
+  /** RN03 — Admin encerra manualmente um check-in LATE */
+  async close(id: string): Promise<CheckIn> {
+    return fetchJSON<CheckIn>(`${API_URL}/check-ins/${id}/close`, {
+      method: "PATCH",
+    });
+  },
+
+  /** RN03 — Admin escala manualmente para o próximo estágio */
+  async escalate(id: string): Promise<CheckIn> {
+    return fetchJSON<CheckIn>(`${API_URL}/check-ins/${id}/escalate`, {
+      method: "PATCH",
+    });
   },
 };
