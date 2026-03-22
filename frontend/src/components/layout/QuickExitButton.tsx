@@ -8,7 +8,11 @@ import { useEffect } from "react";
  * Redireciona para página neutra via clique ou ESC.
  * Renderizado inline dentro do EmergencyHeader.
  */
-export function QuickExitButton() {
+interface QuickExitButtonProps {
+  variant?: "dark" | "light";
+}
+
+export function QuickExitButton({ variant = "dark" }: QuickExitButtonProps) {
   const handleQuickExit = () => {
     window.location.replace("https://www.msn.com/pt-br/clima");
   };
@@ -28,17 +32,31 @@ export function QuickExitButton() {
       aria-label="Saída rápida — fecha o app e abre uma página neutra"
       title="Saída rápida (ESC)"
       className="inline-flex items-center gap-1.5 rounded-full px-3 h-9 text-xs font-semibold transition-all hover:brightness-110 active:scale-95"
-      style={{
-        color: "#fecaca",
-        backgroundColor: "rgba(220, 38, 38, 0.18)",
-        border: "1px solid rgba(220, 38, 38, 0.35)",
-      }}
+      style={
+        variant === "light"
+          ? {
+              color: "#dc2626",
+              backgroundColor: "rgba(220, 38, 38, 0.08)",
+              border: "1px solid rgba(220, 38, 38, 0.3)",
+            }
+          : {
+              color: "#fecaca",
+              backgroundColor: "rgba(220, 38, 38, 0.18)",
+              border: "1px solid rgba(220, 38, 38, 0.35)",
+            }
+      }
     >
       <EyeOff size={14} aria-hidden="true" />
       <span>Sair</span>
       <span
-        className="rounded border border-red-400/30 px-1.5 py-px text-[10px] font-medium hidden sm:inline"
-        style={{ color: "#fca5a5" }}
+        className="rounded border px-1.5 py-px text-[10px] font-medium hidden sm:inline"
+        style={{
+          borderColor:
+            variant === "light"
+              ? "rgba(220,38,38,0.25)"
+              : "rgba(248,113,113,0.3)",
+          color: variant === "light" ? "#dc2626" : "#fca5a5",
+        }}
       >
         ESC
       </span>

@@ -1,5 +1,3 @@
-import { Plus } from "lucide-react";
-
 import { EmergencyContactForm } from "@/presentation/components/forms/emergency-contact-form";
 
 export function ContactsFormSection() {
@@ -15,14 +13,9 @@ export function ContactsFormSection() {
         backdropFilter: "blur(12px)",
       }}
     >
-      <div className="mb-5 flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
-          <Plus size={16} className="text-primary" />
-        </div>
-        <h3 className="text-base font-semibold text-foreground">
-          Adicionar contato
-        </h3>
-      </div>
+      <h3 className="mb-5 text-base font-semibold text-foreground">
+        Adicionar contato
+      </h3>
 
       <EmergencyContactForm />
     </div>

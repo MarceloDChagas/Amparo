@@ -51,7 +51,7 @@ export default function UserContactsPage() {
     >
       <ContactsPageBackground />
 
-      <EmergencyHeader />
+      <EmergencyHeader variant="light" />
 
       <main className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 pb-28 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-245 space-y-6">

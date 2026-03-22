@@ -22,9 +22,20 @@ import { useAuth } from "@/presentation/hooks/useAuth";
 
 import { NotificationPanel } from "./NotificationPanel";
 
-export function EmergencyHeader() {
+interface EmergencyHeaderProps {
+  /** "dark" = fundo navy (padrão, home). "light" = fundo claro (páginas secundárias). */
+  variant?: "dark" | "light";
+}
+
+export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const fg = variant === "light" ? "var(--foreground)" : "white";
+  const titleClass = variant === "light" ? "text-foreground" : "text-white";
+  const ringClass =
+    variant === "light"
+      ? "focus-visible:ring-foreground/20"
+      : "focus-visible:ring-white/50";
 
   const { data: unreadData } = useUnreadCount(user?.id);
   const { data: notifications } = useUserNotifications(
@@ -44,20 +55,20 @@ export function EmergencyHeader() {
   return (
     <header className="flex items-center justify-between gap-3 px-4 py-3">
       <h1
-        className="text-white font-bold text-xl tracking-wider"
+        className={`font-bold text-xl tracking-wider ${titleClass}`}
         aria-label="Amparo — Aplicativo de proteção"
       >
         AMPARO
       </h1>
 
       <div className="flex items-center gap-2 ml-auto">
-        <QuickExitButton />
+        <QuickExitButton variant={variant} />
 
         <div className="relative">
           <button
             onClick={open ? () => setOpen(false) : handleOpen}
             // NRF09 — área de toque mínima de 44px
-            className="relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className={`relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 ${ringClass}`}
             // NRF10 — label descreve o estado completo do botão
             aria-label={
               unreadCount > 0
@@ -67,7 +78,7 @@ export function EmergencyHeader() {
             aria-expanded={open}
             aria-haspopup="dialog"
           >
-            <Bell size={24} color="white" aria-hidden="true" />
+            <Bell size={24} color={fg} aria-hidden="true" />
 
             {unreadCount > 0 && (
               // NRF10 — aria-live anuncia novos badges sem roubar o foco

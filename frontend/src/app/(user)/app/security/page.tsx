@@ -52,7 +52,7 @@ export default function UserSecurityPage() {
           "radial-gradient(circle at top left, rgba(36, 75, 122, 0.13), transparent 34%), radial-gradient(circle at 85% 18%, rgba(31, 58, 95, 0.08), transparent 26%), linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%)",
       }}
     >
-      <EmergencyHeader />
+      <EmergencyHeader variant="light" />
 
       <main className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 pb-28 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-245 space-y-6">
