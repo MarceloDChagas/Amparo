@@ -78,10 +78,7 @@ export function NotificationPanel({
 }: NotificationPanelProps) {
   return (
     <div
-      className="absolute right-0 top-10 w-[min(320px,calc(100vw-1.5rem))] rounded-2xl shadow-2xl z-50 overflow-hidden"
-      role="dialog"
-      aria-label="Notificações"
-      aria-modal="false"
+      className="absolute right-0 top-10 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden"
       style={{
         backgroundColor: colors.functional.background.secondary,
         border: `1px solid ${colors.functional.border.light}`,
@@ -107,7 +104,7 @@ export function NotificationPanel({
           <div className="px-4 py-8 flex flex-col items-center gap-2">
             <Bell size={28} color={colors.functional.text.tertiary} />
             <p
-              className="text-sm text-center font-medium"
+              className="text-sm font-medium text-center"
               style={{ color: colors.functional.text.secondary }}
             >
               Tudo em dia

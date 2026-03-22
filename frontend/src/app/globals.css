@@ -9,6 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-source-sans);
   --font-serif: var(--font-source-serif);
+  --font-brand: var(--font-brand);
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -121,10 +122,10 @@
   --touch-target: 2.75rem;
 }
 
-/* Superfície do App do Usuário — índigo escuro + violeta acolhedor */
-/* Ativado via data-surface="user" no layout da rota (user) */
+/* Superfície do App da Vítima — índigo escuro + violeta acolhedor */
+/* Ativado via data-surface="victim" no layout da rota (user) */
 /* --background corresponde a colors.primary[900] = #1a1d3a (índigo profundo, tom roxo) */
-[data-surface="user"] {
+[data-surface="victim"] {
   --background: #1a1d3a;
   --foreground: #f3f5f7;
   --card: rgba(255, 255, 255, 0.07);

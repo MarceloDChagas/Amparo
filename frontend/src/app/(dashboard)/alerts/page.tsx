@@ -1,62 +1,83 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Clock, Eye, MapPin } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  CheckCircle2,
+  Clock,
+  Eye,
+  MapPin,
+  Truck,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
+  AlertStatusType,
   EmergencyAlert,
   emergencyAlertService,
 } from "@/services/emergency-alert-service";
 
-function StatusBadge({ status }: { status: string }) {
-  const s = status.toUpperCase();
+function StatusBadge({ status }: { status: AlertStatusType }) {
+  const s = status.toUpperCase() as AlertStatusType;
 
-  if (s === "ACTIVE" || s === "ATIVO" || s === "PENDING") {
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold animate-pulse text-destructive bg-destructive/10"
-        style={{
-          border:
-            "1px solid color-mix(in srgb, var(--destructive) 25%, transparent)",
-        }}
-        aria-label="Status: Ativo"
-      >
-        <AlertTriangle size={11} aria-hidden="true" />
-        Ativo
-      </span>
-    );
-  }
+  const config: Record<
+    string,
+    {
+      label: string;
+      icon: React.ReactNode;
+      bg: string;
+      color: string;
+      border: string;
+      pulse?: boolean;
+    }
+  > = {
+    PENDING: {
+      label: "Recebido",
+      icon: <Clock size={11} aria-hidden="true" />,
+      bg: "#d9770618",
+      color: "#d97706",
+      border: "#d9770640",
+      pulse: true,
+    },
+    DISPATCHED: {
+      label: "Viatura Despachada",
+      icon: <Truck size={11} aria-hidden="true" />,
+      bg: "#2563eb18",
+      color: "#2563eb",
+      border: "#2563eb40",
+      pulse: true,
+    },
+    COMPLETED: {
+      label: "Concluído",
+      icon: <CheckCircle2 size={11} aria-hidden="true" />,
+      bg: "#16a34a18",
+      color: "#16a34a",
+      border: "#16a34a40",
+    },
+    CANCELLED: {
+      label: "Cancelado",
+      icon: <Ban size={11} aria-hidden="true" />,
+      bg: "var(--muted)",
+      color: "var(--muted-foreground)",
+      border: "var(--border)",
+    },
+  };
 
-  if (s === "RESOLVED" || s === "RESOLVIDO" || s === "CLOSED") {
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-        style={{
-          backgroundColor: "#16a34a18",
-          color: "#16a34a",
-          border: "1px solid #16a34a40",
-        }}
-        aria-label="Status: Resolvido"
-      >
-        <CheckCircle2 size={11} aria-hidden="true" />
-        Resolvido
-      </span>
-    );
-  }
+  const c = config[s] ?? config.PENDING;
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${c.pulse ? "animate-pulse" : ""}`}
       style={{
-        backgroundColor: "#d9770618",
-        color: "#d97706",
-        border: "1px solid #d9770640",
+        backgroundColor: c.bg,
+        color: c.color,
+        border: `1px solid ${c.border}`,
       }}
-      aria-label="Status: Pendente"
+      aria-label={`Status: ${c.label}`}
     >
-      <Clock size={11} aria-hidden="true" />
-      Pendente
+      {c.icon}
+      {c.label}
     </span>
   );
 }
@@ -74,15 +95,9 @@ function relativeTime(date: string): string {
   });
 }
 
-function isActiveStatus(status: string) {
-  const s = status.toUpperCase();
-  return s === "ACTIVE" || s === "ATIVO" || s === "PENDING";
-}
-
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<EmergencyAlert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [resolving, setResolving] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAlerts = async () => {
@@ -99,55 +114,48 @@ export default function AlertsPage() {
     void loadAlerts();
   }, []);
 
-  async function handleResolve(id: string) {
-    setResolving(id);
-    try {
-      const updated = await emergencyAlertService.resolve(id);
-      setAlerts((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: updated.status } : a)),
-      );
-    } catch (error) {
-      console.error("Falha ao resolver alerta", error);
-    } finally {
-      setResolving(null);
-    }
-  }
+  const counts = alerts.reduce(
+    (acc, a) => {
+      const s = a.status.toUpperCase();
+      if (s === "PENDING") acc.pending++;
+      else if (s === "DISPATCHED") acc.dispatched++;
+      else if (s === "COMPLETED") acc.completed++;
+      else if (s === "CANCELLED") acc.cancelled++;
+      return acc;
+    },
+    { pending: 0, dispatched: 0, completed: 0, cancelled: 0 },
+  );
 
-  const activeCount = alerts.filter((a) => isActiveStatus(a.status)).length;
-  const resolvedCount = alerts.length - activeCount;
+  const activeCount = counts.pending + counts.dispatched;
 
   return (
     <div className="min-h-screen p-6 md:p-10 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Alertas de Emergência
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Alertas acionados pelos usuários via botão de emergência.
-          </p>
-        </div>
-
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
-              label: "Total",
-              value: alerts.length,
-              accent: "var(--primary)",
+              label: "Recebidos",
+              value: counts.pending,
+              accent: "#d97706",
+              highlight: counts.pending > 0,
+            },
+            {
+              label: "Em atendimento",
+              value: counts.dispatched,
+              accent: "#2563eb",
+              highlight: counts.dispatched > 0,
+            },
+            {
+              label: "Concluídos",
+              value: counts.completed,
+              accent: "#16a34a",
               highlight: false,
             },
             {
-              label: "Ativos",
-              value: activeCount,
-              accent: "var(--destructive)",
-              highlight: activeCount > 0,
-            },
-            {
-              label: "Resolvidos",
-              value: resolvedCount,
-              accent: "#16a34a",
+              label: "Cancelados",
+              value: counts.cancelled,
+              accent: "var(--muted-foreground)",
               highlight: false,
             },
           ].map((s, i) => (
@@ -163,7 +171,9 @@ export default function AlertsPage() {
             >
               <span
                 className="text-2xl font-extrabold tabular-nums"
-                style={{ color: s.highlight ? s.accent : "var(--foreground)" }}
+                style={{
+                  color: s.highlight ? s.accent : "var(--foreground)",
+                }}
               >
                 {loading ? "—" : s.value}
               </span>
@@ -176,14 +186,12 @@ export default function AlertsPage() {
         <div className="rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center h-48 text-sm animate-pulse text-muted-foreground">
-              Carregando alertas de emergência...
+              Carregando alertas...
             </div>
           ) : alerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-2 text-muted-foreground">
               <CheckCircle2 size={32} style={{ color: "#16a34a" }} />
-              <p className="text-sm font-medium">
-                Nenhum alerta de emergência registrado.
-              </p>
+              <p className="text-sm font-medium">Nenhum alerta registrado.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
@@ -204,8 +212,8 @@ export default function AlertsPage() {
               </thead>
               <tbody>
                 {alerts.map((alert, i) => {
-                  const active = isActiveStatus(alert.status);
-                  const isResolving = resolving === alert.id;
+                  const s = alert.status.toUpperCase();
+                  const isActive = s === "PENDING" || s === "DISPATCHED";
                   return (
                     <tr
                       key={alert.id}
@@ -215,8 +223,10 @@ export default function AlertsPage() {
                           i < alerts.length - 1
                             ? "1px solid var(--border)"
                             : undefined,
-                        backgroundColor: active
-                          ? "color-mix(in srgb, var(--destructive) 3%, transparent)"
+                        backgroundColor: isActive
+                          ? s === "DISPATCHED"
+                            ? "color-mix(in srgb, #2563eb 3%, transparent)"
+                            : "color-mix(in srgb, var(--destructive) 3%, transparent)"
                           : undefined,
                       }}
                     >
@@ -248,37 +258,21 @@ export default function AlertsPage() {
                         {relativeTime(alert.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/alerts/${alert.id}`}
-                            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 text-primary-foreground"
-                            style={{
-                              backgroundColor: active
-                                ? "var(--destructive)"
-                                : "var(--primary)",
-                            }}
-                            aria-label={`Ver alerta de emergência #${alert.id.substring(0, 8)}`}
-                          >
-                            <Eye size={12} aria-hidden="true" />
-                            Ver
-                          </Link>
-                          {active && (
-                            <button
-                              onClick={() => void handleResolve(alert.id)}
-                              disabled={isResolving}
-                              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                              style={{
-                                backgroundColor: "#16a34a18",
-                                color: "#16a34a",
-                                border: "1px solid #16a34a40",
-                              }}
-                              aria-label={`Marcar alerta #${alert.id.substring(0, 8)} como resolvido`}
-                            >
-                              <CheckCircle2 size={12} aria-hidden="true" />
-                              {isResolving ? "Resolvendo…" : "Resolver"}
-                            </button>
-                          )}
-                        </div>
+                        <Link
+                          href={`/alerts/${alert.id}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 text-primary-foreground"
+                          style={{
+                            backgroundColor: isActive
+                              ? s === "DISPATCHED"
+                                ? "#2563eb"
+                                : "var(--destructive)"
+                              : "var(--primary)",
+                          }}
+                          aria-label={`Ver detalhes do alerta #${alert.id.substring(0, 8)}`}
+                        >
+                          <Eye size={12} aria-hidden="true" />
+                          Ver
+                        </Link>
                       </td>
                     </tr>
                   );

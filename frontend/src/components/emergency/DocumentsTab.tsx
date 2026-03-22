@@ -16,7 +16,6 @@ export function DocumentsTab() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadDocuments = useCallback(async () => {
@@ -85,6 +84,8 @@ export function DocumentsTab() {
   }
 
   async function handleDelete(docId: string) {
+    if (!confirm("Tem certeza que deseja remover este documento?")) return;
+
     try {
       await documentService.delete(docId);
       toast.success("Documento removido.");
@@ -92,8 +93,6 @@ export function DocumentsTab() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao remover documento.");
-    } finally {
-      setConfirmDeleteId(null);
     }
   }
 
@@ -113,9 +112,10 @@ export function DocumentsTab() {
       className="flex-1 flex flex-col items-center justify-start w-full max-w-md mx-auto relative px-4 mt-2 mb-20"
     >
       <div className="mb-4 w-full rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
-        <h3 className="text-base font-semibold text-white">Registros</h3>
+        <h3 className="text-base font-semibold text-white">Documentos</h3>
         <p className="mt-1 text-sm leading-relaxed text-white/70">
-          Documentos, comprovantes e evidências do seu caso.
+          Reúna documentos, comprovantes e anotações importantes para manter o
+          histórico do seu acompanhamento sempre acessível.
         </p>
         <Link
           href="/app/notes"
@@ -125,10 +125,19 @@ export function DocumentsTab() {
         </Link>
       </div>
 
-      {/* Upload trigger card */}
+      {/* Upload trigger card — acessível por teclado (NRF10) */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={uploading ? "Enviando arquivo..." : "Adicionar documento"}
         onClick={() => !uploading && fileInputRef.current?.click()}
-        className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-white/15 transition-all active:scale-[0.98]"
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !uploading) {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
+        className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-white/15 transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
       >
         <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
           {uploading ? (
@@ -144,11 +153,6 @@ export function DocumentsTab() {
           <p className="text-white/60 text-sm">
             Envie evidências, laudos, comprovantes ou PDFs relevantes
           </p>
-          {!uploading && (
-            <p className="text-white/40 text-xs mt-1">
-              Imagens e PDFs · máx. 50 MB
-            </p>
-          )}
         </div>
         <input
           type="file"
@@ -173,8 +177,7 @@ export function DocumentsTab() {
               Nenhum documento ainda
             </p>
             <p className="text-white/30 text-xs mt-1">
-              Toque em &quot;Adicionar documento&quot; acima para enviar o
-              primeiro.
+              Use o botão acima para enviar evidências, laudos ou comprovantes.
             </p>
           </div>
         ) : (
@@ -210,35 +213,16 @@ export function DocumentsTab() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => void handleDownload(doc)}
-                    aria-label="Baixar documento"
                     className="p-2 text-white/60 hover:text-white transition-colors"
                   >
                     <Download className="h-4 w-4" />
                   </button>
-                  {confirmDeleteId === doc.id ? (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => void handleDelete(doc.id)}
-                        className="px-2 py-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors"
-                      >
-                        Remover
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(null)}
-                        className="px-2 py-1 text-xs font-medium text-white/40 hover:text-white/70 transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDeleteId(doc.id)}
-                      aria-label="Remover documento"
-                      className="p-2 text-white/40 hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => void handleDelete(doc.id)}
+                    className="p-2 text-white/40 hover:text-red-400 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </motion.div>
             ))}

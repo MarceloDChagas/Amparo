@@ -1,10 +1,10 @@
 /**
  * RF03 — Check-in Inteligente (HIGH)
- * Inicia o monitoramento de rota segura. A usuária seleciona o tempo estimado
+ * Inicia o monitoramento de rota segura. O usuário seleciona o tempo estimado
  * de deslocamento; o backend calcula o `expectedArrivalTime` (RN03).
  *
  * NRF09 — Usabilidade Sob Estresse: botão de 170px, aria-label descritivo.
- * Cores do contexto user (violeta) via CSS vars — não azul institucional.
+ * Cores do contexto victim (violeta) via CSS vars — não azul institucional.
  */
 import { DistanceType } from "@/services/check-in-service";
 

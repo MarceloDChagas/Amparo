@@ -1,13 +1,20 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
 
+export type AlertStatusType =
+  | "PENDING"
+  | "DISPATCHED"
+  | "COMPLETED"
+  | "CANCELLED";
+
 export interface EmergencyAlert {
   id: string;
   latitude: number;
   longitude: number;
   address?: string;
-  status: string;
+  status: AlertStatusType;
   userId?: string;
   createdAt: string;
+  cancellationReason?: string | null;
 }
 
 export interface AlertEvent {
@@ -71,13 +78,20 @@ export const emergencyAlertService = {
     return text ? JSON.parse(text) : null;
   },
 
-  async resolve(id: string): Promise<EmergencyAlert> {
-    const response = await fetch(`${API_URL}/emergency-alerts/${id}/resolve`, {
+  async updateStatus(
+    id: string,
+    data: { status: AlertStatusType; cancellationReason?: string },
+  ): Promise<void> {
+    const response = await fetch(`${API_URL}/emergency-alerts/${id}/status`, {
       method: "PATCH",
       headers: getAuthHeaders(),
+      body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`Failed to resolve alert ${id}`);
-    return response.json() as Promise<EmergencyAlert>;
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(body?.message || "Falha ao atualizar status do alerta.");
+    }
   },
 
   async getEvents(id: string): Promise<AlertEvent[]> {

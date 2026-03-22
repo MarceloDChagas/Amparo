@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import { Nunito, Source_Sans_3, Source_Serif_4 } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/presentation/hooks/useAuth";
@@ -16,6 +16,12 @@ const sourceSans = Source_Sans_3({
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-source-serif",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-brand",
+  weight: ["400", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +61,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${sourceSans.variable} ${sourceSerif.variable} font-sans antialiased`}
+        className={`${sourceSans.variable} ${sourceSerif.variable} ${nunito.variable} font-sans antialiased`}
       >
         <QueryProvider>
           <AuthProvider>

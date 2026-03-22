@@ -20,35 +20,12 @@ export function EmergencyButton() {
   const [isPressing, setIsPressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showPulse, setShowPulse] = useState(false);
+  const [earlyRelease, setEarlyRelease] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const earlyReleaseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { mutate: createAlert, isPending } = useCreateEmergencyAlert();
-  const [alertSent, setAlertSent] = useState(false);
-  const alertSentTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const sendAlert = useCallback(
-    (latitude: number, longitude: number) => {
-      createAlert(
-        { latitude, longitude, userId: user!.id },
-        {
-          onSuccess: () => {
-            setAlertSent(true);
-            if (alertSentTimerRef.current)
-              clearTimeout(alertSentTimerRef.current);
-            alertSentTimerRef.current = setTimeout(
-              () => setAlertSent(false),
-              8000,
-            );
-          },
-          onError: () => {
-            toast.error("Não foi possível enviar o alerta. Tente novamente.");
-          },
-        },
-      );
-    },
-    [createAlert, user],
-  );
 
   const handleEmergency = useCallback(() => {
     if (!user) {
@@ -63,20 +40,22 @@ export function EmergencyButton() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        sendAlert(position.coords.latitude, position.coords.longitude);
+        const { latitude, longitude } = position.coords;
+        createAlert({ latitude, longitude, userId: user.id });
       },
       (error) => {
         console.error("Erro ao obter localização:", error);
         toast.error(
           "Erro ao obter localização. Enviando alerta com localização aproximada.",
         );
-        sendAlert(0, 0);
+        createAlert({ latitude: 0, longitude: 0, userId: user.id });
       },
       { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
     );
-  }, [user, sendAlert]);
+  }, [user, createAlert]);
 
   const handlePressEnd = useCallback(() => {
+    const hadProgress = progress > 0 && progress < 100;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -84,7 +63,18 @@ export function EmergencyButton() {
     setIsPressing(false);
     setProgress(0);
     setShowPulse(false);
-  }, []);
+
+    // Feedback de soltura prematura — mostra "Mantenha pressionado" brevemente
+    if (hadProgress) {
+      setEarlyRelease(true);
+      if (earlyReleaseTimerRef.current)
+        clearTimeout(earlyReleaseTimerRef.current);
+      earlyReleaseTimerRef.current = setTimeout(
+        () => setEarlyRelease(false),
+        2000,
+      );
+    }
+  }, [progress]);
 
   const handlePressStart = useCallback(() => {
     if (isPending) return;
@@ -113,7 +103,8 @@ export function EmergencyButton() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (alertSentTimerRef.current) clearTimeout(alertSentTimerRef.current);
+      if (earlyReleaseTimerRef.current)
+        clearTimeout(earlyReleaseTimerRef.current);
     };
   }, []);
 
@@ -193,19 +184,13 @@ export function EmergencyButton() {
         style={{
           width: "220px",
           height: "220px",
-          backgroundColor: alertSent
-            ? "rgba(22, 163, 74, 0.35)"
-            : isPressing
-              ? "#7f1d1d"
-              : "rgba(88, 28, 135, 0.45)",
+          backgroundColor: isPressing ? "#7f1d1d" : "rgba(88, 28, 135, 0.45)",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(1.05)" : "scale(1)"}`,
-          boxShadow: alertSent
-            ? "0 0 32px rgba(22, 163, 74, 0.25)"
-            : isPressing
-              ? "0 0 40px rgba(220, 38, 38, 0.45)"
-              : "0 0 32px rgba(124, 58, 237, 0.25)",
+          boxShadow: isPressing
+            ? "0 0 40px rgba(220, 38, 38, 0.45)"
+            : "0 0 32px rgba(124, 58, 237, 0.25)",
         }}
       />
 
@@ -216,11 +201,7 @@ export function EmergencyButton() {
         style={{
           width: "175px",
           height: "175px",
-          backgroundColor: alertSent
-            ? "rgba(22, 163, 74, 0.55)"
-            : isPressing
-              ? "#991b1b"
-              : "rgba(109, 40, 217, 0.65)",
+          backgroundColor: isPressing ? "#991b1b" : "rgba(109, 40, 217, 0.65)",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(1.02)" : "scale(1)"}`,
@@ -237,32 +218,26 @@ export function EmergencyButton() {
         style={{
           width: "130px",
           height: "130px",
-          backgroundColor: alertSent
-            ? "#16a34a"
-            : isPending
-              ? "rgba(124, 58, 237, 0.5)"
-              : isPressing
-                ? "var(--emergency)"
-                : "var(--primary)",
+          backgroundColor: isPending
+            ? "rgba(124, 58, 237, 0.5)"
+            : isPressing
+              ? "var(--emergency)"
+              : "var(--primary)",
           top: "50%",
           left: "50%",
           transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
-          boxShadow: alertSent
-            ? "0 0 40px rgba(22, 163, 74, 0.5), 0 8px 28px rgba(22, 163, 74, 0.3)"
-            : isPressing
-              ? "0 0 40px rgba(220, 38, 38, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.15)"
-              : "0 8px 28px rgba(88, 28, 135, 0.5)",
-          cursor: isPending || alertSent ? "not-allowed" : "pointer",
+          boxShadow: isPressing
+            ? "0 0 40px rgba(220, 38, 38, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.15)"
+            : "0 8px 28px rgba(88, 28, 135, 0.5)",
+          cursor: isPending ? "not-allowed" : "pointer",
           opacity: isPending ? 0.7 : 1,
         }}
-        disabled={isPending || alertSent}
+        disabled={isPending}
         // NRF10 — aria-label descreve a ação e o mecanismo de hold (RN01)
         aria-label={
-          alertSent
-            ? "Alerta enviado — seus contatos foram notificados"
-            : isPending
-              ? "Enviando alerta de emergência"
-              : "Botão de emergência — segure por 2 segundos para acionar"
+          isPending
+            ? "Enviando alerta de emergência"
+            : "Botão de emergência — segure por 2 segundos para acionar"
         }
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
@@ -270,28 +245,24 @@ export function EmergencyButton() {
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
       >
-        <span className="text-lg font-bold leading-tight text-center text-white transition-all duration-300">
-          {alertSent
-            ? "ENVIADO"
-            : isPending
-              ? "ENVIANDO..."
-              : isPressing
-                ? "SEGURE..."
+        <span
+          className="text-lg font-bold leading-tight text-center text-white transition-all duration-300"
+          style={{ whiteSpace: "pre-line" }}
+        >
+          {isPending
+            ? "ENVIANDO..."
+            : isPressing
+              ? "SEGURE..."
+              : earlyRelease
+                ? "MANTENHA\nPRESSIONADO"
                 : "EMERGÊNCIA"}
         </span>
-        {alertSent ? (
-          <span className="text-[10px] font-medium mt-1 text-white/80 text-center leading-tight">
-            Contatos notificados
-          </span>
-        ) : isPressing ? (
+        {/* RN01 — contador regressivo reforça o mecanismo de hold de 2s */}
+        {isPressing && (
           <span className="text-xs font-bold mt-1 text-white/90">
             {secondsLeft}s
           </span>
-        ) : !isPending ? (
-          <span className="text-[10px] font-medium mt-1 text-white/50 transition-all duration-300">
-            segure 2s
-          </span>
-        ) : null}
+        )}
       </button>
     </div>
   );

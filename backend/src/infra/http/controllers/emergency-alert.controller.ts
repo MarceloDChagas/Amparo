@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
-  Request,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
@@ -14,17 +15,22 @@ import { AuthGuard } from "@nestjs/passport";
 import { ZodValidationPipe } from "nestjs-zod";
 
 import { Role } from "@/core/domain/enums/role.enum";
-import { EmergencyAlertNotFoundError } from "@/core/errors/emergency-alert.errors";
+import {
+  CancellationReasonRequiredError,
+  EmergencyAlertNotFoundError,
+  InvalidAlertStatusTransitionError,
+} from "@/core/errors/emergency-alert.errors";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { GetActiveEmergencyAlertUseCase } from "@/core/use-cases/get-active-emergency-alert.use-case";
 import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-case";
 import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
-import { ResolveEmergencyAlertUseCase } from "@/core/use-cases/resolve-emergency-alert.use-case";
+import { UpdateAlertStatusUseCase } from "@/core/use-cases/update-alert-status.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
 import { CreateEmergencyAlertDto } from "../schemas/create-emergency-alert.schema";
+import { UpdateAlertStatusDto } from "../schemas/update-alert-status.schema";
 
 @Controller("emergency-alerts")
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -35,7 +41,7 @@ export class EmergencyAlertController {
     private getAllEmergencyAlerts: GetAllEmergencyAlertsUseCase,
     private getEmergencyAlertById: GetEmergencyAlertByIdUseCase,
     private getAlertHistory: GetAlertHistoryUseCase,
-    private resolveEmergencyAlert: ResolveEmergencyAlertUseCase,
+    private updateAlertStatus: UpdateAlertStatusUseCase,
   ) {}
 
   @Get("active")
@@ -70,27 +76,35 @@ export class EmergencyAlertController {
     return this.getAlertHistory.execute({ alertId: id });
   }
 
-  @Patch(":id/resolve")
+  @Patch(":id/status")
   @Roles(Role.ADMIN)
-  async resolve(
+  @UsePipes(ZodValidationPipe)
+  async patchStatus(
     @Param("id") id: string,
-    @Request() req: { user?: { email?: string } },
-  ) {
+    @Body() body: UpdateAlertStatusDto,
+  ): Promise<void> {
     try {
-      return await this.resolveEmergencyAlert.execute({
+      await this.updateAlertStatus.execute({
         alertId: id,
-        resolvedBy: req.user?.email,
+        status: body.status,
+        cancellationReason: body.cancellationReason,
       });
     } catch (error) {
       if (error instanceof EmergencyAlertNotFoundError) {
         throw new NotFoundException(error.message);
+      }
+      if (error instanceof InvalidAlertStatusTransitionError) {
+        throw new ConflictException(error.message);
+      }
+      if (error instanceof CancellationReasonRequiredError) {
+        throw new BadRequestException(error.message);
       }
       throw error;
     }
   }
 
   @Post()
-  @Roles(Role.USER)
+  @Roles(Role.VICTIM)
   @UsePipes(ZodValidationPipe)
   async create(@Body() body: CreateEmergencyAlertDto): Promise<void> {
     await this.createEmergencyAlert.execute({

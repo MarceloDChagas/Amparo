@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Navigation,
-  User,
-} from "lucide-react";
+import { AlertTriangle, Clock, MapPin, Navigation, User } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   AlertEvent,
@@ -18,12 +11,8 @@ import {
   emergencyAlertService,
 } from "@/services/emergency-alert-service";
 
+import { AlertStatusActions } from "./components/AlertStatusActions";
 import { AlertTimeline } from "./components/AlertTimeline";
-
-function isActiveStatus(status: string) {
-  const s = status.toUpperCase();
-  return s === "ACTIVE" || s === "ATIVO" || s === "PENDING";
-}
 
 export default function EmergencyAlertDetailsPage() {
   const router = useRouter();
@@ -32,44 +21,29 @@ export default function EmergencyAlertDetailsPage() {
   const [alertData, setAlertData] = useState<EmergencyAlert | null>(null);
   const [eventsData, setEventsData] = useState<AlertEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [resolving, setResolving] = useState(false);
 
-  useEffect(() => {
-    async function loadAlert() {
-      try {
-        const [data, events] = await Promise.all([
-          emergencyAlertService.getById(alertId),
-          emergencyAlertService.getEvents(alertId),
-        ]);
-        if (!data) {
-          router.push("/dashboard");
-          return;
-        }
-        setAlertData(data);
-        setEventsData(events);
-      } catch (error) {
-        console.error("Failed to load emergency alert data", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAlert();
-  }, [alertId, router]);
-
-  async function handleResolve() {
-    if (!alertData) return;
-    setResolving(true);
+  const loadAlert = useCallback(async () => {
     try {
-      const updated = await emergencyAlertService.resolve(alertData.id);
-      setAlertData({ ...alertData, status: updated.status });
-      const events = await emergencyAlertService.getEvents(alertData.id);
+      const [data, events] = await Promise.all([
+        emergencyAlertService.getById(alertId),
+        emergencyAlertService.getEvents(alertId),
+      ]);
+      if (!data) {
+        router.push("/dashboard");
+        return;
+      }
+      setAlertData(data);
       setEventsData(events);
     } catch (error) {
-      console.error("Falha ao resolver alerta", error);
+      console.error("Failed to load emergency alert data", error);
     } finally {
-      setResolving(false);
+      setLoading(false);
     }
-  }
+  }, [alertId, router]);
+
+  useEffect(() => {
+    loadAlert();
+  }, [loadAlert]);
 
   if (loading) {
     return (
@@ -94,51 +68,31 @@ export default function EmergencyAlertDetailsPage() {
               <span className="rounded-lg p-2 bg-destructive/10 text-destructive">
                 <AlertTriangle size={32} />
               </span>
-              Alerta de Emergência
+              Acionamento de Emergência
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Alerta acionado pelo usuário via botão de emergência.
+              Detalhes de rastreamento do alerta geolocalizado gerado
+              instantaneamente.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {alertData && isActiveStatus(alertData.status) && (
-              <button
-                onClick={() => void handleResolve()}
-                disabled={resolving}
-                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: "#16a34a",
-                  color: "#fff",
-                }}
-              >
-                <CheckCircle2 size={16} aria-hidden="true" />
-                {resolving ? "Resolvendo…" : "Marcar como resolvido"}
-              </button>
-            )}
-            {alertData && !isActiveStatus(alertData.status) && (
-              <span
-                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
-                style={{
-                  backgroundColor: "#16a34a18",
-                  color: "#16a34a",
-                  border: "1px solid #16a34a40",
-                }}
-              >
-                <CheckCircle2 size={16} aria-hidden="true" />
-                Resolvido
-              </span>
-            )}
-            <Link
-              href="/alerts"
-              className="rounded-lg px-5 py-2.5 text-sm font-semibold transition hover:opacity-90 bg-primary text-primary-foreground"
-            >
-              Ver todos os alertas
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="rounded-lg px-6 py-3 text-sm font-semibold transition hover:opacity-90 bg-primary text-primary-foreground"
+          >
+            Voltar ao Dashboard
+          </Link>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
+            {/* Status e ações do ciclo de vida */}
+            <AlertStatusActions
+              alertId={alertData.id}
+              status={alertData.status}
+              cancellationReason={alertData.cancellationReason}
+              onStatusChange={loadAlert}
+            />
+
             <div className="p-6 rounded-2xl border border-border flex flex-col gap-6 bg-card shadow-sm">
               <div>
                 <h3 className="mb-4 border-b border-border pb-4 text-xl font-semibold text-foreground">
@@ -218,28 +172,14 @@ export default function EmergencyAlertDetailsPage() {
                   Mapa Tático
                 </h3>
                 {/* NRF10 — role="status" + aria-live anunciam o badge sem roubar o foco */}
-                {alertData && isActiveStatus(alertData.status) ? (
-                  <span
-                    role="status"
-                    aria-live="polite"
-                    className="animate-pulse rounded-full border px-3 py-1 text-xs font-medium text-destructive bg-destructive/10"
-                    style={{ borderColor: "rgba(166, 60, 60, 0.28)" }}
-                  >
-                    AO VIVO
-                  </span>
-                ) : (
-                  <span
-                    role="status"
-                    className="rounded-full border px-3 py-1 text-xs font-medium"
-                    style={{
-                      color: "#16a34a",
-                      backgroundColor: "#16a34a18",
-                      borderColor: "#16a34a40",
-                    }}
-                  >
-                    ENCERRADO
-                  </span>
-                )}
+                <span
+                  role="status"
+                  aria-live="polite"
+                  className="animate-pulse rounded-full border px-3 py-1 text-xs font-medium text-destructive bg-destructive/10"
+                  style={{ borderColor: "rgba(166, 60, 60, 0.28)" }}
+                >
+                  AO VIVO
+                </span>
               </div>
               <div className="w-full flex-1 bg-secondary">
                 <iframe

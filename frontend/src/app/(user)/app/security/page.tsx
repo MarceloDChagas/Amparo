@@ -52,7 +52,7 @@ export default function UserSecurityPage() {
           "radial-gradient(circle at top left, rgba(36, 75, 122, 0.13), transparent 34%), radial-gradient(circle at 85% 18%, rgba(31, 58, 95, 0.08), transparent 26%), linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%)",
       }}
     >
-      <EmergencyHeader variant="light" />
+      <EmergencyHeader />
 
       <main className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 pb-28 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-245 space-y-6">
@@ -61,7 +61,8 @@ export default function UserSecurityPage() {
               Perfil e segurança
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Dados de acesso e opções de saída segura.
+              Revise seus dados e use recursos de saída e proteção com mais
+              segurança.
             </p>
           </div>
 
@@ -87,7 +88,8 @@ export default function UserSecurityPage() {
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Use o Amparo apenas em dispositivos de sua confiança.
+                  Seu acesso está vinculado ao ambiente protegido do Amparo e só
+                  deve ser usado em dispositivos confiáveis.
                 </p>
               </div>
 
@@ -99,8 +101,8 @@ export default function UserSecurityPage() {
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Avisos e mensagens da sua rede de apoio ficam registrados na
-                  aba Mensagens.
+                  Consulte a aba de mensagens para revisar orientações, alertas
+                  e retornos da sua rede de apoio.
                 </p>
               </div>
             </div>
@@ -116,7 +118,8 @@ export default function UserSecurityPage() {
               </Button>
               <Button
                 type="button"
-                className="h-12 rounded-[14px] bg-destructive text-primary-foreground border-none"
+                variant="outline"
+                className="h-12 rounded-[14px] border-ring text-muted-foreground bg-card"
                 onClick={() => {
                   logout();
                   router.push("/login");

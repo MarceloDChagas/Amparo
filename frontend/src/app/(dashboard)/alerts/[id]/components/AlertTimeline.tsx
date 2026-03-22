@@ -1,6 +1,12 @@
 "use client";
 
-import { Activity, CheckCircle2, Info, Navigation } from "lucide-react";
+import {
+  Activity,
+  ArrowRightCircle,
+  CheckCircle2,
+  Info,
+  Navigation,
+} from "lucide-react";
 
 import { AlertEvent } from "@/services/emergency-alert-service";
 
@@ -25,6 +31,8 @@ export function AlertTimeline({ events }: AlertTimelineProps) {
         return <CheckCircle2 size={16} style={{ color: "var(--chart-2)" }} />;
       case "LOCATION_UPDATE":
         return <Navigation size={16} className="text-primary" />;
+      case "STATUS_CHANGE":
+        return <ArrowRightCircle size={16} className="text-blue-500" />;
       default:
         return <Info size={16} className="text-muted-foreground" />;
     }

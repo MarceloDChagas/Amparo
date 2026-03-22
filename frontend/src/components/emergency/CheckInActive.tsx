@@ -5,7 +5,7 @@
  * Fases do countdown (NRF09 — comunicação clara do estado):
  *   ACTIVE  (> 2min restantes) — verde: no prazo
  *   WARNING (0–2min restantes)  — âmbar: atenção, prazo se esgotando
- *   OVERDUE (passou do prazo)   — vermelho: atrasada, confirmação urgente
+ *   OVERDUE (passou do prazo)   — vermelho: prazo esgotado, confirmação urgente
  *
  * NRF10 — aria-live="polite" anuncia mudanças de estado para leitores de tela.
  */

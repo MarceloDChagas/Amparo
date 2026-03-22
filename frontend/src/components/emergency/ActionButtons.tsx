@@ -2,7 +2,7 @@
  * Atalhos de ação rápida do app do usuário.
  *
  * RF11 — Gestão de Contatos de Emergência: atalho para a rede de apoio.
- * RF09 — Registro de Notas de Segurança: atalho para memória do caso.
+ * RF09 — Registro de Notas de Segurança: atalho para notas pessoais.
  *
  * NRF09 — Usabilidade Sob Estresse: active:scale-95 para feedback tátil imediato.
  * NRF10 — Acessibilidade: cada botão tem ícone + texto visível (nunca só ícone).
@@ -51,7 +51,7 @@ export function ActionButtons() {
               borderColor: "rgba(167, 139, 250, 0.25)",
               backdropFilter: "blur(8px)",
             }}
-            aria-label="Ir para minhas notas — registrar observações e anotações"
+            aria-label="Ir para minhas notas — registrar observações pessoais"
           >
             <div
               aria-hidden="true"
