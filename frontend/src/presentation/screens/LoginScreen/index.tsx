@@ -6,19 +6,21 @@ import { LoginForm } from "@/components/auth/LoginForm";
 export function LoginScreen() {
   return (
     <AuthShell
-      eyebrow="Plataforma integrada de proteção"
+      eyebrow="Proteção e acompanhamento"
       title={
         <>
-          Acesse o Amparo para acompanhar ocorrências, acionar fluxos de
-          resposta e atuar com segurança na rede pública autorizada.
+          Bem-vindo
+          <br />
+          de volta ao Amparo.
         </>
       }
-      description="Use suas credenciais para entrar no ambiente institucional do Amparo e acessar, com segurança, os recursos de monitoramento, acompanhamento e coordenação entre os serviços públicos responsáveis pela proteção das mulheres."
+      description="Acesse sua conta para acompanhar alertas, ocorrências e contatos de emergência registrados."
+      shieldText="Seus dados são protegidos e seu acesso é privado. Nunca compartilhe sua senha."
       formTitle="Entrar"
-      formDescription="Informe seus dados para acessar sua conta e acompanhar atendimentos, ocorrências e casos sob sua responsabilidade."
-      footerPrompt="Ainda não tem acesso?"
+      formDescription="Informe seu e-mail e senha para acessar sua conta."
+      footerPrompt="Ainda não tem conta?"
       footerHref="/register"
-      footerLinkLabel="Solicitar cadastro"
+      footerLinkLabel="Criar conta"
     >
       <LoginForm />
     </AuthShell>

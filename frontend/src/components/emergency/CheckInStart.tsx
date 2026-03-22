@@ -109,9 +109,7 @@ export function CheckInStart({
             onClick={onStart}
             disabled={isPending}
             aria-label={
-              isPending
-                ? "Iniciando monitoramento de deslocamento"
-                : "Iniciar monitoramento de deslocamento seguro"
+              isPending ? "Iniciando trajeto seguro" : "Iniciar trajeto seguro"
             }
             className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
             style={{
@@ -121,7 +119,7 @@ export function CheckInStart({
             }}
           >
             <span className="text-base font-bold leading-tight text-center transition-all duration-300 px-3 text-white">
-              {isPending ? "INICIANDO..." : "MARCAR SAÍDA"}
+              {isPending ? "INICIANDO..." : "INICIAR TRAJETO"}
             </span>
           </button>
         </div>

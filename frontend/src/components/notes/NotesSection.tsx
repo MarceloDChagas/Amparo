@@ -2,12 +2,10 @@
 
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { FileText, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Note, noteService } from "@/services/note-service";
 
 interface NotesSectionProps {
@@ -29,7 +27,7 @@ export function NotesSection({ userId }: NotesSectionProps) {
       const data = await noteService.getByUserId(userId);
       setNotes(data);
     } catch (error) {
-      toast.error("Erro ao carregar as notas deste usuário.");
+      toast.error("Erro ao carregar as notas.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -38,21 +36,17 @@ export function NotesSection({ userId }: NotesSectionProps) {
 
   async function handleAddNote() {
     if (!newNoteContent.trim()) {
-      toast.error("O conteúdo da nota não pode estar vazio.");
+      toast.error("A nota não pode estar vazia.");
       return;
     }
-
     setIsSubmitting(true);
     try {
-      await noteService.create({
-        content: newNoteContent,
-        userId,
-      });
-      toast.success("Nota adicionada com sucesso.");
+      await noteService.create({ content: newNoteContent, userId });
+      toast.success("Nota salva.");
       setNewNoteContent("");
-      loadNotes(); // Refresh the list
+      loadNotes();
     } catch (error) {
-      toast.error("Erro ao adicionar nota.");
+      toast.error("Erro ao salvar nota.");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -60,54 +54,65 @@ export function NotesSection({ userId }: NotesSectionProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Adicionar Nota</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Textarea
-            placeholder="Escreva uma nova nota sobre este usuário..."
-            value={newNoteContent}
-            onChange={(e) => setNewNoteContent(e.target.value)}
-            disabled={isSubmitting}
-            rows={4}
-          />
-          <Button onClick={handleAddNote} disabled={isSubmitting}>
-            {isSubmitting ? "Salvando..." : "Salvar Nota"}
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      {/* Área de nova nota */}
+      <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 space-y-3">
+        <p className="text-sm font-semibold text-white">Nova nota</p>
+        <textarea
+          placeholder="Escreva uma observação, data, nome ou qualquer detalhe importante..."
+          value={newNoteContent}
+          onChange={(e) => setNewNoteContent(e.target.value)}
+          disabled={isSubmitting}
+          rows={4}
+          className="w-full resize-none rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50"
+        />
+        <button
+          onClick={handleAddNote}
+          disabled={isSubmitting || !newNoteContent.trim()}
+          className="flex items-center gap-2 rounded-xl bg-white/15 border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+          {isSubmitting ? "Salvando..." : "Salvar nota"}
+        </button>
+      </div>
 
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Histórico de Notas</h3>
+      {/* Lista de notas */}
+      <div className="space-y-3">
+        <h4 className="px-1 text-sm font-medium text-white/70">
+          Histórico de notas
+        </h4>
+
         {loading ? (
-          <p className="text-muted-foreground">Carregando notas...</p>
-        ) : notes.length === 0 ? (
-          <p className="text-muted-foreground">
-            Nenhuma nota encontrada para este usuário.
-          </p>
-        ) : (
-          <div className="grid gap-4">
-            {notes.map((note) => (
-              <Card key={note.id}>
-                <CardHeader className="py-3">
-                  <div className="text-sm text-muted-foreground">
-                    {format(
-                      new Date(note.createdAt),
-                      "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
-                      {
-                        locale: ptBR,
-                      },
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap">{note.content}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex justify-center p-8">
+            <Loader2 className="h-8 w-8 text-white/40 animate-spin" />
           </div>
+        ) : notes.length === 0 ? (
+          <div className="bg-white/5 border border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+            <FileText className="h-10 w-10 text-white/20 mb-2" />
+            <p className="text-white/40 text-sm">Nenhuma nota registrada.</p>
+          </div>
+        ) : (
+          notes.map((note) => (
+            <div
+              key={note.id}
+              className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 space-y-1"
+            >
+              <p className="text-xs text-white/40">
+                {format(
+                  new Date(note.createdAt),
+                  "dd 'de' MMMM 'de' yyyy 'às' HH:mm",
+                  { locale: ptBR },
+                )}
+              </p>
+              <p className="text-sm text-white/90 whitespace-pre-wrap leading-relaxed">
+                {note.content}
+              </p>
+            </div>
+          ))
         )}
       </div>
     </div>

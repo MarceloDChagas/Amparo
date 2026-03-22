@@ -9,10 +9,8 @@ export function CheckInInstructionalCard() {
       }}
     >
       <p className="text-white/85 text-center text-sm leading-relaxed">
-        Selecione o tempo estimado e marque a sua saída. O sistema acompanhará o
-        seu trajeto de forma invisível. Caso não registre sua chegada dentro da
-        tolerância de tempo prevista, nós avisaremos os seus contatos de
-        emergência e enviaremos a sua última localização conhecida.
+        Informe o tempo estimado e inicie o trajeto. Se você não confirmar a
+        chegada no prazo, seus contatos serão avisados automaticamente.
       </p>
     </div>
   );

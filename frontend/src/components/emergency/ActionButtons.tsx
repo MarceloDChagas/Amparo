@@ -15,7 +15,7 @@ export function ActionButtons() {
     <div className="w-full max-w-md px-4 mb-8">
       {/* Rótulo de seção com hierarquia clara — antes era um label solto sem contexto */}
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
-        Cuidado Contínuo
+        Acesso rápido
       </p>
 
       <div className="grid grid-cols-2 gap-3">
@@ -51,7 +51,7 @@ export function ActionButtons() {
               borderColor: "rgba(167, 139, 250, 0.25)",
               backdropFilter: "blur(8px)",
             }}
-            aria-label="Ir para memória do caso — registrar notas de segurança"
+            aria-label="Ir para minhas notas — registrar observações e anotações"
           >
             <div
               aria-hidden="true"
@@ -61,7 +61,7 @@ export function ActionButtons() {
               <NotebookPen size={22} color="white" />
             </div>
             <span className="font-semibold text-xs text-center leading-tight text-white">
-              Memória do{"\n"}caso
+              Minhas{"\n"}notas
             </span>
           </button>
         </Link>

@@ -1,4 +1,4 @@
-import { ArrowLeft, ShieldCheck, UserRoundCheck } from "lucide-react";
+import { ShieldCheck, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -6,6 +6,7 @@ interface AuthShellProps {
   eyebrow: string;
   title: React.ReactNode;
   description: string;
+  shieldText: string;
   formTitle: string;
   formDescription: string;
   footerPrompt: string;
@@ -18,6 +19,7 @@ export function AuthShell({
   eyebrow,
   title,
   description,
+  shieldText,
   formTitle,
   formDescription,
   footerPrompt,
@@ -70,13 +72,7 @@ export function AuthShell({
 
       <div className="relative mx-auto grid min-h-screen max-w-[1180px] gap-10 px-6 py-8 lg:grid-cols-[minmax(0,0.45fr)_minmax(0,0.55fr)] lg:items-center lg:gap-12 lg:px-8 lg:py-10 xl:gap-16">
         <section className="hidden flex-col justify-center lg:flex lg:min-h-136">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-80 text-accent-foreground"
-          >
-            <ArrowLeft size={16} />
-            Voltar para a página inicial
-          </Link>
+          <div className="h-6" aria-hidden="true" />
 
           <div className="mt-10 max-w-[30rem]">
             <div
@@ -107,8 +103,7 @@ export function AuthShell({
                 style={{ color: "var(--chart-2)" }}
               />
               <p className="text-sm leading-6 text-muted-foreground">
-                Acesso com segurança, continuidade de atendimento e perfis
-                autorizados.
+                {shieldText}
               </p>
             </div>
           </div>

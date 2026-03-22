@@ -115,8 +115,7 @@ export function DocumentsTab() {
       <div className="mb-4 w-full rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
         <h3 className="text-base font-semibold text-white">Registros</h3>
         <p className="mt-1 text-sm leading-relaxed text-white/70">
-          Reúna documentos, comprovantes e anotações importantes para manter o
-          histórico do seu acompanhamento sempre acessível.
+          Documentos, comprovantes e evidências do seu caso.
         </p>
         <Link
           href="/app/notes"

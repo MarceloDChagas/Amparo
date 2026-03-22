@@ -125,7 +125,7 @@ export default function AlertsPage() {
             Alertas de Emergência
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acionamentos gerados pelas vítimas via botão de pânico.
+            Alertas acionados pelos usuários via botão de emergência.
           </p>
         </div>
 

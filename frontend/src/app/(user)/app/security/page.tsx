@@ -61,8 +61,7 @@ export default function UserSecurityPage() {
               Perfil e segurança
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Revise seus dados e use recursos de saída e proteção com mais
-              segurança.
+              Dados de acesso e opções de saída segura.
             </p>
           </div>
 
@@ -88,8 +87,7 @@ export default function UserSecurityPage() {
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Seu acesso está vinculado ao ambiente protegido do Amparo e só
-                  deve ser usado em dispositivos confiáveis.
+                  Use o Amparo apenas em dispositivos de sua confiança.
                 </p>
               </div>
 
@@ -101,8 +99,8 @@ export default function UserSecurityPage() {
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Consulte a aba de mensagens para revisar orientações, alertas
-                  e retornos da sua rede de apoio.
+                  Avisos e mensagens da sua rede de apoio ficam registrados na
+                  aba Mensagens.
                 </p>
               </div>
             </div>

@@ -20,15 +20,9 @@ export function InstructionalCard() {
         >
           <Hand size={16} className="text-white/80" />
         </div>
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/55">
-            Como acionar
-          </p>
-          {/* RN01 — segure 2s para disparar; toque único não aciona (evita acidentes) */}
-          <p className="mt-0.5 text-sm font-medium leading-snug text-white/90">
-            Segure o botão por 2 segundos para enviar o alerta de emergência.
-          </p>
-        </div>
+        <p className="text-sm font-medium leading-snug text-white/90">
+          Segure o botão por 2 segundos para acionar o alerta.
+        </p>
       </div>
     </div>
   );

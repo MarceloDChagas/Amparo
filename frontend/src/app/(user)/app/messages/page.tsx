@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, MessageCircle } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -93,24 +93,7 @@ export default function UserMessagesPage() {
               Mensagens
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Acompanhe avisos, orientações e comunicações importantes da sua
-              rede de proteção.
-            </p>
-          </div>
-
-          <div
-            className="flex items-start gap-3 rounded-4xl border px-4 py-4 shadow-sm"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.9)",
-              borderColor: "rgba(168, 184, 203, 0.65)",
-            }}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-              <MessageCircle size={18} className="text-primary" />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Todas as mensagens desta área ficam registradas para você retomar
-              orientações e comunicados quando precisar.
+              Avisos e comunicações da sua rede de apoio.
             </p>
           </div>
 

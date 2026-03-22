@@ -6,17 +6,18 @@ import { RegisterForm } from "@/components/auth/RegisterForm";
 export function RegisterScreen() {
   return (
     <AuthShell
-      eyebrow="Cadastro para acesso autorizado"
+      eyebrow="Crie sua conta"
       title={
         <>
-          Crie sua conta para atuar com
+          O Amparo está aqui
           <br />
-          continuidade e coordenação.
+          para te apoiar.
         </>
       }
-      description="O cadastro integra profissionais e equipes a uma experiência pública preparada para organizar atendimento, contexto do caso e comunicação entre serviços autorizados."
+      description="Registre contatos de emergência, documente ocorrências e acione alertas quando precisar — tudo em um só lugar, com segurança."
+      shieldText="Suas informações são confidenciais e protegidas. Somente você tem acesso aos seus dados."
       formTitle="Criar conta"
-      formDescription="Preencha os dados abaixo para solicitar acesso ao sistema institucional do Amparo."
+      formDescription="Preencha os dados abaixo para começar."
       footerPrompt="Já tem uma conta?"
       footerHref="/login"
       footerLinkLabel="Entrar"
