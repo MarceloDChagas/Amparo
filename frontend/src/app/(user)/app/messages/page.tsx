@@ -2,7 +2,7 @@
 
 import { Bell, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   BottomNavigation,
@@ -14,7 +14,18 @@ import {
   useMarkAllRead,
   useUserNotifications,
 } from "@/data/hooks/use-notifications";
+import { NotificationCategory } from "@/data/services/notification-service";
 import { useAuth } from "@/presentation/hooks/useAuth";
+
+type FilterValue = NotificationCategory | "ALL";
+
+const FILTERS: { value: FilterValue; label: string }[] = [
+  { value: "ALL", label: "Todas" },
+  { value: "ALERT", label: "Alertas" },
+  { value: "WARNING", label: "Prevenção" },
+  { value: "INFO", label: "Utilidade" },
+  { value: "SUCCESS", label: "Sucesso" },
+];
 
 export default function UserMessagesPage() {
   const router = useRouter();
@@ -23,6 +34,12 @@ export default function UserMessagesPage() {
     user?.id,
   );
   const { mutate: markAllRead } = useMarkAllRead();
+  const [activeFilter, setActiveFilter] = useState<FilterValue>("ALL");
+
+  const filtered =
+    activeFilter === "ALL"
+      ? notifications
+      : notifications.filter((n) => n.category === activeFilter);
 
   useEffect(() => {
     if (user?.id) {
@@ -97,23 +114,48 @@ export default function UserMessagesPage() {
             </p>
           </div>
 
+          {/* Filtros por categoria */}
+          <div
+            className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
+            role="tablist"
+            aria-label="Filtrar mensagens por categoria"
+          >
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                role="tab"
+                aria-selected={activeFilter === f.value}
+                onClick={() => setActiveFilter(f.value)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                  activeFilter === f.value
+                    ? "bg-foreground text-background"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
           <div className="space-y-4">
             {isLoading ? (
               <div className="rounded-[24px] border border-border p-6 text-sm bg-card shadow-sm text-muted-foreground">
                 Carregando mensagens...
               </div>
-            ) : notifications.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <div className="rounded-[24px] border border-border p-8 text-center bg-card shadow-sm">
                 <Bell
                   size={24}
                   className="mx-auto mb-3 text-muted-foreground"
                 />
                 <p className="text-muted-foreground">
-                  Nenhuma mensagem por enquanto.
+                  {activeFilter === "ALL"
+                    ? "Nenhuma mensagem por enquanto."
+                    : "Nenhuma mensagem nesta categoria."}
                 </p>
               </div>
             ) : (
-              notifications.map((notification) => {
+              filtered.map((notification) => {
                 const category =
                   CATEGORY_CONFIG[notification.category ?? "INFO"];
 

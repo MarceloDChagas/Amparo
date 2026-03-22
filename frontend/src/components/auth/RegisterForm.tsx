@@ -39,6 +39,7 @@ export function RegisterForm() {
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const inputClassName =
     "h-13 rounded-[14px] border border-[#b9c8d8] bg-[#f8fbff] px-4 text-[15px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] placeholder:text-slate-500 focus-visible:border-[#244b7a] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.14)]";
 
@@ -134,6 +135,9 @@ export function RegisterForm() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
                     className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors hover:text-[#244b7a]"
                     style={{ color: "#5b6b7f" }}
                   >
@@ -156,18 +160,27 @@ export function RegisterForm() {
               <FormControl>
                 <div className="relative">
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Repita a senha"
                     className={`${inputClassName} pr-12 text-foreground`}
                     {...field}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Ocultar confirmação de senha"
+                        : "Mostrar confirmação de senha"
+                    }
                     className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors hover:text-[#244b7a]"
                     style={{ color: "#5b6b7f" }}
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
                   </button>
                 </div>
               </FormControl>

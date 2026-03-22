@@ -71,10 +71,16 @@ export default function UserAppPage() {
             exit={{ opacity: 0, y: -10 }}
             className="mt-4 px-4 flex justify-center w-full z-10"
           >
-            <div className="bg-white/10 p-1 rounded-xl flex w-full max-w-xs ring-1 ring-white/20">
+            <div
+              role="tablist"
+              aria-label="Modo de uso"
+              className="bg-white/10 p-1 rounded-xl flex w-full max-w-xs ring-1 ring-white/20"
+            >
               <button
+                role="tab"
+                aria-selected={activeSecondaryTab === "EMERGENCY"}
                 onClick={() => setActiveSecondaryTab("EMERGENCY")}
-                className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
+                className={`flex-1 py-3 text-sm font-medium rounded-lg transition-all ${
                   activeSecondaryTab === "EMERGENCY"
                     ? "bg-white shadow-sm"
                     : "text-white/80 hover:text-white"
@@ -88,8 +94,10 @@ export default function UserAppPage() {
                 Emergência
               </button>
               <button
+                role="tab"
+                aria-selected={activeSecondaryTab === "CHECKIN"}
                 onClick={() => setActiveSecondaryTab("CHECKIN")}
-                className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
+                className={`flex-1 py-3 text-sm font-medium rounded-lg transition-all ${
                   activeSecondaryTab === "CHECKIN"
                     ? "bg-white shadow-sm"
                     : "text-white/80 hover:text-white"

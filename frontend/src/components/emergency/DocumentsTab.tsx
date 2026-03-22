@@ -16,6 +16,7 @@ export function DocumentsTab() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadDocuments = useCallback(async () => {
@@ -84,8 +85,6 @@ export function DocumentsTab() {
   }
 
   async function handleDelete(docId: string) {
-    if (!confirm("Tem certeza que deseja remover este documento?")) return;
-
     try {
       await documentService.delete(docId);
       toast.success("Documento removido.");
@@ -93,6 +92,8 @@ export function DocumentsTab() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao remover documento.");
+    } finally {
+      setConfirmDeleteId(null);
     }
   }
 
@@ -144,6 +145,11 @@ export function DocumentsTab() {
           <p className="text-white/60 text-sm">
             Envie evidências, laudos, comprovantes ou PDFs relevantes
           </p>
+          {!uploading && (
+            <p className="text-white/40 text-xs mt-1">
+              Imagens e PDFs · máx. 50 MB
+            </p>
+          )}
         </div>
         <input
           type="file"
@@ -201,16 +207,35 @@ export function DocumentsTab() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => void handleDownload(doc)}
+                    aria-label="Baixar documento"
                     className="p-2 text-white/60 hover:text-white transition-colors"
                   >
                     <Download className="h-4 w-4" />
                   </button>
-                  <button
-                    onClick={() => void handleDelete(doc.id)}
-                    className="p-2 text-white/40 hover:text-red-400 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {confirmDeleteId === doc.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => void handleDelete(doc.id)}
+                        className="px-2 py-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        Remover
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="px-2 py-1 text-xs font-medium text-white/40 hover:text-white/70 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(doc.id)}
+                      aria-label="Remover documento"
+                      className="p-2 text-white/40 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}

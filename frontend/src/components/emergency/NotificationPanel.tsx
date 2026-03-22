@@ -78,7 +78,10 @@ export function NotificationPanel({
 }: NotificationPanelProps) {
   return (
     <div
-      className="absolute right-0 top-10 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden"
+      className="absolute right-0 top-10 w-[min(320px,calc(100vw-1.5rem))] rounded-2xl shadow-2xl z-50 overflow-hidden"
+      role="dialog"
+      aria-label="Notificações"
+      aria-modal="false"
       style={{
         backgroundColor: colors.functional.background.secondary,
         border: `1px solid ${colors.functional.border.light}`,
