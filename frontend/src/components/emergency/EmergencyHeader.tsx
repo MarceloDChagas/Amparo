@@ -76,7 +76,7 @@ export function EmergencyHeader() {
                 aria-atomic="true"
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
-                  // var(--primary) no contexto victim = violeta (não vermelho — reservado RF01)
+                  // var(--primary) no contexto user = violeta (não vermelho — reservado RF01)
                   backgroundColor: "var(--primary)",
                   color: "white",
                 }}

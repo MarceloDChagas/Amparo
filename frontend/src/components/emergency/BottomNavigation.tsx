@@ -8,7 +8,7 @@
  *
  * NRF09 — Usabilidade Sob Estresse:
  *   - Área de toque mínima: py-2 + ícone + texto ≈ 56px por tab
- *   - Tokens do contexto victim (violeta) em vez de azul institucional
+ *   - Tokens do contexto user (violeta) em vez de azul institucional
  */
 import {
   FileText,

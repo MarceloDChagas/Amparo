@@ -37,7 +37,7 @@ export class EmergencyContactController {
   ) {}
 
   @Post()
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   @UsePipes(ZodValidationPipe)
   async create(@Body() createEmergencyContactDto: CreateEmergencyContactDto) {
     try {
@@ -57,14 +57,14 @@ export class EmergencyContactController {
   }
 
   @Get()
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   async findAll() {
     const contacts = await this.getEmergencyContactUseCase.executeFindAll();
     return contacts.map((contact) => EmergencyContactPresenter.toHTTP(contact));
   }
 
   @Get("user/:userId")
-  @Roles(Role.VICTIM, Role.ADMIN)
+  @Roles(Role.USER, Role.ADMIN)
   async findByUser(@Param("userId") userId: string) {
     const contacts =
       await this.getEmergencyContactUseCase.executeFindByUserId(userId);
@@ -72,7 +72,7 @@ export class EmergencyContactController {
   }
 
   @Get(":id")
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   async findOne(@Param("id") id: string) {
     const contact = await this.getEmergencyContactUseCase.execute(id);
     if (!contact) return null;
@@ -80,7 +80,7 @@ export class EmergencyContactController {
   }
 
   @Put(":id")
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   @UsePipes(ZodValidationPipe)
   async update(
     @Param("id") id: string,
@@ -94,7 +94,7 @@ export class EmergencyContactController {
   }
 
   @Delete(":id")
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   async remove(@Param("id") id: string): Promise<void> {
     return this.deleteEmergencyContactUseCase.execute(id);
   }

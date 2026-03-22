@@ -17,7 +17,7 @@ export default function UserLayout({
     if (!isLoading) {
       if (!user) {
         router.push("/login");
-      } else if (user.role !== "VICTIM") {
+      } else if (user.role !== "USER") {
         router.push("/dashboard");
       }
     }
@@ -25,22 +25,22 @@ export default function UserLayout({
 
   if (isLoading) {
     return (
-      // data-surface="victim" ativa o contexto de tema da vítima (globals.css)
+      // data-surface="user" ativa o contexto de tema do usuário comum (globals.css)
       <div
         className="flex h-screen items-center justify-center bg-background"
-        data-surface="victim"
+        data-surface="user"
       >
         <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
 
-  if (!user || user.role !== "VICTIM") {
+  if (!user || user.role !== "USER") {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-background" data-surface="victim">
+    <div className="min-h-screen bg-background" data-surface="user">
       {children}
     </div>
   );

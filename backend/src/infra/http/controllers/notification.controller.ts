@@ -53,14 +53,14 @@ export class NotificationController {
 
   /** GET /notifications/user/:userId — Victim or Admin: get notifications for user */
   @Get("user/:userId")
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   async findForUser(@Param("userId") userId: string) {
     return this.getUserNotificationsUseCase.execute(userId);
   }
 
   /** GET /notifications/user/:userId/unread-count — unread count */
   @Get("user/:userId/unread-count")
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   async countUnread(@Param("userId") userId: string) {
     const count = await this.getUserNotificationsUseCase.countUnread(userId);
     return { count };
@@ -68,7 +68,7 @@ export class NotificationController {
 
   /** PATCH /notifications/user/:userId/read-all — mark all read for user */
   @Patch("user/:userId/read-all")
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   async markAllRead(@Param("userId") userId: string) {
     await this.getUserNotificationsUseCase.markAllRead(userId);
     return { success: true };

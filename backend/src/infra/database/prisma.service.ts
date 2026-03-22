@@ -31,15 +31,14 @@ export class PrismaService
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       keepAlive: true,
-      keepAliveInitialDelayMillis: 0,
-      // Connections idle longer than 25 s are closed proactively, preventing
-      // WSL2/Docker from dropping them server-side first.
-      idleTimeoutMillis: 25_000,
-      // WSL2 can take a long time to establish a new connection when the
-      // networking layer is waking up — use 0 (no hard limit) and rely on
-      // the OS-level timeout instead.
-      connectionTimeoutMillis: 0,
-      max: 10,
+      keepAliveInitialDelayMillis: 1_000,
+      // KEY FIX: destroy idle connections after 5 s — well below the ~15 s
+      // threshold at which WSL2/Docker port-forwarding silently drops them.
+      // A fresh connection to Docker on localhost takes ~1–3 ms, so the cost
+      // is negligible compared to serving a P1017 error.
+      idleTimeoutMillis: 5_000,
+      connectionTimeoutMillis: 5_000,
+      max: 5,
     });
 
     pool.on("error", (err) => {
@@ -66,7 +65,9 @@ export class PrismaService
     // idle connections before the next ping resets the timer.
     // If a ping fails, ping() reconnects immediately so the pool is healthy
     // again before the next HTTP request arrives.
-    this.keepaliveTimer = setInterval(() => void this.ping(), 5_000);
+    // Ping every 4 s — just under idleTimeoutMillis (5 s) so at least one
+    // connection stays warm and WSL2/Docker never has an idle socket to kill.
+    this.keepaliveTimer = setInterval(() => void this.ping(), 4_000);
   }
 
   private async warmUp(attempts = 5, delayMs = 2_000): Promise<void> {

@@ -46,7 +46,7 @@ export class NotesController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ZodValidationPipe)
   async create(
@@ -57,7 +57,7 @@ export class NotesController {
     const authenticatedUser = request.user;
 
     if (
-      authenticatedUser.role === Role.VICTIM &&
+      authenticatedUser.role === Role.USER &&
       authenticatedUser.id !== userId
     ) {
       throw new ForbiddenException(
@@ -86,7 +86,7 @@ export class NotesController {
   }
 
   @Get("user/:userId")
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   async getByUser(
     @Param("userId") userId: string,
     @Request() request: AuthenticatedRequest,
@@ -94,7 +94,7 @@ export class NotesController {
     const authenticatedUser = request.user;
 
     if (
-      authenticatedUser.role === Role.VICTIM &&
+      authenticatedUser.role === Role.USER &&
       authenticatedUser.id !== userId
     ) {
       throw new ForbiddenException(

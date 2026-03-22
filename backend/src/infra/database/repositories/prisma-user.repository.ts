@@ -10,7 +10,7 @@ type PrismaUserCreateInput = {
   email: string;
   password: string;
   name: string;
-  role: "USER" | "VICTIM" | "ADMIN";
+  role: "USER" | "ADMIN";
   cpf?: string;
   cpfHash?: string;
 };
@@ -42,7 +42,7 @@ export class PrismaUserRepository implements UserRepository {
       email: user.email,
       password: user.password!,
       name: user.name,
-      role: user.role as "USER" | "VICTIM" | "ADMIN",
+      role: user.role as "USER" | "ADMIN",
     };
 
     if (user.cpf) {
@@ -86,7 +86,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async findByRole(role: string): Promise<User[]> {
     const users = await this.prisma.user.findMany({
-      where: { role: role as "USER" | "VICTIM" | "ADMIN" },
+      where: { role: role as "USER" | "ADMIN" },
     });
     return users.map((user) => this.mapToEntity(user));
   }
@@ -97,7 +97,7 @@ export class PrismaUserRepository implements UserRepository {
     if (user.email !== undefined) updateData.email = user.email;
     if (user.password !== undefined) updateData.password = user.password;
     if (user.role !== undefined)
-      updateData.role = user.role as "USER" | "VICTIM" | "ADMIN";
+      updateData.role = user.role as "USER" | "ADMIN";
     if (user.cpf) {
       updateData.cpf = this.encryptionService.encrypt(user.cpf);
       updateData.cpfHash = this.encryptionService.hash(user.cpf);

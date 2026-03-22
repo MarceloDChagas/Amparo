@@ -137,7 +137,6 @@ model User {
 enum Role {
   USER
   ADMIN
-  VICTIM
 }
 
 model AuditLog {
@@ -166,7 +165,7 @@ model Notification {
   title     String
   body      String
   category  NotificationCategory @default(INFO)
-  targetId  String? // null = broadcast to all VICTIM users
+  targetId  String? // null = broadcast to all users
   target    User?                @relation(fields: [targetId], references: [id], onDelete: Cascade)
   read      Boolean              @default(false)
   createdAt DateTime             @default(now())

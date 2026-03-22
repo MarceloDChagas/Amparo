@@ -53,7 +53,7 @@ export class UserController {
 
   @Get(":id")
   @UseGuards(AuthGuard("jwt"), RolesGuard)
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   async findOne(@Param("id") id: string) {
     const user = await this.getUserUseCase.execute(id);
     if (!user) return null;
@@ -62,7 +62,7 @@ export class UserController {
 
   @Put(":id")
   @UseGuards(AuthGuard("jwt"), RolesGuard)
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   @UsePipes(ZodValidationPipe)
   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     const updatedUser = await this.updateUserUseCase.execute(id, updateUserDto);

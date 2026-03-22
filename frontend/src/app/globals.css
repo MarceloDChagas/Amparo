@@ -122,9 +122,9 @@
 }
 
 /* Superfície do App da Vítima — índigo escuro + violeta acolhedor */
-/* Ativado via data-surface="victim" no layout da rota (user) */
+/* Ativado via data-surface="user" no layout da rota (user) */
 /* --background corresponde a colors.primary[900] = #1a1d3a (índigo profundo, tom roxo) */
-[data-surface="victim"] {
+[data-surface="user"] {
   --background: #1a1d3a;
   --foreground: #f3f5f7;
   --card: rgba(255, 255, 255, 0.07);

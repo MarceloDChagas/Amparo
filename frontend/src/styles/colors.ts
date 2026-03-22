@@ -161,7 +161,7 @@ export type AccentColor = keyof typeof colors.accent;
  * Equivale a: style={{ backgroundColor: "var(--emergency)" }}
  *
  * RF01/RN01 — tokens.emergency é VERMELHO reservado para emergência.
- * RN04 — tokens.primary no contexto victim = violeta (não azul institucional).
+ * RN04 — tokens.primary no contexto user = violeta (não azul institucional).
  */
 export const tokens = {
   /* Ações principais — muda conforme data-surface (azul no dashboard, violeta no app) */

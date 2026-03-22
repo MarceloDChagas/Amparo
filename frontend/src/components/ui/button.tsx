@@ -30,7 +30,7 @@ const buttonVariants = cva(
          * NRF09 — Usabilidade Sob Estresse (App da Vítima)
          * Bordas mais arredondadas e active:scale para feedback tátil imediato.
          */
-        "victim-primary":
+        "user-primary":
           "bg-primary text-primary-foreground rounded-2xl shadow-lg hover:bg-primary/90 active:scale-95",
       },
       size: {

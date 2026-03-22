@@ -21,7 +21,7 @@ import {
  * com hash via `PasswordHasherPort` (bcrypt na implementação atual).
  *
  * RF05 — Banco de Dados Unificado (HIGH)
- * Todo perfil criado aqui compõe o cadastro unificado de vítimas.
+ * Todo perfil criado aqui compõe o cadastro unificado de usuários.
  *
  * RN08 — Unicidade de Cadastro via CPF
  * O CPF é a chave de identificação principal. O sistema rejeita cadastros
@@ -48,7 +48,7 @@ export class RegisterUserUseCase {
       throw new UserAlreadyExistsError("email");
     }
 
-    // RN08 — rejeita CPF duplicado para evitar múltiplos perfis para a mesma vítima.
+    // RN08 — rejeita CPF duplicado para evitar múltiplos perfis para o mesmo usuário.
     if (data.cpf) {
       const existingCpf = await this.userRepository.findByCpf(data.cpf);
       if (existingCpf) {
@@ -63,7 +63,7 @@ export class RegisterUserUseCase {
       email: data.email,
       password: hashedPassword,
       name: data.name,
-      role: "VICTIM",
+      role: "USER",
       cpf: data.cpf,
     } as Partial<User>);
 

@@ -98,12 +98,12 @@ async function main() {
   for (const v of victimData) {
     const victim = await prisma.user.upsert({
       where: { email: v.email },
-      update: { name: v.name, role: Role.VICTIM },
+      update: { name: v.name, role: Role.USER },
       create: {
         email: v.email,
         name: v.name,
         password: bcrypt.hashSync("victim123", 10),
-        role: Role.VICTIM,
+        role: Role.USER,
         cpf: encrypt(v.cpf),
         cpfHash: hashValue(v.raw),
       },

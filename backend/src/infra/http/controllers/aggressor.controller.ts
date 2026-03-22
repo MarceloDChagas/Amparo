@@ -36,7 +36,7 @@ export class AggressorController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.VICTIM)
+  @Roles(Role.ADMIN, Role.USER)
   @UsePipes(ZodValidationPipe)
   async create(@Body() createAggressorDto: CreateAggressorDto) {
     const aggressor = new Aggressor(createAggressorDto as Aggressor);

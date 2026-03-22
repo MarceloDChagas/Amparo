@@ -16,6 +16,6 @@ export class GetUserUseCase {
   }
 
   async executeFindAll(): Promise<User[]> {
-    return this.userRepository.findByRole("VICTIM");
+    return this.userRepository.findByRole("USER");
   }
 }

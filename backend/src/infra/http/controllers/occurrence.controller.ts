@@ -27,7 +27,7 @@ export class OccurrenceController {
   ) {}
 
   @Post()
-  @Roles(Role.VICTIM, Role.ADMIN)
+  @Roles(Role.USER, Role.ADMIN)
   @UsePipes(ZodValidationPipe)
   async create(
     @Body() createOccurrenceDto: CreateOccurrenceDto,

@@ -49,7 +49,7 @@ export function LoginForm() {
       const user = await login(values);
       toast.success("Login realizado com sucesso!");
 
-      if (user.role === "VICTIM") {
+      if (user.role === "USER") {
         router.push("/app");
       } else {
         router.push("/dashboard");
