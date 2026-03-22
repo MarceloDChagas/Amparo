@@ -75,8 +75,11 @@ export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Serviço público de proteção
             </span>
-            <span className="text-base font-semibold text-foreground">
-              Amparo
+            <span
+              className="text-base font-semibold text-foreground"
+              style={{ fontFamily: "var(--font-brand)" }}
+            >
+              amparo
             </span>
           </div>
         </div>

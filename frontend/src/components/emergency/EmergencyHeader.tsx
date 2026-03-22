@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Cabeçalho do app do usuário.
+ * Cabeçalho do app da vítima.
  *
  * NRF09 — Usabilidade Sob Estresse: botão de notificações com min-w/h 44px.
  * NRF10 — Acessibilidade:
@@ -22,20 +22,9 @@ import { useAuth } from "@/presentation/hooks/useAuth";
 
 import { NotificationPanel } from "./NotificationPanel";
 
-interface EmergencyHeaderProps {
-  /** "dark" = fundo navy (padrão, home). "light" = fundo claro (páginas secundárias). */
-  variant?: "dark" | "light";
-}
-
-export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
+export function EmergencyHeader() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const fg = variant === "light" ? "var(--foreground)" : "white";
-  const titleClass = variant === "light" ? "text-foreground" : "text-white";
-  const ringClass =
-    variant === "light"
-      ? "focus-visible:ring-foreground/20"
-      : "focus-visible:ring-white/50";
 
   const { data: unreadData } = useUnreadCount(user?.id);
   const { data: notifications } = useUserNotifications(
@@ -55,20 +44,21 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
   return (
     <header className="flex items-center justify-between gap-3 px-4 py-3">
       <h1
-        className={`font-bold text-xl tracking-wider ${titleClass}`}
+        className="text-white font-bold text-xl"
+        style={{ fontFamily: "var(--font-brand)", letterSpacing: "0.05em" }}
         aria-label="Amparo — Aplicativo de proteção"
       >
-        AMPARO
+        amparo
       </h1>
 
       <div className="flex items-center gap-2 ml-auto">
-        <QuickExitButton variant={variant} />
+        <QuickExitButton />
 
         <div className="relative">
           <button
             onClick={open ? () => setOpen(false) : handleOpen}
             // NRF09 — área de toque mínima de 44px
-            className={`relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 ${ringClass}`}
+            className="relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             // NRF10 — label descreve o estado completo do botão
             aria-label={
               unreadCount > 0
@@ -78,7 +68,7 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
             aria-expanded={open}
             aria-haspopup="dialog"
           >
-            <Bell size={24} color={fg} aria-hidden="true" />
+            <Bell size={24} color="white" aria-hidden="true" />
 
             {unreadCount > 0 && (
               // NRF10 — aria-live anuncia novos badges sem roubar o foco
@@ -87,7 +77,7 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
                 aria-atomic="true"
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
-                  // var(--primary) no contexto user = violeta (não vermelho — reservado RF01)
+                  // var(--primary) no contexto victim = violeta (não vermelho — reservado RF01)
                   backgroundColor: "var(--primary)",
                   color: "white",
                 }}

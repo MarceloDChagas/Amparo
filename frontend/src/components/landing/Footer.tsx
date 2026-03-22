@@ -12,8 +12,11 @@ export const Footer: React.FC = () => (
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Serviço público de proteção
               </p>
-              <span className="text-base font-bold text-foreground">
-                Amparo
+              <span
+                className="text-base font-bold text-foreground"
+                style={{ fontFamily: "var(--font-brand)" }}
+              >
+                amparo
               </span>
             </div>
           </div>

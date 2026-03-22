@@ -85,7 +85,12 @@ export function Sidebar() {
             >
               Painel institucional
             </p>
-            <h1 className="text-2xl font-bold">Amparo</h1>
+            <h1
+              className="text-2xl font-bold"
+              style={{ fontFamily: "var(--font-brand)" }}
+            >
+              amparo
+            </h1>
           </div>
         </Link>
 
