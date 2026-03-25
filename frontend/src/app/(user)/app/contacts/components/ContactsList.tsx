@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Phone, Trash2, Users } from "lucide-react";
+import { Loader2, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,6 +15,12 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
   Partner: "Parceiro(a)",
   Other: "Outro",
 };
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return (parts[0][0] ?? "?").toUpperCase();
+  return ((parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")).toUpperCase();
+}
 
 export function ContactsList() {
   const { data: contacts, isLoading } = useGetEmergencyContacts();
@@ -37,7 +43,7 @@ export function ContactsList() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: "#244b7a" }} />
       </div>
     );
   }
@@ -46,19 +52,14 @@ export function ContactsList() {
     return (
       <div
         className="rounded-[24px] border p-8 flex flex-col items-center text-center"
-        style={{
-          borderColor: "#bfd0e0",
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,250,253,0.98) 100%)",
-        }}
+        style={{ borderColor: "#bfd0e0", backgroundColor: "#ffffff" }}
       >
-        <Users className="h-10 w-10 text-muted-foreground/30 mb-3" />
-        <p className="text-sm font-medium text-muted-foreground">
+        <Users className="h-10 w-10 mb-3" style={{ color: "#94a3b8" }} />
+        <p className="text-sm font-semibold" style={{ color: "#1f2937" }}>
           Nenhum contato adicionado
         </p>
-        <p className="text-xs text-muted-foreground/60 mt-1">
-          Use o formulário abaixo para cadastrar seu primeiro contato de
-          emergência.
+        <p className="text-xs mt-1" style={{ color: "#6b7280" }}>
+          Use o formulário abaixo para cadastrar seu primeiro contato de emergência.
         </p>
       </div>
     );
@@ -66,66 +67,95 @@ export function ContactsList() {
 
   return (
     <div
-      className="rounded-[24px] border p-5 sm:p-7 space-y-3"
+      className="rounded-[24px] border p-5 sm:p-6"
       style={{
         borderColor: "#bfd0e0",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,250,253,0.98) 100%)",
-        boxShadow:
-          "0 20px 60px rgba(15, 23, 42, 0.08), 0 2px 12px rgba(36, 75, 122, 0.05)",
+        backgroundColor: "#ffffff",
+        boxShadow: "0 4px 24px rgba(15,23,42,0.07)",
       }}
     >
-      <h3 className="text-base font-semibold text-foreground mb-4">
-        Seus contatos ({contacts.length}/3)
-      </h3>
+      <p
+        className="text-xs font-semibold uppercase tracking-widest mb-4"
+        style={{ color: "#6b7280" }}
+      >
+        Seus contatos ({Math.min(contacts.length, 3)}/3)
+      </p>
 
-      {contacts.map((contact) => (
-        <div
-          key={contact.id}
-          className="flex items-center gap-3 rounded-2xl border border-border px-4 py-3 bg-secondary"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-            <Phone size={16} className="text-primary" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">
-              {contact.name}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {RELATIONSHIP_LABELS[contact.relationship] ??
-                contact.relationship}{" "}
-              · {contact.phone}
-            </p>
-          </div>
-
-          {confirmDeleteId === contact.id ? (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => handleDelete(contact.id)}
-                disabled={isDeleting}
-                className="px-2.5 py-1 text-xs font-medium text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
-              >
-                {isDeleting ? "Removendo..." : "Confirmar"}
-              </button>
-              <button
-                onClick={() => setConfirmDeleteId(null)}
-                className="px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setConfirmDeleteId(contact.id)}
-              aria-label={`Remover ${contact.name}`}
-              className="p-2 text-muted-foreground/50 hover:text-destructive transition-colors"
+      <div className="space-y-2">
+        {contacts.map((contact) => (
+          <div
+            key={contact.id}
+            className="flex items-center gap-4 rounded-2xl px-4 py-3"
+            style={{
+              backgroundColor: "#f4f7fb",
+              border: "1px solid #d8e1ea",
+            }}
+          >
+            {/* Avatar com iniciais */}
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold"
+              style={{ backgroundColor: "#244b7a" }}
+              aria-hidden="true"
             >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      ))}
+              {getInitials(contact.name)}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-sm font-semibold truncate"
+                style={{ color: "#1f2937" }}
+              >
+                {contact.name}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>
+                {RELATIONSHIP_LABELS[contact.relationship] ?? contact.relationship}
+                {" · "}
+                {contact.phone}
+              </p>
+            </div>
+
+            {confirmDeleteId === contact.id ? (
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => handleDelete(contact.id)}
+                  disabled={isDeleting}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+                  style={{
+                    color: "#dc2626",
+                    backgroundColor: "#fee2e2",
+                  }}
+                >
+                  {isDeleting ? "..." : "Remover"}
+                </button>
+                <button
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  style={{ color: "#6b7280", backgroundColor: "#e5e7eb" }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDeleteId(contact.id)}
+                aria-label={`Remover ${contact.name}`}
+                className="p-2 rounded-lg transition-colors shrink-0"
+                style={{ color: "#9ca3af" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#dc2626";
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "#fee2e2";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#9ca3af";
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

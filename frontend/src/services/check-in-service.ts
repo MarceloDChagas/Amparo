@@ -8,6 +8,7 @@ export enum DistanceType {
 
 export interface CheckIn {
   id: string;
+  userId: string;
   startTime: string;
   expectedArrivalTime: string;
   actualArrivalTime: string | null;

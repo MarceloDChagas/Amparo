@@ -104,7 +104,7 @@ export class EmergencyAlertController {
   }
 
   @Post()
-  @Roles(Role.VICTIM)
+  @Roles(Role.USER)
   @UsePipes(ZodValidationPipe)
   async create(@Body() body: CreateEmergencyAlertDto): Promise<void> {
     await this.createEmergencyAlert.execute({

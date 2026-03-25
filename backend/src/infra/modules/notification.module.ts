@@ -19,6 +19,6 @@ import { DatabaseModule } from "./database.module";
     SendNotificationUseCase,
     GetUserNotificationsUseCase,
   ],
-  exports: ["INotificationRepository"],
+  exports: ["INotificationRepository", SendNotificationUseCase],
 })
 export class NotificationModule {}

@@ -6,6 +6,7 @@ interface AuthShellProps {
   eyebrow: string;
   title: React.ReactNode;
   description: string;
+  shieldText: string;
   formTitle: string;
   formDescription: string;
   footerPrompt: string;
@@ -18,6 +19,7 @@ export function AuthShell({
   eyebrow,
   title,
   description,
+  shieldText,
   formTitle,
   formDescription,
   footerPrompt,
@@ -107,8 +109,7 @@ export function AuthShell({
                 style={{ color: "var(--chart-2)" }}
               />
               <p className="text-sm leading-6 text-muted-foreground">
-                Acesso com segurança, continuidade de atendimento e perfis
-                autorizados.
+                {shieldText}
               </p>
             </div>
           </div>

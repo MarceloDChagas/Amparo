@@ -19,7 +19,7 @@ export default function DashboardLayout({
     if (!isLoading) {
       if (!user) {
         router.push("/login");
-      } else if (user.role === "USER") {
+      } else if (user.role !== "ADMIN") {
         router.push("/app");
       }
     }
@@ -37,7 +37,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user || user.role === "USER") {
+  if (!user || user.role !== "ADMIN") {
     return null;
   }
 

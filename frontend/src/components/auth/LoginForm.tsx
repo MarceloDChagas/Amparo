@@ -49,10 +49,10 @@ export function LoginForm() {
       const user = await login(values);
       toast.success("Login realizado com sucesso!");
 
-      if (user.role === "USER") {
-        router.push("/app");
-      } else {
+      if (user.role === "ADMIN") {
         router.push("/dashboard");
+      } else {
+        router.push("/app");
       }
     } catch (error) {
       toast.error("Erro ao realizar login. Verifique suas credenciais.");

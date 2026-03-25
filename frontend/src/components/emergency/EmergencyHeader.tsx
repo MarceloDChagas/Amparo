@@ -22,7 +22,12 @@ import { useAuth } from "@/presentation/hooks/useAuth";
 
 import { NotificationPanel } from "./NotificationPanel";
 
-export function EmergencyHeader() {
+interface EmergencyHeaderProps {
+  /** "dark" (padrão): fundo escuro, texto branco. "light": fundo claro, texto escuro. */
+  variant?: "dark" | "light";
+}
+
+export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -41,11 +46,18 @@ export function EmergencyHeader() {
     }
   };
 
+  const isLight = variant === "light";
+  const textColor = isLight ? "var(--foreground)" : "white";
+
   return (
     <header className="flex items-center justify-between gap-3 px-4 py-3">
       <h1
-        className="text-white font-bold text-xl"
-        style={{ fontFamily: "var(--font-brand)", letterSpacing: "0.05em" }}
+        className="font-bold text-xl"
+        style={{
+          fontFamily: "var(--font-brand)",
+          letterSpacing: "0.05em",
+          color: textColor,
+        }}
         aria-label="Amparo — Aplicativo de proteção"
       >
         amparo
@@ -58,7 +70,12 @@ export function EmergencyHeader() {
           <button
             onClick={open ? () => setOpen(false) : handleOpen}
             // NRF09 — área de toque mínima de 44px
-            className="relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="relative flex items-center justify-center min-w-11 min-h-11 rounded-full focus-visible:outline-none focus-visible:ring-2"
+            style={{
+              ["--tw-ring-color" as string]: isLight
+                ? "rgba(36,75,122,0.3)"
+                : "rgba(255,255,255,0.5)",
+            }}
             // NRF10 — label descreve o estado completo do botão
             aria-label={
               unreadCount > 0
@@ -68,7 +85,7 @@ export function EmergencyHeader() {
             aria-expanded={open}
             aria-haspopup="dialog"
           >
-            <Bell size={24} color="white" aria-hidden="true" />
+            <Bell size={24} color={textColor} aria-hidden="true" />
 
             {unreadCount > 0 && (
               // NRF10 — aria-live anuncia novos badges sem roubar o foco

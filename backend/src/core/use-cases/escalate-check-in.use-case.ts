@@ -21,7 +21,7 @@ export class EscalateCheckInUseCase {
   async execute(checkInId: string): Promise<CheckInRecord> {
     const checkIn = await this.checkInRepository.findById(checkInId);
     if (!checkIn) {
-      throw new CheckInNotFoundError(checkInId);
+      throw new CheckInNotFoundError();
     }
 
     const currentStage = checkIn.escalationStage ?? 0;

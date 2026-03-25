@@ -7,15 +7,11 @@ import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -31,43 +27,44 @@ import { useGetEmergencyContacts } from "@/data/hooks/use-get-emergency-contacts
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "O nome deve ter pelo menos 2 caracteres.",
-  }),
+  name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   phone: z
     .string()
     .transform((val) => val.replace(/[^\d]+/g, ""))
-    .refine(
-      (val) => val.length >= 10,
-      "Telefone deve ter pelo menos 10 dígitos.",
-    ),
-  email: z
-    .string()
-    .email("Endereço de email inválido.")
-    .optional()
-    .or(z.literal("")),
-  relationship: z.string().min(1, {
-    message: "O vínculo é obrigatório.",
-  }),
+    .refine((val) => val.length >= 10, "Telefone deve ter pelo menos 10 dígitos."),
+  email: z.string().email("Endereço de email inválido.").optional().or(z.literal("")),
+  relationship: z.string().min(1, { message: "O vínculo é obrigatório." }),
 });
+
+const inputStyle: React.CSSProperties = {
+  height: "52px",
+  borderRadius: "14px",
+  border: "1px solid #b9c8d8",
+  backgroundColor: "#f8fbff",
+  paddingLeft: "16px",
+  paddingRight: "16px",
+  fontSize: "15px",
+  color: "#1f2937",
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "#1f2937",
+  marginBottom: "8px",
+};
 
 export function EmergencyContactForm() {
   const { mutate, isPending } = useCreateEmergencyContact();
   const { user } = useAuth();
   const { data: contacts } = useGetEmergencyContacts();
-  const inputClassName =
-    "h-13 rounded-[14px] border border-[#b9c8d8] bg-[#f8fbff] px-4 text-[15px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] placeholder:text-slate-500 focus-visible:border-[#244b7a] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.14)]";
 
   const isLimitReached = contacts ? contacts.length >= 3 : false;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      relationship: "",
-    },
+    defaultValues: { name: "", phone: "", email: "", relationship: "" },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -75,7 +72,6 @@ export function EmergencyContactForm() {
       toast.error("Limite máximo de 3 contatos atingido.");
       return;
     }
-
     mutate(
       {
         name: values.name,
@@ -98,155 +94,146 @@ export function EmergencyContactForm() {
   }
 
   return (
-    <Card className="w-full max-w-none border-0 bg-transparent shadow-none">
-      <CardContent className="px-0 pb-0">
-        {isLimitReached && (
-          <div
-            className="mb-6 flex items-start gap-3 rounded-[18px] border px-4 py-4 bg-destructive/10"
-            style={{
-              borderColor: "rgba(166, 60, 60, 0.28)",
-            }}
-          >
-            <AlertTriangle
-              size={18}
-              className="mt-0.5 shrink-0 text-destructive"
-            />
-            <p className="text-sm text-destructive">
-              Limite de 3 contatos atingido. Remova um contato para adicionar
-              outro.
-            </p>
-          </div>
-        )}
+    <div className="w-full">
+      {isLimitReached && (
+        <div
+          className="mb-6 flex items-start gap-3 rounded-[18px] border px-4 py-4"
+          style={{ borderColor: "rgba(166,60,60,0.28)", backgroundColor: "#fef2f2" }}
+        >
+          <AlertTriangle size={18} className="mt-0.5 shrink-0" style={{ color: "#a63c3c" }} />
+          <p className="text-sm" style={{ color: "#a63c3c" }}>
+            Limite de 3 contatos atingido. Remova um contato para adicionar outro.
+          </p>
+        </div>
+      )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <fieldset
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <fieldset disabled={isLimitReached || isPending} className="space-y-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+              {/* Nome */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <label style={labelStyle}>Nome</label>
+                    <FormControl>
+                      <Input
+                        placeholder="Maria Silva"
+                        style={inputStyle}
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                  </FormItem>
+                )}
+              />
+
+              {/* Vínculo */}
+              <FormField
+                control={form.control}
+                name="relationship"
+                render={({ field }) => (
+                  <FormItem>
+                    <label style={labelStyle}>Vínculo</label>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isLimitReached || isPending}
+                    >
+                      <FormControl>
+                        <SelectTrigger
+                          style={{ ...inputStyle, color: field.value ? "#1f2937" : "#94a3b8" }}
+                          className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a]"
+                        >
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Mother">Mãe</SelectItem>
+                        <SelectItem value="Father">Pai</SelectItem>
+                        <SelectItem value="Sibling">Irmão/Irmã</SelectItem>
+                        <SelectItem value="Friend">Amigo(a)</SelectItem>
+                        <SelectItem value="Partner">Parceiro(a)</SelectItem>
+                        <SelectItem value="Other">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                  </FormItem>
+                )}
+              />
+
+              {/* Telefone */}
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <label style={labelStyle}>Telefone</label>
+                    <FormControl>
+                      <PatternFormat
+                        format="(##) #####-####"
+                        mask="_"
+                        customInput={Input}
+                        placeholder="(11) 98765-4321"
+                        style={inputStyle}
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <label style={labelStyle}>Email <span style={{ color: "#9ca3af", fontWeight: 400 }}>(Opcional)</span></label>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="maria@exemplo.com"
+                        style={inputStyle}
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>
+                      Usado para alertas de emergência
+                    </p>
+                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <button
+              type="submit"
               disabled={isLimitReached || isPending}
-              className="space-y-6"
+              className="w-full h-[52px] rounded-[14px] text-[15px] font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+              style={{
+                backgroundColor: isLimitReached ? "#93a6bb" : "#1f3a5f",
+                boxShadow: isLimitReached
+                  ? "none"
+                  : "0 12px 24px rgba(31,58,95,0.18)",
+              }}
             >
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="space-y-2.5">
-                      <FormLabel className="text-sm font-semibold text-foreground">
-                        Nome
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Maria Silva"
-                          className={`${inputClassName} text-foreground`}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-sm text-destructive" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="relationship"
-                  render={({ field }) => (
-                    <FormItem className="space-y-2.5">
-                      <FormLabel className="text-sm font-semibold text-foreground">
-                        Vínculo
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        disabled={isLimitReached || isPending}
-                      >
-                        <FormControl>
-                          <SelectTrigger
-                            className={`${inputClassName} text-foreground`}
-                          >
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Mother">Mãe</SelectItem>
-                          <SelectItem value="Father">Pai</SelectItem>
-                          <SelectItem value="Sibling">Irmão/Irmã</SelectItem>
-                          <SelectItem value="Friend">Amigo(a)</SelectItem>
-                          <SelectItem value="Partner">Parceiro(a)</SelectItem>
-                          <SelectItem value="Other">Outro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage className="text-sm text-destructive" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem className="space-y-2.5">
-                      <FormLabel className="text-sm font-semibold text-foreground">
-                        Telefone
-                      </FormLabel>
-                      <FormControl>
-                        <PatternFormat
-                          format="(##) #####-####"
-                          mask="_"
-                          customInput={Input}
-                          placeholder="(11) 98765-4321"
-                          className={`${inputClassName} text-foreground`}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-sm text-destructive" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="space-y-2.5">
-                      <FormLabel className="text-sm font-semibold text-foreground">
-                        Email (Opcional)
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="maria@exemplo.com"
-                          className={`${inputClassName} text-foreground`}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-muted-foreground">
-                        Usado para alertas de emergência
-                      </FormDescription>
-                      <FormMessage className="text-sm text-destructive" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="mt-2 h-13 w-full rounded-[14px] text-[15px] font-semibold shadow-[0_12px_24px_rgba(31,58,95,0.18)] transition-[transform,box-shadow,background-color] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(31,58,95,0.22)] focus-visible:ring-4 focus-visible:ring-[rgba(36,75,122,0.18)] border-none text-primary-foreground"
-                disabled={isLimitReached || isPending}
-                style={{
-                  backgroundColor: isLimitReached
-                    ? "#93a6bb"
-                    : "var(--accent-foreground)",
-                }}
-              >
-                {isLimitReached
-                  ? "Limite atingido"
-                  : isPending
-                    ? "Salvando..."
-                    : "Salvar contato"}
-              </Button>
-            </fieldset>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              {isLimitReached
+                ? "Limite atingido"
+                : isPending
+                  ? "Salvando..."
+                  : "Salvar contato"}
+            </button>
+          </fieldset>
+        </form>
+      </Form>
+    </div>
   );
 }
