@@ -111,15 +111,31 @@ export function DocumentsTab() {
       transition={{ duration: 0.3 }}
       className="flex-1 flex flex-col items-center justify-start w-full max-w-md mx-auto relative px-4 mt-2 mb-20"
     >
-      <div className="mb-4 w-full rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
-        <h3 className="text-base font-semibold text-white">Documentos</h3>
-        <p className="mt-1 text-sm leading-relaxed text-white/70">
+      <div
+        className="mb-4 w-full rounded-2xl p-4"
+        style={{
+          border: "1px solid rgba(180,140,160,0.25)",
+          backgroundColor: "rgba(255,255,255,0.55)",
+          backdropFilter: "blur(8px)",
+        }}
+      >
+        <h3 className="text-base font-semibold" style={{ color: "#3a2530" }}>
+          Documentos
+        </h3>
+        <p
+          className="mt-1 text-sm leading-relaxed"
+          style={{ color: "#7a5565" }}
+        >
           Reúna documentos, comprovantes e anotações importantes para manter o
           histórico do seu acompanhamento sempre acessível.
         </p>
         <Link
           href="/app/notes"
-          className="mt-3 inline-flex text-sm font-semibold text-white underline decoration-white/30 underline-offset-4"
+          className="mt-3 inline-flex text-sm font-semibold underline underline-offset-4"
+          style={{
+            color: "#c4705a",
+            textDecorationColor: "rgba(196,112,90,0.4)",
+          }}
         >
           Abrir minhas notas
         </Link>
@@ -137,20 +153,31 @@ export function DocumentsTab() {
             fileInputRef.current?.click();
           }
         }}
-        className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-white/15 transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+        className="w-full rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:outline-none"
+        style={{
+          border: "1px solid rgba(196,112,90,0.20)",
+          backgroundColor: "rgba(255,255,255,0.55)",
+          backdropFilter: "blur(8px)",
+        }}
       >
-        <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: "rgba(196,112,90,0.12)" }}
+        >
           {uploading ? (
-            <Loader2 className="h-7 w-7 text-white animate-spin" />
+            <Loader2
+              className="h-7 w-7 animate-spin"
+              style={{ color: "#c4705a" }}
+            />
           ) : (
-            <Upload className="h-7 w-7 text-white" />
+            <Upload className="h-7 w-7" style={{ color: "#c4705a" }} />
           )}
         </div>
         <div className="text-center">
-          <h3 className="text-white font-semibold text-lg">
+          <h3 className="font-semibold text-lg" style={{ color: "#3a2530" }}>
             {uploading ? "Enviando arquivo..." : "Adicionar documento"}
           </h3>
-          <p className="text-white/60 text-sm">
+          <p className="text-sm" style={{ color: "#7a5565" }}>
             Envie evidências, laudos, comprovantes ou PDFs relevantes
           </p>
         </div>
@@ -164,19 +191,36 @@ export function DocumentsTab() {
       </div>
 
       <div className="w-full mt-6 space-y-4">
-        <h4 className="px-1 font-medium text-white/90">Seus documentos</h4>
+        <h4 className="px-1 font-medium" style={{ color: "#3a2530" }}>
+          Seus documentos
+        </h4>
 
         {loading ? (
           <div className="flex justify-center p-8">
-            <Loader2 className="h-8 w-8 text-white/40 animate-spin" />
+            <Loader2
+              className="h-8 w-8 animate-spin"
+              style={{ color: "rgba(196,112,90,0.5)" }}
+            />
           </div>
         ) : documents.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center">
-            <FileText className="h-10 w-10 text-white/20 mb-2" />
-            <p className="text-white/50 text-sm font-medium">
+          <div
+            className="rounded-xl p-8 flex flex-col items-center justify-center text-center"
+            style={{
+              border: "1px solid rgba(180,140,160,0.20)",
+              backgroundColor: "rgba(255,255,255,0.40)",
+            }}
+          >
+            <FileText
+              className="h-10 w-10 mb-2"
+              style={{ color: "rgba(180,140,160,0.50)" }}
+            />
+            <p className="text-sm font-medium" style={{ color: "#7a5565" }}>
               Nenhum documento ainda
             </p>
-            <p className="text-white/30 text-xs mt-1">
+            <p
+              className="text-xs mt-1"
+              style={{ color: "rgba(122,85,101,0.60)" }}
+            >
               Use o botão acima para enviar evidências, laudos ou comprovantes.
             </p>
           </div>
@@ -188,20 +232,34 @@ export function DocumentsTab() {
                 layout
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center justify-between group"
+                className="rounded-xl p-4 flex items-center justify-between"
+                style={{
+                  border: "1px solid rgba(180,140,160,0.22)",
+                  backgroundColor: "rgba(255,255,255,0.55)",
+                  backdropFilter: "blur(8px)",
+                }}
               >
                 <div
                   className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
                   onClick={() => void handleDownload(doc)}
                 >
-                  <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText className="h-5 w-5 text-white/70" />
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: "rgba(196,112,90,0.10)" }}
+                  >
+                    <FileText
+                      className="h-5 w-5"
+                      style={{ color: "#c4705a" }}
+                    />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-white font-medium text-sm truncate">
+                    <p
+                      className="font-medium text-sm truncate"
+                      style={{ color: "#3a2530" }}
+                    >
                       {doc.fileName}
                     </p>
-                    <p className="text-white/40 text-xs">
+                    <p className="text-xs" style={{ color: "#7a5565" }}>
                       {formatBytes(doc.sizeBytes)} -{" "}
                       {format(new Date(doc.createdAt), "dd/MM/yyyy", {
                         locale: ptBR,
@@ -213,13 +271,15 @@ export function DocumentsTab() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => void handleDownload(doc)}
-                    className="p-2 text-white/60 hover:text-white transition-colors"
+                    className="p-2 transition-colors"
+                    style={{ color: "#7a5565" }}
                   >
                     <Download className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => void handleDelete(doc.id)}
-                    className="p-2 text-white/40 hover:text-red-400 transition-colors"
+                    className="p-2 transition-colors"
+                    style={{ color: "rgba(122,85,101,0.55)" }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

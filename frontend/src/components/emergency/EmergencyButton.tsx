@@ -3,7 +3,7 @@
  * RN01 — Ativação por Tempo Contínuo: acionamento apenas após 2s pressionado.
  * RN02 — Impossibilidade de Autocancelamento: após disparado, não há como cancelar pelo app.
  * NRF05 — Desempenho: geolocalização com timeout de 8s, fallback para coordenadas 0,0.
- * NRF09 — Usabilidade Sob Estresse: botão de 170px, feedback visual + háptico durante o hold.
+ * NRF09 — Usabilidade Sob Estresse: blob de 190px, feedback visual + háptico durante o hold.
  * NRF10 — Acessibilidade: role="progressbar" no SVG, aria-label dinâmico no botão.
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -19,7 +19,6 @@ export function EmergencyButton() {
   const { user } = useAuth();
   const [isPressing, setIsPressing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [showPulse, setShowPulse] = useState(false);
   const [earlyRelease, setEarlyRelease] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -62,9 +61,7 @@ export function EmergencyButton() {
     }
     setIsPressing(false);
     setProgress(0);
-    setShowPulse(false);
 
-    // Feedback de soltura prematura — mostra "Mantenha pressionado" brevemente
     if (hadProgress) {
       setEarlyRelease(true);
       if (earlyReleaseTimerRef.current)
@@ -80,7 +77,6 @@ export function EmergencyButton() {
     if (isPending) return;
 
     setIsPressing(true);
-    setShowPulse(true);
     startTimeRef.current = Date.now();
 
     timerRef.current = setInterval(() => {
@@ -108,8 +104,10 @@ export function EmergencyButton() {
     };
   }, []);
 
-  // Botão reduzido: 220px container → menos dominante no estado neutro (NRF09)
-  const radius = 62;
+  // SVG progress ring ao redor do blob
+  const CONTAINER = 230;
+  const RING_SIZE = 220;
+  const radius = 100;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
@@ -117,38 +115,32 @@ export function EmergencyButton() {
     (HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000,
   );
 
+  // Forma blob emergência — deformação mais dramática, inclinação cima-direita
+  const blobShape = "68% 32% 46% 54% / 36% 62% 38% 64%";
+
+  const outerBg = isPressing
+    ? "rgba(192, 57, 43, 0.30)"
+    : "rgba(196, 112, 90, 0.28)";
+  const middleBg = isPressing
+    ? "rgba(192, 57, 43, 0.55)"
+    : "rgba(196, 112, 90, 0.55)";
+  const innerBg = isPending
+    ? "rgba(196, 112, 90, 0.55)"
+    : isPressing
+      ? "var(--emergency)"
+      : "var(--primary)";
+
   return (
     <div
       className="relative mb-6 flex items-center justify-center"
-      style={{ width: "220px", height: "220px" }}
+      style={{ width: `${CONTAINER}px`, height: `${CONTAINER}px` }}
     >
-      {/*
-       * Pulse wave — violet no estado neutro, vermelho ao pressionar.
-       * RN01 — a transição de cor sinaliza que o alerta está sendo acionado.
-       */}
-      {showPulse && (
-        <div
-          aria-hidden="true"
-          className="absolute rounded-full"
-          style={{
-            width: "220px",
-            height: "220px",
-            backgroundColor: "transparent",
-            border: `3px solid ${isPressing ? "rgba(220, 38, 38, 0.6)" : "rgba(124, 58, 237, 0.5)"}`,
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            animation: "pulse-wave 1.5s ease-out infinite",
-          }}
-        />
-      )}
-
       {/* NRF10 — role="progressbar" comunica o progresso do hold para leitores de tela */}
       <svg
-        className="absolute z-10 pointer-events-none"
-        width="180"
-        height="180"
-        viewBox="0 0 180 180"
+        className="absolute pointer-events-none z-10"
+        width={RING_SIZE}
+        height={RING_SIZE}
+        viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
         role="progressbar"
         aria-valuenow={Math.round(progress)}
         aria-valuemin={0}
@@ -158,82 +150,79 @@ export function EmergencyButton() {
             ? `Acionando alerta: ${secondsLeft} segundo${secondsLeft !== 1 ? "s" : ""} restante${secondsLeft !== 1 ? "s" : ""}`
             : "Progresso do acionamento de emergência"
         }
-        style={{ transform: "rotate(-90deg)" }}
+        style={{
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%) rotate(-90deg)",
+        }}
       >
         <circle
-          cx="90"
-          cy="90"
+          cx={RING_SIZE / 2}
+          cy={RING_SIZE / 2}
           r={radius}
           fill="transparent"
           stroke="rgba(255,255,255,0.9)"
-          strokeWidth="6"
+          strokeWidth="5"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{ opacity: progress > 0 ? 1 : 0 }}
+          style={{ opacity: progress > 0 ? 1 : 0, transition: "opacity 0.2s" }}
         />
       </svg>
 
-      {/*
-       * Outer ring — violet no estado neutro, transição para vermelho escuro no press.
-       * A mudança de cor comunica a ativação sem manter o estado de alerta permanente.
-       */}
+      {/* Camada externa — blob com glow */}
       <div
         aria-hidden="true"
-        className="absolute rounded-full transition-all duration-300"
+        className="absolute transition-all duration-300"
         style={{
           width: "220px",
           height: "220px",
-          backgroundColor: isPressing ? "#7f1d1d" : "rgba(88, 28, 135, 0.45)",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(1.05)" : "scale(1)"}`,
+          transform: "translate(-50%, -50%)",
+          borderRadius: blobShape,
+          backgroundColor: outerBg,
           boxShadow: isPressing
-            ? "0 0 40px rgba(220, 38, 38, 0.45)"
-            : "0 0 32px rgba(124, 58, 237, 0.25)",
+            ? "0 0 52px rgba(220, 38, 38, 0.45)"
+            : "0 0 40px rgba(124, 58, 237, 0.3)",
         }}
       />
 
-      {/* Middle ring — violet no neutro, vermelho médio no press */}
+      {/* Camada do meio */}
       <div
         aria-hidden="true"
-        className="absolute rounded-full transition-all duration-300"
+        className="absolute transition-all duration-300"
         style={{
-          width: "175px",
-          height: "175px",
-          backgroundColor: isPressing ? "#991b1b" : "rgba(109, 40, 217, 0.65)",
+          width: "178px",
+          height: "178px",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(1.02)" : "scale(1)"}`,
+          transform: "translate(-50%, -50%)",
+          borderRadius: blobShape,
+          backgroundColor: middleBg,
         }}
       />
 
-      {/*
-       * Inner circle — violet no neutro, vermelho pleno no press.
-       * RN01 — o vermelho aparece apenas durante o acionamento (hold de 2s),
-       * reservando a cor de emergência para o momento de crise, não o estado cotidiano.
-       */}
+      {/* Botão central — blob principal */}
       <button
-        className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl z-20"
+        className="absolute flex flex-col items-center justify-center z-20 select-none"
         style={{
-          width: "130px",
-          height: "130px",
-          backgroundColor: isPending
-            ? "rgba(124, 58, 237, 0.5)"
-            : isPressing
-              ? "var(--emergency)"
-              : "var(--primary)",
+          width: "138px",
+          height: "138px",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(0.95)" : "scale(1)"}`,
+          transform: `translate(-50%, -50%) ${isPressing ? "scale(0.96)" : "scale(1)"}`,
+          borderRadius: blobShape,
+          backgroundColor: innerBg,
           boxShadow: isPressing
-            ? "0 0 40px rgba(220, 38, 38, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.15)"
-            : "0 8px 28px rgba(88, 28, 135, 0.5)",
+            ? "0 0 32px rgba(192, 57, 43, 0.5)"
+            : "0 6px 24px rgba(196, 112, 90, 0.45)",
+          transition:
+            "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease",
           cursor: isPending ? "not-allowed" : "pointer",
-          opacity: isPending ? 0.7 : 1,
+          opacity: isPending ? 0.75 : 1,
         }}
         disabled={isPending}
-        // NRF10 — aria-label descreve a ação e o mecanismo de hold (RN01)
         aria-label={
           isPending
             ? "Enviando alerta de emergência"
@@ -245,22 +234,25 @@ export function EmergencyButton() {
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
       >
-        <span
-          className="text-lg font-bold leading-tight text-center text-white transition-all duration-300"
-          style={{ whiteSpace: "pre-line" }}
-        >
-          {isPending
-            ? "ENVIANDO..."
-            : isPressing
-              ? "SEGURE..."
+        {isPending ? (
+          <span className="text-base font-bold tracking-widest text-white/90">
+            •••
+          </span>
+        ) : (
+          <span
+            className="font-bold text-white tracking-widest leading-tight text-center"
+            style={{
+              fontSize: earlyRelease ? "10px" : isPressing ? "13px" : "14px",
+              transition: "font-size 0.2s ease",
+              textShadow: "0 1px 6px rgba(0,0,0,0.25)",
+              whiteSpace: "pre-line",
+            }}
+          >
+            {isPressing
+              ? `${secondsLeft}s`
               : earlyRelease
                 ? "MANTENHA\nPRESSIONADO"
                 : "EMERGÊNCIA"}
-        </span>
-        {/* RN01 — contador regressivo reforça o mecanismo de hold de 2s */}
-        {isPressing && (
-          <span className="text-xs font-bold mt-1 text-white/90">
-            {secondsLeft}s
           </span>
         )}
       </button>

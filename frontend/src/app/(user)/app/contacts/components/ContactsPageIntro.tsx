@@ -11,9 +11,9 @@ export function ContactsPageIntro({ onBack }: ContactsPageIntroProps) {
         onClick={onBack}
         className="mt-1 rounded-full p-2 transition-colors shrink-0"
         style={{
-          border: "1px solid #d8e1ea",
+          border: "1px solid rgba(180,140,160,0.30)",
           backgroundColor: "transparent",
-          color: "#1f2937",
+          color: "#7a5565",
         }}
         aria-label="Voltar"
       >
@@ -22,12 +22,13 @@ export function ContactsPageIntro({ onBack }: ContactsPageIntroProps) {
       <div>
         <h2
           className="text-xl font-bold leading-tight sm:text-2xl"
-          style={{ color: "#1f2937" }}
+          style={{ color: "#3a2530" }}
         >
           Rede de apoio
         </h2>
-        <p className="mt-1 text-sm" style={{ color: "#6b7280" }}>
-          Ao acionar o alerta, cada contato abaixo recebe um e-mail imediatamente.
+        <p className="mt-1 text-sm" style={{ color: "#7a5565" }}>
+          Ao acionar o alerta, cada contato abaixo recebe um e-mail
+          imediatamente.
         </p>
       </div>
     </div>

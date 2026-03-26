@@ -63,11 +63,8 @@ export default function UserAppPage() {
   >("EMERGENCY");
 
   return (
-    <div
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ backgroundColor: colors.primary[900] }}
-    >
-      <EmergencyHeader />
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <EmergencyHeader variant="light" />
 
       <AnimatePresence>
         {activeMainTab === "HOME" && (
@@ -77,33 +74,39 @@ export default function UserAppPage() {
             exit={{ opacity: 0, y: -10 }}
             className="mt-4 px-4 flex justify-center w-full z-10"
           >
-            <div className="bg-white/10 p-1 rounded-xl flex w-full max-w-xs ring-1 ring-white/20">
+            <div
+              className="p-1 rounded-full flex w-full max-w-xs"
+              style={{
+                backgroundColor: "rgba(180,140,160,0.18)",
+                boxShadow: "inset 0 1px 3px rgba(58,37,48,0.08)",
+              }}
+            >
               <button
                 onClick={() => setActiveSecondaryTab("EMERGENCY")}
-                className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
-                  activeSecondaryTab === "EMERGENCY"
-                    ? "bg-white shadow-sm"
-                    : "text-white/80 hover:text-white"
-                }`}
+                className={`flex-1 py-3 text-xs font-medium rounded-full transition-all`}
                 style={
                   activeSecondaryTab === "EMERGENCY"
-                    ? { color: "#7c3aed" }
-                    : undefined
+                    ? {
+                        backgroundColor: "white",
+                        color: "#c4705a",
+                        boxShadow: "0 1px 4px rgba(196,112,90,0.2)",
+                      }
+                    : { color: "#7a5565" }
                 }
               >
                 Emergência
               </button>
               <button
                 onClick={() => setActiveSecondaryTab("CHECKIN")}
-                className={`flex-1 py-3 text-xs font-medium rounded-lg transition-all ${
-                  activeSecondaryTab === "CHECKIN"
-                    ? "bg-white shadow-sm"
-                    : "text-white/80 hover:text-white"
-                }`}
+                className={`flex-1 py-3 text-xs font-medium rounded-full transition-all`}
                 style={
                   activeSecondaryTab === "CHECKIN"
-                    ? { color: "#0d9488" }
-                    : undefined
+                    ? {
+                        backgroundColor: "white",
+                        color: "#5a9e8a",
+                        boxShadow: "0 1px 4px rgba(90,158,138,0.2)",
+                      }
+                    : { color: "#3a2530" }
                 }
               >
                 Trajeto seguro

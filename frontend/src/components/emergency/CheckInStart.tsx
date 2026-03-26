@@ -33,13 +33,15 @@ export function CheckInStart({
   // Identidade teal — diferencia visualmente da tela de Emergência (violeta)
   // Teal semântico: navegação, rota, movimento seguro (não conflita com verde/âmbar/vermelho do countdown)
   const teal = {
-    outer: "#134e4a",
-    middle: "#0f766e",
-    inner: "#0d9488",
-    innerPending: "rgba(13, 148, 136, 0.5)",
-    pulse: "rgba(13, 148, 136, 0.45)",
-    glow: "rgba(13, 148, 136, 0.28)",
+    outer: "rgba(122, 181, 160, 0.30)",
+    middle: "rgba(90, 158, 138, 0.55)",
+    inner: "#5a9e8a",
+    innerPending: "rgba(90, 158, 138, 0.55)",
+    glow: "rgba(90, 158, 138, 0.35)",
   };
+
+  // Forma blob trajeto — inclinação oposta à emergência para diferenciar
+  const blobShape = "38% 62% 54% 46% / 62% 36% 64% 38%";
 
   return (
     <div className="w-full flex flex-col items-center justify-center">
@@ -47,82 +49,64 @@ export function CheckInStart({
         className="relative flex items-center justify-center mt-6"
         style={{ width: "220px", height: "220px" }}
       >
-        {/* Pulse wave teal */}
-        {!isPending && (
-          <div
-            aria-hidden="true"
-            className="absolute rounded-full"
-            style={{
-              width: "220px",
-              height: "220px",
-              backgroundColor: "transparent",
-              border: `3px solid ${teal.pulse}`,
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "pulse-wave 2s ease-out infinite",
-            }}
-          />
-        )}
-
-        {/* Outer ring — teal escuro */}
+        {/* Camada externa — blob com glow teal */}
         <div
           aria-hidden="true"
-          className="absolute rounded-full"
+          className="absolute"
           style={{
             width: "220px",
             height: "220px",
-            backgroundColor: teal.outer,
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            borderRadius: blobShape,
+            backgroundColor: teal.outer,
             boxShadow: `0 0 48px ${teal.glow}`,
           }}
         />
 
-        {/* Middle ring — teal médio */}
+        {/* Camada do meio */}
         <div
           aria-hidden="true"
-          className="absolute rounded-full"
+          className="absolute"
           style={{
-            width: "175px",
-            height: "175px",
-            backgroundColor: teal.middle,
+            width: "178px",
+            height: "178px",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            borderRadius: blobShape,
+            backgroundColor: teal.middle,
           }}
         />
 
-        {/* Inner circle — botão de ação */}
-        <div
-          className="absolute z-20"
+        {/* Botão central — blob principal */}
+        <button
+          onClick={onStart}
+          disabled={isPending}
+          aria-label={
+            isPending ? "Iniciando trajeto seguro" : "Iniciar trajeto seguro"
+          }
+          className="absolute z-20 flex flex-col items-center justify-center transition-all duration-300 active:scale-95 select-none"
           style={{
-            width: "130px",
-            height: "130px",
+            width: "138px",
+            height: "138px",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            borderRadius: blobShape,
+            backgroundColor: isPending ? teal.innerPending : teal.inner,
+            boxShadow: `0 6px 24px rgba(0,0,0,0.3), 0 0 20px ${teal.glow}`,
+            cursor: isPending ? "not-allowed" : "pointer",
           }}
         >
-          <button
-            onClick={onStart}
-            disabled={isPending}
-            aria-label={
-              isPending ? "Iniciando trajeto seguro" : "Iniciar trajeto seguro"
-            }
-            className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
-            style={{
-              backgroundColor: isPending ? teal.innerPending : teal.inner,
-              boxShadow: `0 10px 30px rgba(0, 0, 0, 0.3), 0 0 24px ${teal.glow}`,
-              cursor: isPending ? "not-allowed" : "pointer",
-            }}
+          <span
+            className="text-sm font-bold leading-tight text-center px-3 text-white tracking-wide"
+            style={{ whiteSpace: "pre-line" }}
           >
-            <span className="text-base font-bold leading-tight text-center transition-all duration-300 px-3 text-white">
-              {isPending ? "INICIANDO..." : "INICIAR TRAJETO"}
-            </span>
-          </button>
-        </div>
+            {isPending ? "INICIANDO..." : "INICIAR\nTRAJETO"}
+          </span>
+        </button>
       </div>
 
       <div className="mt-6 text-center w-full z-30">

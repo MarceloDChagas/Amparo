@@ -10,7 +10,6 @@ import {
 } from "@/components/emergency";
 import { NotesSection } from "@/components/notes/NotesSection";
 import { useAuth } from "@/presentation/hooks/useAuth";
-import { colors } from "@/styles/colors";
 
 export default function UserNotesPage() {
   const router = useRouter();
@@ -39,11 +38,8 @@ export default function UserNotesPage() {
   if (!user) return null;
 
   return (
-    <div
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ backgroundColor: colors.primary[900] }}
-    >
-      <EmergencyHeader />
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <EmergencyHeader variant="light" />
 
       <main className="relative flex flex-1 flex-col overflow-y-auto px-4 pb-28 pt-4 sm:px-6">
         <div className="mx-auto w-full max-w-md space-y-6">
@@ -51,14 +47,20 @@ export default function UserNotesPage() {
           <div className="flex items-start gap-3">
             <button
               onClick={() => router.back()}
-              className="mt-1 rounded-full border border-white/20 p-2 text-white/70 transition-colors hover:bg-white/10 shrink-0"
+              className="mt-1 rounded-full p-2 transition-colors hover:bg-black/5 shrink-0"
+              style={{
+                border: "1px solid rgba(180,140,160,0.3)",
+                color: "#7a5565",
+              }}
               aria-label="Voltar"
             >
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h2 className="text-xl font-bold text-white">Minhas Notas</h2>
-              <p className="mt-1 text-sm text-white/60">
+              <h2 className="text-xl font-bold" style={{ color: "#3a2530" }}>
+                Minhas Notas
+              </h2>
+              <p className="mt-1 text-sm" style={{ color: "#7a5565" }}>
                 Registre observações em um espaço protegido.
               </p>
             </div>

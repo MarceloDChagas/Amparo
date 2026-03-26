@@ -122,28 +122,30 @@
   --touch-target: 2.75rem;
 }
 
-/* Superfície do App da Vítima — índigo escuro + violeta acolhedor */
-/* Ativado via data-surface="victim" no layout da rota (user) */
-/* --background corresponde a colors.primary[900] = #1a1d3a (índigo profundo, tom roxo) */
+/* Superfície do App da Vítima — Aurora Suave (Proposta B)
+ * Gradiente lavanda → pêssego aplicado via background inline no layout.
+ * Tons quentes acolhedores, adaptados para público feminino sob estresse.
+ * Ativado via data-surface="victim" no layout da rota (user).
+ */
 [data-surface="victim"] {
-  --background: #1a1d3a;
-  --foreground: #f3f5f7;
-  --card: rgba(255, 255, 255, 0.07);
-  --card-foreground: #f3f5f7;
-  --popover: #1f2138;
-  --popover-foreground: #f3f5f7;
-  /* Violeta como primário — ações normais (não emergência) */
-  --primary: #7c3aed;
-  --primary-foreground: #ffffff;
-  --secondary: rgba(255, 255, 255, 0.08);
-  --secondary-foreground: #f3f5f7;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #c4cfda;
-  --accent: #9333ea;
-  --accent-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.10);
-  --input: rgba(255, 255, 255, 0.13);
-  --ring: rgba(124, 58, 237, 0.6);
+  --background:          #f0e4f5;
+  --foreground:          #3a2530;
+  --card:                rgba(255, 255, 255, 0.55);
+  --card-foreground:     #3a2530;
+  --popover:             #ffffff;
+  --popover-foreground:  #3a2530;
+  /* Salmão/terracota — ações normais (não emergência) */
+  --primary:             #c4705a;
+  --primary-foreground:  #ffffff;
+  --secondary:           rgba(255, 255, 255, 0.40);
+  --secondary-foreground:#3a2530;
+  --muted:               rgba(180, 140, 160, 0.18);
+  --muted-foreground:    #7a5565;
+  --accent:              #7ab5a0;
+  --accent-foreground:   #ffffff;
+  --border:              rgba(180, 140, 160, 0.25);
+  --input:               rgba(180, 140, 160, 0.30);
+  --ring:                rgba(196, 112, 90, 0.50);
 }
 
 .dark {
@@ -258,4 +260,23 @@
   50% {
     box-shadow: 0 0 0 3px rgba(166, 60, 60, 0.45), 0 4px 32px rgba(166, 60, 60, 0.22);
   }
+}
+
+/* Blob orgânico — botão de emergência (mais vertical, respiração lenta) */
+@keyframes blob-emergency {
+  0%, 100% { border-radius: 60% 40% 52% 48% / 44% 56% 44% 56%; }
+  33%       { border-radius: 52% 48% 62% 38% / 52% 48% 58% 42%; }
+  66%       { border-radius: 64% 36% 48% 52% / 38% 62% 50% 50%; }
+}
+
+@keyframes blob-emergency-press {
+  0%, 100% { border-radius: 55% 45% 58% 42% / 50% 50% 50% 50%; }
+  50%       { border-radius: 48% 52% 52% 48% / 55% 45% 55% 45%; }
+}
+
+/* Blob orgânico — botão de sair (mais horizontal, deformação diferente) */
+@keyframes blob-exit {
+  0%, 100% { border-radius: 42% 58% 55% 45% / 58% 42% 62% 38%; }
+  40%       { border-radius: 55% 45% 42% 58% / 45% 55% 42% 58%; }
+  70%       { border-radius: 48% 52% 60% 40% / 62% 38% 48% 52%; }
 }

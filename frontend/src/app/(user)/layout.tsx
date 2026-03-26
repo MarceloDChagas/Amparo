@@ -27,8 +27,12 @@ export default function UserLayout({
     return (
       // data-surface="user" ativa o contexto de tema do usuário comum (globals.css)
       <div
-        className="flex h-screen items-center justify-center bg-background"
-        data-surface="user"
+        className="flex h-screen items-center justify-center"
+        data-surface="victim"
+        style={{
+          background:
+            "radial-gradient(ellipse at top left, #ede0f5, #f5d4c0 70%)",
+        }}
       >
         <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
       </div>
@@ -40,7 +44,14 @@ export default function UserLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background" data-surface="user">
+    <div
+      className="min-h-screen w-full"
+      data-surface="victim"
+      style={{
+        background:
+          "radial-gradient(ellipse at top left, #ede0f5, #f5d4c0 70%)",
+      }}
+    >
       {children}
     </div>
   );

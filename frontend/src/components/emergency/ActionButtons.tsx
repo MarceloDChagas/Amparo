@@ -14,7 +14,10 @@ export function ActionButtons() {
   return (
     <div className="w-full max-w-md px-4 mb-8">
       {/* Rótulo de seção com hierarquia clara — antes era um label solto sem contexto */}
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
+      <p
+        className="mb-3 text-xs font-semibold uppercase tracking-[0.16em]"
+        style={{ color: "#3a2530" }}
+      >
         Acesso rápido
       </p>
 
@@ -23,21 +26,23 @@ export function ActionButtons() {
           <button
             className="w-full rounded-2xl py-4 px-3 flex flex-col items-center justify-center gap-2.5 transition-transform active:scale-95 border"
             style={{
-              backgroundColor: "rgba(124, 58, 237, 0.18)",
-              borderColor: "rgba(167, 139, 250, 0.25)",
+              backgroundColor: "rgba(255,255,255,0.55)",
+              borderColor: "rgba(196,112,90,0.20)",
               backdropFilter: "blur(8px)",
             }}
             aria-label="Ir para rede de apoio — gerenciar contatos de emergência"
           >
-            {/* Wrapper de contraste: fundo branco/20 garante legibilidade do ícone */}
             <div
               aria-hidden="true"
               className="rounded-xl p-2"
-              style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+              style={{ backgroundColor: "rgba(196,112,90,0.12)" }}
             >
-              <Users size={22} color="white" />
+              <Users size={22} color="#c4705a" />
             </div>
-            <span className="font-semibold text-xs text-center leading-tight text-white">
+            <span
+              className="font-semibold text-xs text-center leading-tight"
+              style={{ color: "#3a2530" }}
+            >
               Rede de{"\n"}apoio
             </span>
           </button>
@@ -47,8 +52,8 @@ export function ActionButtons() {
           <button
             className="w-full rounded-2xl py-4 px-3 flex flex-col items-center justify-center gap-2.5 transition-transform active:scale-95 border"
             style={{
-              backgroundColor: "rgba(124, 58, 237, 0.18)",
-              borderColor: "rgba(167, 139, 250, 0.25)",
+              backgroundColor: "rgba(255,255,255,0.55)",
+              borderColor: "rgba(122,181,160,0.25)",
               backdropFilter: "blur(8px)",
             }}
             aria-label="Ir para minhas notas — registrar observações pessoais"
@@ -56,11 +61,14 @@ export function ActionButtons() {
             <div
               aria-hidden="true"
               className="rounded-xl p-2"
-              style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+              style={{ backgroundColor: "rgba(122,181,160,0.15)" }}
             >
-              <NotebookPen size={22} color="white" />
+              <NotebookPen size={22} color="#5a9e8a" />
             </div>
-            <span className="font-semibold text-xs text-center leading-tight text-white">
+            <span
+              className="font-semibold text-xs text-center leading-tight"
+              style={{ color: "#3a2530" }}
+            >
               Minhas{"\n"}notas
             </span>
           </button>

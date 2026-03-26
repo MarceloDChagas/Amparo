@@ -42,14 +42,7 @@ export default function UserContactsPage() {
   };
 
   return (
-    <div
-      className="relative flex min-h-screen flex-col overflow-hidden"
-      style={{
-        backgroundColor: "#f4f7fb",
-        backgroundImage:
-          "radial-gradient(circle at top left, rgba(36, 75, 122, 0.13), transparent 34%), radial-gradient(circle at 85% 18%, rgba(31, 58, 95, 0.08), transparent 26%), linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%)",
-      }}
-    >
+    <div className="relative flex min-h-screen flex-col overflow-hidden">
       <ContactsPageBackground />
 
       <EmergencyHeader variant="light" />

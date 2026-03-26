@@ -27,31 +27,40 @@ import { useGetEmergencyContacts } from "@/data/hooks/use-get-emergency-contacts
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
+  name: z
+    .string()
+    .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   phone: z
     .string()
     .transform((val) => val.replace(/[^\d]+/g, ""))
-    .refine((val) => val.length >= 10, "Telefone deve ter pelo menos 10 dígitos."),
-  email: z.string().email("Endereço de email inválido.").optional().or(z.literal("")),
+    .refine(
+      (val) => val.length >= 10,
+      "Telefone deve ter pelo menos 10 dígitos.",
+    ),
+  email: z
+    .string()
+    .email("Endereço de email inválido.")
+    .optional()
+    .or(z.literal("")),
   relationship: z.string().min(1, { message: "O vínculo é obrigatório." }),
 });
 
 const inputStyle: React.CSSProperties = {
   height: "52px",
   borderRadius: "14px",
-  border: "1px solid #b9c8d8",
-  backgroundColor: "#f8fbff",
+  border: "1px solid rgba(180,140,160,0.35)",
+  backgroundColor: "rgba(255,255,255,0.70)",
   paddingLeft: "16px",
   paddingRight: "16px",
   fontSize: "15px",
-  color: "#1f2937",
+  color: "#3a2530",
 };
 
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "13px",
   fontWeight: 600,
-  color: "#1f2937",
+  color: "#3a2530",
   marginBottom: "8px",
 };
 
@@ -98,20 +107,30 @@ export function EmergencyContactForm() {
       {isLimitReached && (
         <div
           className="mb-6 flex items-start gap-3 rounded-[18px] border px-4 py-4"
-          style={{ borderColor: "rgba(166,60,60,0.28)", backgroundColor: "#fef2f2" }}
+          style={{
+            borderColor: "rgba(166,60,60,0.28)",
+            backgroundColor: "#fef2f2",
+          }}
         >
-          <AlertTriangle size={18} className="mt-0.5 shrink-0" style={{ color: "#a63c3c" }} />
+          <AlertTriangle
+            size={18}
+            className="mt-0.5 shrink-0"
+            style={{ color: "#a63c3c" }}
+          />
           <p className="text-sm" style={{ color: "#a63c3c" }}>
-            Limite de 3 contatos atingido. Remova um contato para adicionar outro.
+            Limite de 3 contatos atingido. Remova um contato para adicionar
+            outro.
           </p>
         </div>
       )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <fieldset disabled={isLimitReached || isPending} className="space-y-5">
+          <fieldset
+            disabled={isLimitReached || isPending}
+            className="space-y-5"
+          >
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
               {/* Nome */}
               <FormField
                 control={form.control}
@@ -123,11 +142,14 @@ export function EmergencyContactForm() {
                       <Input
                         placeholder="Maria Silva"
                         style={inputStyle}
-                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(196,112,90,0.3)] focus-visible:border-[#c4705a] placeholder:text-slate-400"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                    <FormMessage
+                      className="text-sm"
+                      style={{ color: "#a63c3c" }}
+                    />
                   </FormItem>
                 )}
               />
@@ -146,8 +168,11 @@ export function EmergencyContactForm() {
                     >
                       <FormControl>
                         <SelectTrigger
-                          style={{ ...inputStyle, color: field.value ? "#1f2937" : "#94a3b8" }}
-                          className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a]"
+                          style={{
+                            ...inputStyle,
+                            color: field.value ? "#3a2530" : "#94a3b8",
+                          }}
+                          className="focus-visible:ring-2 focus-visible:ring-[rgba(196,112,90,0.3)] focus-visible:border-[#c4705a]"
                         >
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -161,7 +186,10 @@ export function EmergencyContactForm() {
                         <SelectItem value="Other">Outro</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                    <FormMessage
+                      className="text-sm"
+                      style={{ color: "#a63c3c" }}
+                    />
                   </FormItem>
                 )}
               />
@@ -180,11 +208,14 @@ export function EmergencyContactForm() {
                         customInput={Input}
                         placeholder="(11) 98765-4321"
                         style={inputStyle}
-                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(196,112,90,0.3)] focus-visible:border-[#c4705a] placeholder:text-slate-400"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                    <FormMessage
+                      className="text-sm"
+                      style={{ color: "#a63c3c" }}
+                    />
                   </FormItem>
                 )}
               />
@@ -195,20 +226,28 @@ export function EmergencyContactForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <label style={labelStyle}>Email <span style={{ color: "#9ca3af", fontWeight: 400 }}>(Opcional)</span></label>
+                    <label style={labelStyle}>
+                      Email{" "}
+                      <span style={{ color: "#9ca3af", fontWeight: 400 }}>
+                        (Opcional)
+                      </span>
+                    </label>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="maria@exemplo.com"
                         style={inputStyle}
-                        className="focus-visible:ring-2 focus-visible:ring-[rgba(36,75,122,0.2)] focus-visible:border-[#244b7a] placeholder:text-slate-400"
+                        className="focus-visible:ring-2 focus-visible:ring-[rgba(196,112,90,0.3)] focus-visible:border-[#c4705a] placeholder:text-slate-400"
                         {...field}
                       />
                     </FormControl>
                     <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>
                       Usado para alertas de emergência
                     </p>
-                    <FormMessage className="text-sm" style={{ color: "#a63c3c" }} />
+                    <FormMessage
+                      className="text-sm"
+                      style={{ color: "#a63c3c" }}
+                    />
                   </FormItem>
                 )}
               />
@@ -219,10 +258,12 @@ export function EmergencyContactForm() {
               disabled={isLimitReached || isPending}
               className="w-full h-[52px] rounded-[14px] text-[15px] font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               style={{
-                backgroundColor: isLimitReached ? "#93a6bb" : "#1f3a5f",
+                backgroundColor: isLimitReached
+                  ? "rgba(196,112,90,0.35)"
+                  : "#c4705a",
                 boxShadow: isLimitReached
                   ? "none"
-                  : "0 12px 24px rgba(31,58,95,0.18)",
+                  : "0 12px 24px rgba(196,112,90,0.28)",
               }}
             >
               {isLimitReached
