@@ -9,9 +9,7 @@ import type {
 import { PrismaService } from "@/infra/database/prisma.service";
 
 @Injectable()
-export class PrismaCheckInScheduleRepository
-  implements ICheckInScheduleRepository
-{
+export class PrismaCheckInScheduleRepository implements ICheckInScheduleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private map(row: PrismaSchedule): CheckInSchedule {
@@ -70,10 +68,7 @@ export class PrismaCheckInScheduleRepository
     return rows.map((r) => this.map(r));
   }
 
-  async markAsArrived(
-    id: string,
-    arrivedAt: Date,
-  ): Promise<CheckInSchedule> {
+  async markAsArrived(id: string, arrivedAt: Date): Promise<CheckInSchedule> {
     const row = await this.prisma.checkInSchedule.update({
       where: { id },
       data: { status: "ARRIVED", arrivedAt },
@@ -81,10 +76,7 @@ export class PrismaCheckInScheduleRepository
     return this.map(row);
   }
 
-  async markAsAlerted(
-    id: string,
-    alertedAt: Date,
-  ): Promise<CheckInSchedule> {
+  async markAsAlerted(id: string, alertedAt: Date): Promise<CheckInSchedule> {
     const row = await this.prisma.checkInSchedule.update({
       where: { id },
       data: { status: "ALERTED", alertedAt },

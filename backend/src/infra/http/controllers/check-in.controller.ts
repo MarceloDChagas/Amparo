@@ -11,7 +11,6 @@ import {
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
-
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
@@ -27,11 +26,11 @@ import { CloseCheckInUseCase } from "@/core/use-cases/close-check-in.use-case";
 import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
 import { ConfirmCheckInArrivalUseCase } from "@/core/use-cases/confirm-check-in-arrival.use-case";
 import { DefineCheckInSafeLocationUseCase } from "@/core/use-cases/define-check-in-safe-location.use-case";
-import { GetCheckInSchedulesUseCase } from "@/core/use-cases/get-check-in-schedules.use-case";
 import { EscalateCheckInUseCase } from "@/core/use-cases/escalate-check-in.use-case";
 import { GetActiveCheckInUseCase } from "@/core/use-cases/get-active-check-in.use-case";
 import { GetAllActiveCheckInsUseCase } from "@/core/use-cases/get-all-active-check-ins.use-case";
 import { GetCheckInByIdUseCase } from "@/core/use-cases/get-check-in-by-id.use-case";
+import { GetCheckInSchedulesUseCase } from "@/core/use-cases/get-check-in-schedules.use-case";
 import { GetLateCheckInsUseCase } from "@/core/use-cases/get-late-check-ins.use-case";
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
@@ -179,13 +178,11 @@ export class CheckInController {
   /** AM-159 — Define destino e horário esperado de chegada para monitoramento automático */
   @Post("schedule")
   @ApiOperation({
-    summary: "Define safe location and expected arrival for smart check-in monitoring",
+    summary:
+      "Define safe location and expected arrival for smart check-in monitoring",
   })
   @UsePipes(ZodValidationPipe)
-  async createSchedule(
-    @Request() req,
-    @Body() body: CreateCheckInScheduleDto,
-  ) {
+  async createSchedule(@Request() req, @Body() body: CreateCheckInScheduleDto) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const userId = (req.user as { id: string }).id;
     return this.defineCheckInSafeLocationUseCase.execute({
@@ -210,7 +207,9 @@ export class CheckInController {
 
   /** Confirma chegada ao destino, encerrando o monitoramento automático */
   @Post("schedule/:id/arrive")
-  @ApiOperation({ summary: "Confirm arrival to destination (cancels automatic alert)" })
+  @ApiOperation({
+    summary: "Confirm arrival to destination (cancels automatic alert)",
+  })
   async confirmArrival(@Request() req, @Param("id") id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const userId = (req.user as { id: string }).id;

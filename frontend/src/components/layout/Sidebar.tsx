@@ -18,6 +18,7 @@ import {
   Home,
   LogOut,
   Navigation,
+  Route,
   ShieldAlert,
   Users,
 } from "lucide-react";
@@ -57,6 +58,12 @@ const routes = [
     label: "Ocorrências",
     icon: FileText,
     href: "/occurrences",
+    color: iconNeutral,
+  },
+  {
+    label: "Rotas de Patrulha",
+    icon: Route,
+    href: "/patrol-routes",
     color: iconNeutral,
   },
   {

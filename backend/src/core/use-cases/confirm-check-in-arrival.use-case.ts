@@ -2,9 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 
 import { CheckInSchedule } from "@/core/domain/entities/check-in-schedule.entity";
 import type { ICheckInScheduleRepository } from "@/core/domain/repositories/check-in-schedule-repository.interface";
-import {
-  CheckInScheduleNotFoundError,
-} from "@/core/errors/check-in.errors";
+import { CheckInScheduleNotFoundError } from "@/core/errors/check-in.errors";
 
 /**
  * Permite que a usuária confirme chegada ao destino, encerrando o monitoramento

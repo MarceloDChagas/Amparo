@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 
 import { HeatMapCell } from "@/core/domain/entities/heat-map-cell.entity";
-import type { IHeatMapRepository } from "@/core/domain/repositories/heat-map-repository.interface";
 import type { Occurrence } from "@/core/domain/entities/occurrence.entity";
+import type { IHeatMapRepository } from "@/core/domain/repositories/heat-map-repository.interface";
 
 /**
  * AM-148 / AM-149 — CalculateHeatMap

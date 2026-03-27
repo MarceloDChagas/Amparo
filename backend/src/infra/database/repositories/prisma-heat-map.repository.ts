@@ -76,7 +76,9 @@ export class PrismaHeatMapRepository implements IHeatMapRepository {
         },
       });
     } catch (err) {
-      this.logger.error(`Erro ao fazer upsert de célula ${cellKey}: ${String(err)}`);
+      this.logger.error(
+        `Erro ao fazer upsert de célula ${cellKey}: ${String(err)}`,
+      );
     }
   }
 }

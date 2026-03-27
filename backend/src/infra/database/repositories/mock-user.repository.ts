@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+
 import { User } from "@/core/domain/entities/user.entity";
 import { UserRepository } from "@/core/domain/repositories/user.repository";
 import { MOCK_USERS } from "@/infra/database/mock-data";
@@ -10,9 +11,7 @@ import { MOCK_USERS } from "@/infra/database/mock-data";
 @Injectable()
 export class MockUserRepository implements UserRepository {
   // Initialize with hardcoded example users
-  private mockUsers: Map<string, User> = new Map(
-    Object.entries(MOCK_USERS),
-  );
+  private mockUsers: Map<string, User> = new Map(Object.entries(MOCK_USERS));
 
   async create(user: User): Promise<User> {
     const newUser = new User({

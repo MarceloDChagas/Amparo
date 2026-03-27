@@ -11,9 +11,7 @@ import { MonitorCheckInUseCase } from "@/core/use-cases/monitor-check-in.use-cas
 export class MonitorCheckInCron {
   private readonly logger = new Logger(MonitorCheckInCron.name);
 
-  constructor(
-    private readonly monitorCheckInUseCase: MonitorCheckInUseCase,
-  ) {}
+  constructor(private readonly monitorCheckInUseCase: MonitorCheckInUseCase) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handle(): Promise<void> {

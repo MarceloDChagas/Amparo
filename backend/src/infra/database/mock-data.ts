@@ -7,10 +7,10 @@
  * - admin@example.com / admin123 (ADMIN role)
  */
 
-import { User } from "@/core/domain/entities/user.entity";
 import { Aggressor } from "@/core/domain/entities/aggressor.entity";
-import { Occurrence } from "@/core/domain/entities/occurrence.entity";
 import { Notification } from "@/core/domain/entities/notification.entity";
+import { Occurrence } from "@/core/domain/entities/occurrence.entity";
+import { User } from "@/core/domain/entities/user.entity";
 
 // ============================================================================
 // USERS
@@ -21,8 +21,7 @@ export const MOCK_USERS: Record<string, User> = {
     id: "user-1",
     email: "usuario@example.com",
     name: "João Silva",
-    password:
-      "$2b$10$uyJy9VrUfPGjKzLn7GYKNeMVc7mxL7pK7LzPqLz7LzPqLz7LzPqL6", // senha123
+    password: "$2b$10$uyJy9VrUfPGjKzLn7GYKNeMVc7mxL7pK7LzPqLz7LzPqLz7LzPqL6", // senha123
     role: "USER",
     cpf: "12345678901",
     createdAt: new Date("2024-01-15T10:30:00Z"),
@@ -32,8 +31,7 @@ export const MOCK_USERS: Record<string, User> = {
     id: "admin-1",
     email: "admin@example.com",
     name: "Maria Santos",
-    password:
-      "$2b$10$wPJy9VrUfPGjKzLn7GYKNeMVc7mxL7pK7LzPqLz7LzPqLz7LzPqL7", // admin123
+    password: "$2b$10$wPJy9VrUfPGjKzLn7GYKNeMVc7mxL7pK7LzPqLz7LzPqLz7LzPqL7", // admin123
     role: "ADMIN",
     cpf: "98765432109",
     createdAt: new Date("2024-01-01T08:00:00Z"),
@@ -117,7 +115,8 @@ export const MOCK_NOTES: Record<string, any> = {
   "note-3": {
     id: "note-3",
     title: "Medicação atualizada",
-    content: "Novos remédios prescritos pelo psiquiatra. Tomar conforme instruções",
+    content:
+      "Novos remédios prescritos pelo psiquiatra. Tomar conforme instruções",
     userId: "user-1",
     occurrenceId: null,
     createdAt: new Date("2024-03-15T09:00:00Z"),

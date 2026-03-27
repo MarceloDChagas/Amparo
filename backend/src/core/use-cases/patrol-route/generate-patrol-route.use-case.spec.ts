@@ -1,7 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { vi, describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { HeatMapCell } from "@/core/domain/entities/heat-map-cell.entity";
+
 import { GeneratePatrolRouteUseCase } from "./generate-patrol-route.use-case";
 
 /**
@@ -11,11 +12,46 @@ describe("GeneratePatrolRouteUseCase", () => {
   let useCase: GeneratePatrolRouteUseCase;
 
   const mockCells: HeatMapCell[] = [
-    { cellKey: "-8.33_-36.42", latitude: -8.33, longitude: -36.42, intensity: 6, riskScore: 7.5, lastOccurrence: new Date() },
-    { cellKey: "-8.34_-36.43", latitude: -8.34, longitude: -36.43, intensity: 4, riskScore: 6.0, lastOccurrence: new Date() },
-    { cellKey: "-8.35_-36.44", latitude: -8.35, longitude: -36.44, intensity: 2, riskScore: 3.0, lastOccurrence: new Date() },
-    { cellKey: "-8.36_-36.41", latitude: -8.36, longitude: -36.41, intensity: 2, riskScore: 2.5, lastOccurrence: new Date() },
-    { cellKey: "-8.37_-36.45", latitude: -8.37, longitude: -36.45, intensity: 1, riskScore: 1.5, lastOccurrence: new Date() },
+    {
+      cellKey: "-8.33_-36.42",
+      latitude: -8.33,
+      longitude: -36.42,
+      intensity: 6,
+      riskScore: 7.5,
+      lastOccurrence: new Date(),
+    },
+    {
+      cellKey: "-8.34_-36.43",
+      latitude: -8.34,
+      longitude: -36.43,
+      intensity: 4,
+      riskScore: 6.0,
+      lastOccurrence: new Date(),
+    },
+    {
+      cellKey: "-8.35_-36.44",
+      latitude: -8.35,
+      longitude: -36.44,
+      intensity: 2,
+      riskScore: 3.0,
+      lastOccurrence: new Date(),
+    },
+    {
+      cellKey: "-8.36_-36.41",
+      latitude: -8.36,
+      longitude: -36.41,
+      intensity: 2,
+      riskScore: 2.5,
+      lastOccurrence: new Date(),
+    },
+    {
+      cellKey: "-8.37_-36.45",
+      latitude: -8.37,
+      longitude: -36.45,
+      intensity: 1,
+      riskScore: 1.5,
+      lastOccurrence: new Date(),
+    },
   ];
 
   const mockHeatMapRepo = { findAll: vi.fn().mockResolvedValue(mockCells) };
@@ -41,7 +77,9 @@ describe("GeneratePatrolRouteUseCase", () => {
       ],
     }).compile();
 
-    useCase = module.get<GeneratePatrolRouteUseCase>(GeneratePatrolRouteUseCase);
+    useCase = module.get<GeneratePatrolRouteUseCase>(
+      GeneratePatrolRouteUseCase,
+    );
   });
 
   it("deve gerar rota com waypoints ordenados pela lógica Nearest Neighbor", async () => {
@@ -77,7 +115,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     const route = await useCase.execute({
       name: "Rota Viatura A",
       generatedBy: "admin-id",
-      vehicleLatitude: -8.33,  // próximo ao ponto de riskScore 7.5
+      vehicleLatitude: -8.33, // próximo ao ponto de riskScore 7.5
       vehicleLongitude: -36.42,
     });
 

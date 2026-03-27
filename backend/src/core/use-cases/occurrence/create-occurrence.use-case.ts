@@ -35,13 +35,13 @@ export class CreateOccurrenceUseCase {
       await this.occurrenceRepository.create(occurrence);
 
     // AM-152 — atualiza heat map de forma assíncrona ao criar nova ocorrência.
-    this.heatMapRepository.upsertFromOccurrence(createdOccurrence).catch(
-      (error: unknown) => {
+    this.heatMapRepository
+      .upsertFromOccurrence(createdOccurrence)
+      .catch((error: unknown) => {
         this.logger.error(
           `Falha ao atualizar heat map para ocorrência ${createdOccurrence.id}: ${String(error)}`,
         );
-      },
-    );
+      });
 
     // RN05 — notificação assíncrona para não impactar latência da criação (NRF05).
     this.sendNotifications(createdOccurrence).catch((error: unknown) => {

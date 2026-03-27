@@ -120,4 +120,57 @@ export const checkInService = {
       method: "PATCH",
     });
   },
+
+  // ── AM-154 — Checkin Inteligente ──────────────────────────────────────────
+
+  /** AM-159 — Cria agendamento de check-in inteligente */
+  async createSchedule(data: {
+    name: string;
+    destinationAddress?: string;
+    destinationLat: number;
+    destinationLng: number;
+    expectedArrivalAt: string; // ISO 8601
+    windowMinutes?: number;
+  }): Promise<CheckInSchedule> {
+    return fetchJSON<CheckInSchedule>(`${API_URL}/check-ins/schedule`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /** AM-160 — Lista agendamentos da usuária */
+  async getMySchedules(): Promise<CheckInSchedule[]> {
+    return fetchJSON<CheckInSchedule[]>(`${API_URL}/check-ins/my-schedules`);
+  },
+
+  /** Confirma chegada — cancela alerta automático */
+  async confirmArrival(scheduleId: string): Promise<CheckInSchedule> {
+    return fetchJSON<CheckInSchedule>(
+      `${API_URL}/check-ins/schedule/${scheduleId}/arrive`,
+      { method: "POST" },
+    );
+  },
 };
+
+// AM-154 — tipos de schedule
+export type CheckInScheduleStatus =
+  | "PENDING"
+  | "ARRIVED"
+  | "ALERTED"
+  | "CANCELLED";
+
+export interface CheckInSchedule {
+  id: string;
+  userId: string;
+  name: string;
+  destinationAddress?: string | null;
+  destinationLat: number;
+  destinationLng: number;
+  expectedArrivalAt: string;
+  windowMinutes: number;
+  status: CheckInScheduleStatus;
+  alertedAt?: string | null;
+  arrivedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
