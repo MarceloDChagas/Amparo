@@ -245,20 +245,35 @@ enum PatrolRouteStatus {
 }
 
 model PatrolRoute {
-  id         String             @id @default(uuid())
-  name       String // Ex: "Rota Carnaval - Centro"
-  waypoints  String // JSON: Array<{ latitude: Float, longitude: Float, order: Int }>
-  status     PatrolRouteStatus  @default(PENDING)
-  assignedTo String? // ID do agente/viatura responsável
-  generatedBy String? // ID do admin que gerou a rota
+  id          String              @id @default(uuid())
+  name        String              // Ex: "Rota Carnaval - Centro"
+  waypoints   String              // JSON: Array<{ latitude: Float, longitude: Float, order: Int, riskScore: Float }>
+  status      PatrolRouteStatus   @default(PENDING)
+  assignedTo  String?             // ID do agente/viatura responsável
+  generatedBy String?             // ID do admin que gerou a rota
   scheduledAt DateTime?
-  startedAt  DateTime?
+  startedAt   DateTime?
   completedAt DateTime?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  logs        PatrolRouteLog[]
 
   @@index([status])
   @@index([scheduledAt])
+}
+
+// AM-84 — Logs de geração e atualização de rotas
+model PatrolRouteLog {
+  id            String      @id @default(uuid())
+  patrolRouteId String
+  patrolRoute   PatrolRoute @relation(fields: [patrolRouteId], references: [id], onDelete: Cascade)
+  event         String      // GENERATED | ASSIGNED | STARTED | COMPLETED | CANCELLED | UPDATED
+  performedBy   String?     // userId responsável pela ação
+  metadata      String?     // JSON com contexto extra
+  createdAt     DateTime    @default(now())
+
+  @@index([patrolRouteId])
+  @@index([event])
 }
 
 // AM-154 — Checkin Inteligente e Alerta Automático
