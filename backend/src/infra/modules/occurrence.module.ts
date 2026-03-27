@@ -7,9 +7,10 @@ import { PrismaOccurrenceRepository } from "@/infra/database/repositories/prisma
 import { OccurrenceController } from "@/infra/http/controllers/occurrence.controller";
 import { EmailModule } from "@/infra/modules/email.module";
 import { EmergencyContactModule } from "@/infra/modules/emergency-contact.module";
+import { HeatMapModule } from "@/infra/modules/heat-map.module";
 
 @Module({
-  imports: [EmailModule, EmergencyContactModule],
+  imports: [EmailModule, EmergencyContactModule, HeatMapModule],
   controllers: [OccurrenceController],
   providers: [
     CreateOccurrenceUseCase,

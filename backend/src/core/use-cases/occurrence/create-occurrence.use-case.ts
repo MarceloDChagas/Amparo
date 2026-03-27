@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 
 import { Occurrence } from "@/core/domain/entities/occurrence.entity";
+import type { IHeatMapRepository } from "@/core/domain/repositories/heat-map-repository.interface";
 import type { IOccurrenceRepository } from "@/core/domain/repositories/occurrence-repository.interface";
 import { SendEmergencyNotificationUseCase } from "@/core/use-cases/notification/send-emergency-notification.use-case";
 
@@ -25,11 +26,22 @@ export class CreateOccurrenceUseCase {
     @Inject("IOccurrenceRepository")
     private readonly occurrenceRepository: IOccurrenceRepository,
     private readonly sendEmergencyNotificationUseCase: SendEmergencyNotificationUseCase,
+    @Inject("IHeatMapRepository")
+    private readonly heatMapRepository: IHeatMapRepository,
   ) {}
 
   async execute(occurrence: Occurrence): Promise<Occurrence> {
     const createdOccurrence =
       await this.occurrenceRepository.create(occurrence);
+
+    // AM-152 — atualiza heat map de forma assíncrona ao criar nova ocorrência.
+    this.heatMapRepository.upsertFromOccurrence(createdOccurrence).catch(
+      (error: unknown) => {
+        this.logger.error(
+          `Falha ao atualizar heat map para ocorrência ${createdOccurrence.id}: ${String(error)}`,
+        );
+      },
+    );
 
     // RN05 — notificação assíncrona para não impactar latência da criação (NRF05).
     this.sendNotifications(createdOccurrence).catch((error: unknown) => {

@@ -17,6 +17,7 @@ export class PrismaOccurrenceRepository implements IOccurrenceRepository {
       longitude: occ.longitude,
       userId: occ.userId,
       aggressorId: occ.aggressorId,
+      createdAt: occ.createdAt,
     });
   }
 
