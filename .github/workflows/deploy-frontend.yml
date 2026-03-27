@@ -37,9 +37,8 @@ jobs:
           echo "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" >> frontend/.env.production
           echo "NEXT_TELEMETRY_DISABLED=1" >> frontend/.env.production
 
-      # The SWA action detects Next.js (standalone output) automatically.
-      # It will: install deps → next build → deploy SSR routes as Azure Functions
-      # and static assets to the CDN edge.
+      # output: 'export' → static site, no Azure Functions needed.
+      # is_static_export: true tells SWA not to provision Azure Functions.
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -47,8 +46,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "frontend"      # root of the Next.js project
-          api_location: ""              # no separate API dir (Next.js handles routes)
-          output_location: ""           # blank = SWA auto-detects Next.js output
+          api_location: ""              # no separate API dir
+          output_location: "out"        # Next.js export output directory
+          is_static_export: true        # skip Azure Functions provisioning
         env:
           NODE_VERSION: ${{ env.NODE_VERSION }}
 
