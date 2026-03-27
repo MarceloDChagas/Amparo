@@ -47,6 +47,10 @@ function useCountdown(targetDate: string | Date) {
   return { formatted, isOverdue };
 }
 
+export function generateStaticParams() {
+  return [];
+}
+
 export default function CheckInDetailsPage() {
   const router = useRouter();
   const params = useParams();

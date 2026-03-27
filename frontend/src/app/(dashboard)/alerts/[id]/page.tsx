@@ -14,6 +14,10 @@ import {
 import { AlertStatusActions } from "./components/AlertStatusActions";
 import { AlertTimeline } from "./components/AlertTimeline";
 
+export function generateStaticParams() {
+  return [];
+}
+
 export default function EmergencyAlertDetailsPage() {
   const router = useRouter();
   const params = useParams();

@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, userService } from "@/services/user-service";
 
+export function generateStaticParams() {
+  return [];
+}
+
 export default function UserDetailsPage() {
   const params = useParams();
   const router = useRouter();
