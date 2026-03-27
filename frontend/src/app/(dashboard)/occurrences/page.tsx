@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HeatMapCell, heatMapService } from "@/services/heat-map-service";
 import { Occurrence, occurrenceService } from "@/services/occurrence-service";
 
 const OccurrencesMap = dynamic(
@@ -32,16 +33,21 @@ const OccurrencesMap = dynamic(
 
 export default function OccurrencesPage() {
   const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
+  const [heatMapCells, setHeatMapCells] = useState<HeatMapCell[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadOccurrences();
+    loadData();
   }, []);
 
-  async function loadOccurrences() {
+  async function loadData() {
     try {
-      const data = await occurrenceService.getAll();
-      setOccurrences(data);
+      const [occ, cells] = await Promise.all([
+        occurrenceService.getAll(),
+        heatMapService.getAll().catch(() => [] as HeatMapCell[]),
+      ]);
+      setOccurrences(occ);
+      setHeatMapCells(cells);
     } catch (error) {
       toast.error("Erro ao carregar ocorrências.");
       console.error(error);
@@ -105,6 +111,7 @@ export default function OccurrencesPage() {
                   <TableRow>
                     <TableHead>Descrição</TableHead>
                     <TableHead>Localização</TableHead>
+                    <TableHead>Data</TableHead>
                     <TableHead>ID do Usuário</TableHead>
                     <TableHead>ID do Agressor</TableHead>
                   </TableRow>
@@ -112,7 +119,7 @@ export default function OccurrencesPage() {
                 <TableBody>
                   {occurrences.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24">
+                      <TableCell colSpan={5} className="text-center h-24">
                         Nenhuma ocorrência encontrada.
                       </TableCell>
                     </TableRow>
@@ -123,8 +130,15 @@ export default function OccurrencesPage() {
                         <TableCell>
                           {occurrence.latitude}, {occurrence.longitude}
                         </TableCell>
+                        <TableCell>
+                          {occurrence.createdAt
+                            ? new Date(occurrence.createdAt).toLocaleDateString(
+                                "pt-BR",
+                              )
+                            : "—"}
+                        </TableCell>
                         <TableCell>{occurrence.userId}</TableCell>
-                        <TableCell>{occurrence.aggressorId}</TableCell>
+                        <TableCell>{occurrence.aggressorId ?? "—"}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -136,7 +150,11 @@ export default function OccurrencesPage() {
             <OccurrencesMap occurrences={occurrences} viewMode="cluster" />
           </TabsContent>
           <TabsContent value="heatmap" className="mt-4">
-            <OccurrencesMap occurrences={occurrences} viewMode="heatmap" />
+            <OccurrencesMap
+              occurrences={occurrences}
+              viewMode="heatmap"
+              heatMapCells={heatMapCells}
+            />
           </TabsContent>
         </Tabs>
       )}

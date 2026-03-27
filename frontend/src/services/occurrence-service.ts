@@ -7,7 +7,7 @@ export interface Occurrence {
   longitude: number;
   userId: string;
   aggressorId?: string | null;
-  // Add other fields as needed
+  createdAt?: string;
 }
 
 export interface CreateOccurrenceData {
