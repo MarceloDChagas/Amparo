@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import {
   CheckCircle2,
   Loader2,
@@ -11,6 +10,7 @@ import {
   Route,
   XCircle,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 
 import { Badge, BadgeVariant } from "@/components/ui/badge";
@@ -19,8 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   PatrolRoute,
-  PatrolRouteStatus,
   patrolRouteService,
+  PatrolRouteStatus,
 } from "@/services/patrol-route-service";
 
 // Mapa Leaflet só no cliente
@@ -98,9 +98,7 @@ export default function PatrolRoutesPage() {
       setRoutes((prev) => [route, ...prev]);
       setSelected(route);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erro ao gerar rota.",
-      );
+      setError(err instanceof Error ? err.message : "Erro ao gerar rota.");
     } finally {
       setGenerating(false);
     }
@@ -135,7 +133,9 @@ export default function PatrolRoutesPage() {
           onClick={() => void loadRoutes()}
           disabled={loading}
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+          />
           Atualizar
         </Button>
       </div>
@@ -237,7 +237,9 @@ export default function PatrolRoutesPage() {
           {/* Lista de rotas */}
           <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-border">
-              <p className="text-sm font-semibold">Rotas salvas ({routes.length})</p>
+              <p className="text-sm font-semibold">
+                Rotas salvas ({routes.length})
+              </p>
             </div>
             {loading ? (
               <div className="flex items-center justify-center py-8">
@@ -261,7 +263,10 @@ export default function PatrolRoutesPage() {
                         <span className="text-sm font-medium truncate">
                           {route.name}
                         </span>
-                        <Badge variant={STATUS_VARIANT[route.status]} className="text-[10px] shrink-0">
+                        <Badge
+                          variant={STATUS_VARIANT[route.status]}
+                          className="text-[10px] shrink-0"
+                        >
                           {STATUS_LABEL[route.status]}
                         </Badge>
                       </div>
@@ -271,7 +276,9 @@ export default function PatrolRoutesPage() {
                           {route.waypoints.length} pontos
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(route.createdAt).toLocaleDateString("pt-BR")}
+                          {new Date(route.createdAt).toLocaleDateString(
+                            "pt-BR",
+                          )}
                         </span>
                       </div>
                     </button>
@@ -289,7 +296,9 @@ export default function PatrolRoutesPage() {
               {/* Mapa */}
               <div className="rounded-xl border border-border bg-card shadow-sm p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-foreground">{selected.name}</h3>
+                  <h3 className="font-semibold text-foreground">
+                    {selected.name}
+                  </h3>
                   <Badge variant={STATUS_VARIANT[selected.status]}>
                     {STATUS_LABEL[selected.status]}
                   </Badge>
@@ -304,7 +313,9 @@ export default function PatrolRoutesPage() {
                   {selected.status === "PENDING" && (
                     <Button
                       size="sm"
-                      onClick={() => void handleStatus(selected.id, "IN_PROGRESS")}
+                      onClick={() =>
+                        void handleStatus(selected.id, "IN_PROGRESS")
+                      }
                     >
                       <Play className="h-3 w-3 mr-1" /> Iniciar patrulha
                     </Button>
@@ -313,7 +324,9 @@ export default function PatrolRoutesPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => void handleStatus(selected.id, "COMPLETED")}
+                      onClick={() =>
+                        void handleStatus(selected.id, "COMPLETED")
+                      }
                     >
                       <CheckCircle2 className="h-3 w-3 mr-1" /> Concluir
                     </Button>
@@ -323,7 +336,9 @@ export default function PatrolRoutesPage() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => void handleStatus(selected.id, "CANCELLED")}
+                      onClick={() =>
+                        void handleStatus(selected.id, "CANCELLED")
+                      }
                     >
                       <XCircle className="h-3 w-3 mr-1" /> Cancelar
                     </Button>
@@ -340,9 +355,15 @@ export default function PatrolRoutesPage() {
                       <thead className="bg-muted/50">
                         <tr>
                           <th className="px-3 py-2 text-left font-medium">#</th>
-                          <th className="px-3 py-2 text-left font-medium">Latitude</th>
-                          <th className="px-3 py-2 text-left font-medium">Longitude</th>
-                          <th className="px-3 py-2 text-left font-medium">Risco</th>
+                          <th className="px-3 py-2 text-left font-medium">
+                            Latitude
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium">
+                            Longitude
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium">
+                            Risco
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
@@ -403,7 +424,9 @@ export default function PatrolRoutesPage() {
           ) : (
             <div className="rounded-xl border border-border bg-card shadow-sm flex flex-col items-center justify-center h-[420px] gap-3 text-muted-foreground">
               <Route className="h-10 w-10 opacity-30" />
-              <p className="text-sm">Gere ou selecione uma rota para visualizar</p>
+              <p className="text-sm">
+                Gere ou selecione uma rota para visualizar
+              </p>
             </div>
           )}
         </div>

@@ -13,7 +13,7 @@ export class MockUserRepository implements UserRepository {
   // Initialize with hardcoded example users
   private mockUsers: Map<string, User> = new Map(Object.entries(MOCK_USERS));
 
-  async create(user: User): Promise<User> {
+  create(user: User): Promise<User> {
     const newUser = new User({
       ...user,
       id: `user-${Date.now()}`,
@@ -21,42 +21,42 @@ export class MockUserRepository implements UserRepository {
       updatedAt: new Date(),
     });
     this.mockUsers.set(newUser.id, newUser);
-    return newUser;
+    return Promise.resolve(newUser);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  findByEmail(email: string): Promise<User | null> {
     for (const user of this.mockUsers.values()) {
       if (user.email === email) {
-        return user;
+        return Promise.resolve(user);
       }
     }
-    return null;
+    return Promise.resolve(null);
   }
 
-  async findByCpf(cpf: string): Promise<User | null> {
+  findByCpf(cpf: string): Promise<User | null> {
     for (const user of this.mockUsers.values()) {
       if (user.cpf === cpf) {
-        return user;
+        return Promise.resolve(user);
       }
     }
-    return null;
+    return Promise.resolve(null);
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.mockUsers.get(id) || null;
+  findById(id: string): Promise<User | null> {
+    return Promise.resolve(this.mockUsers.get(id) ?? null);
   }
 
-  async findByRole(role: string): Promise<User[]> {
+  findByRole(role: string): Promise<User[]> {
     const users: User[] = [];
     for (const user of this.mockUsers.values()) {
       if (user.role === role) {
         users.push(user);
       }
     }
-    return users;
+    return Promise.resolve(users);
   }
 
-  async update(id: string, user: Partial<User>): Promise<User> {
+  update(id: string, user: Partial<User>): Promise<User> {
     const existingUser = this.mockUsers.get(id);
     if (!existingUser) {
       throw new Error(`User with id ${id} not found`);
@@ -70,10 +70,11 @@ export class MockUserRepository implements UserRepository {
       updatedAt: new Date(),
     });
     this.mockUsers.set(id, updatedUser);
-    return updatedUser;
+    return Promise.resolve(updatedUser);
   }
 
-  async delete(id: string): Promise<void> {
+  delete(id: string): Promise<void> {
     this.mockUsers.delete(id);
+    return Promise.resolve();
   }
 }

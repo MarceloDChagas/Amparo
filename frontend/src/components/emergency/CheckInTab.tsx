@@ -17,8 +17,8 @@ import {
 } from "@/hooks/use-check-in";
 import {
   CheckInSchedule,
-  DistanceType,
   checkInService,
+  DistanceType,
 } from "@/services/check-in-service";
 
 import { CheckInActive } from "./CheckInActive";
@@ -54,7 +54,11 @@ export function CheckInTab() {
 
   const handleStart = () => {
     const go = (lat?: number, lng?: number) =>
-      startCheckIn.mutate({ distanceType: selectedDistance, startLatitude: lat, startLongitude: lng });
+      startCheckIn.mutate({
+        distanceType: selectedDistance,
+        startLatitude: lat,
+        startLongitude: lng,
+      });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -112,19 +116,30 @@ export function CheckInTab() {
   };
 
   useEffect(() => {
-    if (subTab === "SCHEDULE") {
+    if (subTab !== "SCHEDULE") return;
+    void (async () => {
       setLoadingSchedules(true);
-      checkInService
-        .getMySchedules()
-        .then(setSchedules)
-        .catch(() => {})
-        .finally(() => setLoadingSchedules(false));
-    }
+      try {
+        const data = await checkInService.getMySchedules();
+        setSchedules(data);
+      } catch {
+        // ignorado — não bloquear a UI por falha de rede
+      } finally {
+        setLoadingSchedules(false);
+      }
+    })();
   }, [subTab]);
 
   const handleCreateSchedule = async () => {
-    if (!form.name || !form.expectedArrivalAt || userLat === null || userLng === null) {
-      setScheduleError("Preencha nome, horário e capture sua localização atual.");
+    if (
+      !form.name ||
+      !form.expectedArrivalAt ||
+      userLat === null ||
+      userLng === null
+    ) {
+      setScheduleError(
+        "Preencha nome, horário e capture sua localização atual.",
+      );
       return;
     }
     setSubmitting(true);
@@ -140,7 +155,12 @@ export function CheckInTab() {
       });
       setSchedules((prev) => [created, ...prev]);
       setShowForm(false);
-      setForm({ name: "", destinationAddress: "", expectedArrivalAt: "", windowMinutes: "15" });
+      setForm({
+        name: "",
+        destinationAddress: "",
+        expectedArrivalAt: "",
+        windowMinutes: "15",
+      });
       setUserLat(null);
       setUserLng(null);
     } catch {
@@ -158,9 +178,7 @@ export function CheckInTab() {
   };
 
   if (isLoading) {
-    return (
-      <div className="text-white text-center mt-12">Carregando...</div>
-    );
+    return <div className="text-white text-center mt-12">Carregando...</div>;
   }
 
   return (
@@ -193,7 +211,11 @@ export function CheckInTab() {
             className="flex-1 py-2 text-xs font-medium rounded-full transition-all"
             style={
               subTab === t
-                ? { backgroundColor: "white", color: "#0d9488", boxShadow: "0 1px 4px rgba(13,148,136,0.2)" }
+                ? {
+                    backgroundColor: "white",
+                    color: "#0d9488",
+                    boxShadow: "0 1px 4px rgba(13,148,136,0.2)",
+                  }
                 : { color: "rgba(255,255,255,0.65)" }
             }
           >
@@ -237,7 +259,10 @@ export function CheckInTab() {
           >
             {/* Botão novo agendamento */}
             <button
-              onClick={() => { setShowForm((v) => !v); captureLocation(); }}
+              onClick={() => {
+                setShowForm((v) => !v);
+                captureLocation();
+              }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all"
               style={{
                 backgroundColor: "rgba(13,148,136,0.18)",
@@ -277,41 +302,57 @@ export function CheckInTab() {
                     )}
 
                     <div className="space-y-2">
-                      <label className="text-xs text-white/60">Nome do destino</label>
+                      <label className="text-xs text-white/60">
+                        Nome do destino
+                      </label>
                       <input
                         className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white placeholder-white/30 border border-white/10 outline-none focus:border-teal-400"
                         placeholder="Ex: Trabalho, Casa da mãe…"
                         value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, name: e.target.value }))
+                        }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs text-white/60">Endereço (opcional)</label>
+                      <label className="text-xs text-white/60">
+                        Endereço (opcional)
+                      </label>
                       <input
                         className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white placeholder-white/30 border border-white/10 outline-none focus:border-teal-400"
                         placeholder="Rua, número…"
                         value={form.destinationAddress}
                         onChange={(e) =>
-                          setForm((f) => ({ ...f, destinationAddress: e.target.value }))
+                          setForm((f) => ({
+                            ...f,
+                            destinationAddress: e.target.value,
+                          }))
                         }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs text-white/60">Horário esperado de chegada</label>
+                      <label className="text-xs text-white/60">
+                        Horário esperado de chegada
+                      </label>
                       <input
                         type="datetime-local"
                         className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white border border-white/10 outline-none focus:border-teal-400"
                         value={form.expectedArrivalAt}
                         onChange={(e) =>
-                          setForm((f) => ({ ...f, expectedArrivalAt: e.target.value }))
+                          setForm((f) => ({
+                            ...f,
+                            expectedArrivalAt: e.target.value,
+                          }))
                         }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs text-white/60">Tolerância (min)</label>
+                      <label className="text-xs text-white/60">
+                        Tolerância (min)
+                      </label>
                       <input
                         type="number"
                         min={1}
@@ -319,7 +360,10 @@ export function CheckInTab() {
                         className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white border border-white/10 outline-none focus:border-teal-400"
                         value={form.windowMinutes}
                         onChange={(e) =>
-                          setForm((f) => ({ ...f, windowMinutes: e.target.value }))
+                          setForm((f) => ({
+                            ...f,
+                            windowMinutes: e.target.value,
+                          }))
                         }
                       />
                     </div>
@@ -333,7 +377,10 @@ export function CheckInTab() {
                           userLat !== null
                             ? "rgba(16,185,129,0.2)"
                             : "rgba(255,255,255,0.08)",
-                        color: userLat !== null ? "#6ee7b7" : "rgba(255,255,255,0.5)",
+                        color:
+                          userLat !== null
+                            ? "#6ee7b7"
+                            : "rgba(255,255,255,0.5)",
                         border: `1px solid ${userLat !== null ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.1)"}`,
                       }}
                     >
@@ -396,13 +443,18 @@ export function CheckInTab() {
                         </p>
                         <p className="text-xs text-white/50 flex items-center gap-1 mt-0.5">
                           <Clock className="h-3 w-3" />
-                          {new Date(s.expectedArrivalAt).toLocaleString("pt-BR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                          <span className="ml-1">· {s.windowMinutes}min tolerância</span>
+                          {new Date(s.expectedArrivalAt).toLocaleString(
+                            "pt-BR",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                          <span className="ml-1">
+                            · {s.windowMinutes}min tolerância
+                          </span>
                         </p>
                         {s.destinationAddress && (
                           <p className="text-xs text-white/40 truncate mt-0.5">

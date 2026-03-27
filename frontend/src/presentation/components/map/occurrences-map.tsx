@@ -35,9 +35,9 @@ function makeIcon(color: string) {
   });
 }
 
-const ICON_RED = makeIcon("#dc2626");    // ocorrência com agressor conhecido
-const ICON_AMBER = makeIcon("#d97706");  // ocorrência recente (≤ 30 dias), sem agressor
-const ICON_BLUE = makeIcon("#2563eb");   // ocorrência antiga, sem agressor
+const ICON_RED = makeIcon("#dc2626"); // ocorrência com agressor conhecido
+const ICON_AMBER = makeIcon("#d97706"); // ocorrência recente (≤ 30 dias), sem agressor
+const ICON_BLUE = makeIcon("#2563eb"); // ocorrência antiga, sem agressor
 
 function chooseIcon(occ: Occurrence): L.DivIcon {
   if (occ.aggressorId) return ICON_RED;
@@ -73,8 +73,23 @@ function MapLegend() {
         { color: "#d97706", label: "Recente (≤ 30 dias)" },
         { color: "#2563eb", label: "Demais ocorrências" },
       ].map(({ color, label }) => (
-        <div key={label} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-          <div style={{ width: 12, height: 12, borderRadius: "50%", background: color }} />
+        <div
+          key={label}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: 3,
+          }}
+        >
+          <div
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              background: color,
+            }}
+          />
           <span>{label}</span>
         </div>
       ))}
@@ -106,12 +121,21 @@ function HeatmapLayer({ occurrences, heatMapCells }: HeatmapLayerProps) {
           const maxScore = Math.max(...heatMapCells.map((c) => c.riskScore), 1);
           points = heatMapCells
             .filter((c) => c.latitude != null && c.longitude != null)
-            .map((c) => [c.latitude, c.longitude, c.riskScore / maxScore] as [number, number, number]);
+            .map(
+              (c) =>
+                [c.latitude, c.longitude, c.riskScore / maxScore] as [
+                  number,
+                  number,
+                  number,
+                ],
+            );
         } else {
           // fallback: se o heat map ainda não foi calculado, usa ocorrências brutas
           points = occurrences
             .filter((o) => o.latitude != null && o.longitude != null)
-            .map((o) => [o.latitude, o.longitude, 1] as [number, number, number]);
+            .map(
+              (o) => [o.latitude, o.longitude, 1] as [number, number, number],
+            );
         }
 
         if (heatLayerRef.current) {
@@ -137,6 +161,7 @@ function HeatmapLayer({ occurrences, heatMapCells }: HeatmapLayerProps) {
             })
             .addTo(map);
         }
+        return undefined;
       })
       .catch((err) => {
         console.error("Failed to load leaflet.heat plugin", err);
@@ -154,7 +179,13 @@ function HeatmapLayer({ occurrences, heatMapCells }: HeatmapLayerProps) {
 
 // ── Sincroniza centro/zoom ───────────────────────────────────────────────────
 
-function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
+function MapUpdater({
+  center,
+  zoom,
+}: {
+  center: [number, number];
+  zoom: number;
+}) {
   const map = useMap();
   useEffect(() => {
     map.flyTo(center, zoom);
@@ -186,13 +217,21 @@ export default function OccurrencesMap({
           setZoom(13);
         },
         () => {
-          if (occurrences.length > 0 && occurrences[0].latitude && occurrences[0].longitude) {
+          if (
+            occurrences.length > 0 &&
+            occurrences[0].latitude &&
+            occurrences[0].longitude
+          ) {
             setCenter([occurrences[0].latitude, occurrences[0].longitude]);
             setZoom(12);
           }
         },
       );
-    } else if (occurrences.length > 0 && occurrences[0].latitude && occurrences[0].longitude) {
+    } else if (
+      occurrences.length > 0 &&
+      occurrences[0].latitude &&
+      occurrences[0].longitude
+    ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCenter([occurrences[0].latitude, occurrences[0].longitude]);
       setZoom(12);
@@ -221,37 +260,59 @@ export default function OccurrencesMap({
                 if (occ.latitude == null || occ.longitude == null) return null;
                 const icon = chooseIcon(occ);
                 return (
-                  <Marker key={occ.id} position={[occ.latitude, occ.longitude]} icon={icon}>
+                  <Marker
+                    key={occ.id}
+                    position={[occ.latitude, occ.longitude]}
+                    icon={icon}
+                  >
                     {/* AM-164: detalhamento ao passar o mouse */}
                     <Tooltip direction="top" offset={[0, -32]} opacity={0.95}>
                       <div style={{ minWidth: 160, fontSize: 12 }}>
-                        <p style={{ fontWeight: 600, marginBottom: 4 }}>Ocorrência</p>
-                        <p style={{ color: "#6b7280", marginBottom: 2 }}>{occ.description}</p>
+                        <p style={{ fontWeight: 600, marginBottom: 4 }}>
+                          Ocorrência
+                        </p>
+                        <p style={{ color: "#6b7280", marginBottom: 2 }}>
+                          {occ.description}
+                        </p>
                         {occ.createdAt && (
                           <p style={{ color: "#9ca3af" }}>
-                            {new Date(occ.createdAt).toLocaleDateString("pt-BR")}
+                            {new Date(occ.createdAt).toLocaleDateString(
+                              "pt-BR",
+                            )}
                           </p>
                         )}
                         {occ.aggressorId && (
-                          <p style={{ color: "#dc2626", marginTop: 2 }}>Agressor identificado</p>
+                          <p style={{ color: "#dc2626", marginTop: 2 }}>
+                            Agressor identificado
+                          </p>
                         )}
                       </div>
                     </Tooltip>
                     <Popup>
                       <div className="p-1 space-y-1.5">
                         <h3 className="font-bold text-sm">Ocorrência</h3>
-                        <p className="text-xs text-muted-foreground">{occ.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {occ.description}
+                        </p>
                         <div className="text-xs space-y-0.5">
-                          <div><strong>Lat:</strong> {occ.latitude.toFixed(5)}</div>
-                          <div><strong>Lng:</strong> {occ.longitude.toFixed(5)}</div>
+                          <div>
+                            <strong>Lat:</strong> {occ.latitude.toFixed(5)}
+                          </div>
+                          <div>
+                            <strong>Lng:</strong> {occ.longitude.toFixed(5)}
+                          </div>
                           {occ.createdAt && (
                             <div>
                               <strong>Data:</strong>{" "}
-                              {new Date(occ.createdAt).toLocaleDateString("pt-BR")}
+                              {new Date(occ.createdAt).toLocaleDateString(
+                                "pt-BR",
+                              )}
                             </div>
                           )}
                           {occ.aggressorId && (
-                            <div className="text-red-600 font-medium">Agressor identificado</div>
+                            <div className="text-red-600 font-medium">
+                              Agressor identificado
+                            </div>
                           )}
                         </div>
                       </div>

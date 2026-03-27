@@ -60,7 +60,7 @@ export const MOCK_AGGRESSORS: Record<string, Aggressor> = {
 // EMERGENCY CONTACTS
 // ============================================================================
 
-export const MOCK_EMERGENCY_CONTACTS: Record<string, any> = {
+export const MOCK_EMERGENCY_CONTACTS: Record<string, unknown> = {
   "contact-1": {
     id: "contact-1",
     name: "Mãe - Regina Silva",
@@ -91,7 +91,7 @@ export const MOCK_EMERGENCY_CONTACTS: Record<string, any> = {
 // NOTES
 // ============================================================================
 
-export const MOCK_NOTES: Record<string, any> = {
+export const MOCK_NOTES: Record<string, unknown> = {
   "note-1": {
     id: "note-1",
     title: "Encontro com o agressor",
@@ -159,7 +159,7 @@ export const MOCK_OCCURRENCES: Record<string, Occurrence> = {
 // EMERGENCY ALERTS
 // ============================================================================
 
-export const MOCK_EMERGENCY_ALERTS: Record<string, any> = {
+export const MOCK_EMERGENCY_ALERTS: Record<string, unknown> = {
   "alert-1": {
     id: "alert-1",
     latitude: -23.5505,

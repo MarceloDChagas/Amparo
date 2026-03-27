@@ -1,7 +1,8 @@
 "use client";
 
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+import L from "leaflet";
 import { useEffect, useRef } from "react";
 
 import { Waypoint } from "@/services/patrol-route-service";
@@ -30,16 +31,26 @@ export default function PatrolRouteMap({ waypoints }: Props) {
     }
 
     const sorted = [...waypoints].sort((a, b) => a.order - b.order);
-    const latlngs: [number, number][] = sorted.map((wp) => [wp.latitude, wp.longitude]);
+    const latlngs: [number, number][] = sorted.map((wp) => [
+      wp.latitude,
+      wp.longitude,
+    ]);
 
-    const map = L.map(containerRef.current, { preferCanvas: true }).setView(latlngs[0], 14);
+    const map = L.map(containerRef.current, { preferCanvas: true }).setView(
+      latlngs[0],
+      14,
+    );
     mapRef.current = map;
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    L.polyline(latlngs, { color: "#6366f1", weight: 3, dashArray: "6,4" }).addTo(map);
+    L.polyline(latlngs, {
+      color: "#6366f1",
+      weight: 3,
+      dashArray: "6,4",
+    }).addTo(map);
 
     sorted.forEach((wp, i) => {
       const color = riskColor(wp.riskScore);
@@ -51,7 +62,9 @@ export default function PatrolRouteMap({ waypoints }: Props) {
       });
       L.marker([wp.latitude, wp.longitude], { icon })
         .addTo(map)
-        .bindPopup(`<b>Ponto ${i + 1}</b><br/>Risco: <b>${wp.riskScore.toFixed(1)}</b><br/>${wp.latitude.toFixed(5)}, ${wp.longitude.toFixed(5)}`);
+        .bindPopup(
+          `<b>Ponto ${i + 1}</b><br/>Risco: <b>${wp.riskScore.toFixed(1)}</b><br/>${wp.latitude.toFixed(5)}, ${wp.longitude.toFixed(5)}`,
+        );
     });
 
     if (latlngs.length > 1) {

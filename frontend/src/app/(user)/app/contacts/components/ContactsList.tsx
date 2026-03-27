@@ -19,7 +19,9 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return (parts[0][0] ?? "?").toUpperCase();
-  return ((parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")).toUpperCase();
+  return (
+    (parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")
+  ).toUpperCase();
 }
 
 export function ContactsList() {
@@ -43,7 +45,10 @@ export function ContactsList() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin" style={{ color: "#244b7a" }} />
+        <Loader2
+          className="h-6 w-6 animate-spin"
+          style={{ color: "#244b7a" }}
+        />
       </div>
     );
   }
@@ -59,7 +64,8 @@ export function ContactsList() {
           Nenhum contato adicionado
         </p>
         <p className="text-xs mt-1" style={{ color: "#6b7280" }}>
-          Use o formulário abaixo para cadastrar seu primeiro contato de emergência.
+          Use o formulário abaixo para cadastrar seu primeiro contato de
+          emergência.
         </p>
       </div>
     );
@@ -108,7 +114,8 @@ export function ContactsList() {
                 {contact.name}
               </p>
               <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>
-                {RELATIONSHIP_LABELS[contact.relationship] ?? contact.relationship}
+                {RELATIONSHIP_LABELS[contact.relationship] ??
+                  contact.relationship}
                 {" · "}
                 {contact.phone}
               </p>
@@ -143,11 +150,13 @@ export function ContactsList() {
                 style={{ color: "#9ca3af" }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.color = "#dc2626";
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "#fee2e2";
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    "#fee2e2";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.color = "#9ca3af";
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    "transparent";
                 }}
               >
                 <Trash2 className="h-4 w-4" />
