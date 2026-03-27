@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await */
 import { Test, TestingModule } from "@nestjs/testing";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { HeatMapCell } from "@/core/domain/entities/heat-map-cell.entity";
 
@@ -55,9 +54,9 @@ describe("GeneratePatrolRouteUseCase", () => {
     },
   ];
 
-  const mockHeatMapRepo = { findAll: vi.fn().mockResolvedValue(mockCells) };
+  const mockHeatMapRepo = { findAll: jest.fn().mockResolvedValue(mockCells) };
   const mockPatrolRouteRepo = {
-    create: vi.fn().mockImplementation(async (data) => ({
+    create: jest.fn().mockImplementation(async (data) => ({
       id: "route-123",
       ...data,
       waypoints: data.waypoints,
@@ -65,11 +64,11 @@ describe("GeneratePatrolRouteUseCase", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     })),
-    addLog: vi.fn().mockResolvedValue(undefined),
+    addLog: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GeneratePatrolRouteUseCase,
