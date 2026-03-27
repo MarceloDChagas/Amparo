@@ -1,0 +1,66 @@
+name: Deploy Frontend to Azure Static Web Apps
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-frontend.yml"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "22.x"
+
+jobs:
+  build_and_deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # Inject runtime env vars as a .env file before SWA builds
+      - name: Write .env.production
+        run: |
+          echo "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" >> frontend/.env.production
+          echo "NEXT_TELEMETRY_DISABLED=1" >> frontend/.env.production
+
+      # The SWA action detects Next.js (standalone output) automatically.
+      # It will: install deps → next build → deploy SSR routes as Azure Functions
+      # and static assets to the CDN edge.
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_GLACIER_01BA0910F }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "frontend"      # root of the Next.js project
+          api_location: ""              # no separate API dir (Next.js handles routes)
+          output_location: ""           # blank = SWA auto-detects Next.js output
+        env:
+          NODE_VERSION: ${{ env.NODE_VERSION }}
+
+  close_pull_request:
+    name: Close staging environment (PR closed)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+
+    steps:
+      - name: Close Pull Request on Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_GLACIER_01BA0910F }}
+          action: "close"
+          app_location: "frontend"
