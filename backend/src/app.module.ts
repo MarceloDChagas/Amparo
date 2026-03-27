@@ -18,6 +18,7 @@ import { HeatMapModule } from "@/infra/modules/heat-map.module";
 import { NotesModule } from "@/infra/modules/notes.module";
 import { NotificationModule } from "@/infra/modules/notification.module";
 import { OccurrenceModule } from "@/infra/modules/occurrence.module";
+import { PatrolRouteModule } from "@/infra/modules/patrol-route.module";
 import { StorageModule } from "@/infra/modules/storage.module";
 import { UserModule } from "@/infra/modules/user.module";
 
@@ -43,6 +44,7 @@ import { AppService } from "./app.service";
     StorageModule,
     DocumentsModule,
     HeatMapModule,
+    PatrolRouteModule,
   ],
   controllers: [AppController],
   providers: [
