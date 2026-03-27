@@ -127,6 +127,7 @@ model User {
   emergencyAlerts   EmergencyAlert[]
   notifications     Notification[]
   checkIns          CheckIn[]
+  checkInSchedules  CheckInSchedule[]
   notes             Note[]
   documents         Document[]
   safeLocations     SafeLocation[]
@@ -258,6 +259,29 @@ model PatrolRoute {
 
   @@index([status])
   @@index([scheduledAt])
+}
+
+// AM-154 — Checkin Inteligente e Alerta Automático
+// Permite que a usuária defina um destino e horário esperado de chegada.
+// O sistema monitora e dispara EmergencyAlert automaticamente se não houver confirmação.
+model CheckInSchedule {
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               String    // Ex: "Trabalho", "Academia", "Casa da mãe"
+  destinationAddress String?
+  destinationLat     Float
+  destinationLng     Float
+  expectedArrivalAt  DateTime  // Horário previsto de chegada
+  windowMinutes      Int       @default(15) // Tolerância em minutos antes do alerta automático
+  status             String    @default("PENDING") // PENDING | ARRIVED | ALERTED | CANCELLED
+  alertedAt          DateTime? // Quando EmergencyAlert foi criado automaticamente
+  arrivedAt          DateTime? // Quando a usuária confirmou chegada
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status, expectedArrivalAt]) // Usado pelo cron de monitoramento
 }
 
 model SafeLocation {

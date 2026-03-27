@@ -522,6 +522,53 @@ async function main() {
     });
   }
 
+  // ── Check-in Inteligente (AM-154) ─────────────────────────────────────────
+  const existingSchedules = await prisma.checkInSchedule.count();
+
+  if (existingSchedules === 0) {
+    const now = new Date();
+
+    await prisma.checkInSchedule.createMany({
+      data: [
+        // Maria: agendamento futuro (dentro do prazo)
+        {
+          userId: maria.id,
+          name: "Trabalho",
+          destinationAddress: "Av. Floriano Peixoto, 890 — Campina Grande, PB",
+          destinationLat: -8.3301,
+          destinationLng: -36.4198,
+          expectedArrivalAt: new Date(now.getTime() + 30 * 60_000),
+          windowMinutes: 15,
+          status: "PENDING",
+        },
+        // Ana: chegou no prazo
+        {
+          userId: ana.id,
+          name: "Academia",
+          destinationAddress: "Rua das Flores, 45 — Campina Grande, PB",
+          destinationLat: -8.3312,
+          destinationLng: -36.4231,
+          expectedArrivalAt: new Date(now.getTime() - 20 * 60_000),
+          windowMinutes: 15,
+          status: "ARRIVED",
+          arrivedAt: new Date(now.getTime() - 18 * 60_000),
+        },
+        // Juliana: não chegou → alerta disparado
+        {
+          userId: juliana.id,
+          name: "Casa da mãe",
+          destinationAddress: "Rua Gêmeniano Maciel, 245 — Campina Grande, PB",
+          destinationLat: -8.3323,
+          destinationLng: -36.4215,
+          expectedArrivalAt: new Date(now.getTime() - 45 * 60_000),
+          windowMinutes: 15,
+          status: "ALERTED",
+          alertedAt: new Date(now.getTime() - 30 * 60_000),
+        },
+      ],
+    });
+  }
+
   // ── Heat Map (AM-147) ──────────────────────────────────────────────────────
   // Recalcula o mapa de calor a partir de todas as ocorrências já cadastradas,
   // espelhando exatamente o algoritmo do CalculateHeatMapUseCase:
@@ -599,6 +646,8 @@ async function main() {
   console.log(`Alertas: 1 ACTIVE · 2 RESOLVED`);
   // eslint-disable-next-line no-console
   console.log(`Check-ins: 1 LATE · 1 ACTIVE · 1 ON_TIME`);
+  // eslint-disable-next-line no-console
+  console.log(`Schedules inteligentes: 1 PENDING · 1 ARRIVED · 1 ALERTED`);
 
   // eslint-disable-next-line no-console
   console.log(`\n🗺️  Heat Map: ${cellMap.size} células geradas\n`);
