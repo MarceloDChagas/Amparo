@@ -576,7 +576,12 @@ async function main() {
   await prisma.heatMapCell.deleteMany();
 
   const allOccurrences = await prisma.occurrence.findMany({
-    select: { latitude: true, longitude: true, aggressorId: true, createdAt: true },
+    select: {
+      latitude: true,
+      longitude: true,
+      aggressorId: true,
+      createdAt: true,
+    },
   });
 
   const cellMap = new Map<
@@ -601,7 +606,8 @@ async function main() {
       const cell = cellMap.get(cellKey)!;
       cell.intensity += 1;
       cell.riskScore += weight;
-      if (occ.createdAt > cell.lastOccurrence) cell.lastOccurrence = occ.createdAt;
+      if (occ.createdAt > cell.lastOccurrence)
+        cell.lastOccurrence = occ.createdAt;
     } else {
       cellMap.set(cellKey, {
         cellKey,
@@ -616,6 +622,87 @@ async function main() {
 
   if (cellMap.size > 0) {
     await prisma.heatMapCell.createMany({ data: Array.from(cellMap.values()) });
+  }
+
+  // ── Rotas Inteligentes de Patrulha (AM-74) ────────────────────────────────
+  const existingRoutes = await prisma.patrolRoute.count();
+
+  if (existingRoutes === 0) {
+    // Gera waypoints com Nearest Neighbor a partir das células do mapa de calor
+    const topCells = Array.from(cellMap.values())
+      .sort((a, b) => b.riskScore - a.riskScore)
+      .slice(0, 5);
+
+    const waypointsA = topCells.map((c, idx) => ({
+      order: idx + 1,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      riskScore: c.riskScore,
+    }));
+
+    const waypointsB = topCells.slice(0, 3).map((c, idx) => ({
+      order: idx + 1,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      riskScore: c.riskScore,
+    }));
+
+    const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
+
+    const routeA = await prisma.patrolRoute.create({
+      data: {
+        name: "Rota Alpha — Centro Histórico",
+        waypoints: JSON.stringify(waypointsA),
+        status: "PENDING",
+        generatedBy: admin?.id,
+        scheduledAt: new Date(Date.now() + 2 * 60 * 60_000), // em 2h
+      },
+    });
+    await prisma.patrolRouteLog.create({
+      data: {
+        patrolRouteId: routeA.id,
+        event: "GENERATED",
+        performedBy: admin?.id,
+        metadata: JSON.stringify({
+          totalCells: cellMap.size,
+          selectedCells: 5,
+        }),
+      },
+    });
+
+    const routeB = await prisma.patrolRoute.create({
+      data: {
+        name: "Rota Bravo — Zona Sul",
+        waypoints: JSON.stringify(waypointsB),
+        status: "IN_PROGRESS",
+        generatedBy: admin?.id,
+        startedAt: new Date(Date.now() - 30 * 60_000),
+      },
+    });
+    await prisma.patrolRouteLog.createMany({
+      data: [
+        {
+          patrolRouteId: routeB.id,
+          event: "GENERATED",
+          performedBy: admin?.id,
+          metadata: JSON.stringify({
+            totalCells: cellMap.size,
+            selectedCells: 3,
+          }),
+          createdAt: new Date(Date.now() - 40 * 60_000),
+        },
+        {
+          patrolRouteId: routeB.id,
+          event: "STARTED",
+          performedBy: admin?.id,
+          metadata: JSON.stringify({
+            previousStatus: "PENDING",
+            newStatus: "IN_PROGRESS",
+          }),
+          createdAt: new Date(Date.now() - 30 * 60_000),
+        },
+      ],
+    });
   }
 
   // ── Relatório ──
@@ -648,10 +735,14 @@ async function main() {
   console.log(`Check-ins: 1 LATE · 1 ACTIVE · 1 ON_TIME`);
   // eslint-disable-next-line no-console
   console.log(`Schedules inteligentes: 1 PENDING · 1 ARRIVED · 1 ALERTED`);
+  // eslint-disable-next-line no-console
+  console.log(`Rotas de patrulha: 1 PENDING · 1 IN_PROGRESS (com logs)`);
 
   // eslint-disable-next-line no-console
   console.log(`\n🗺️  Heat Map: ${cellMap.size} células geradas\n`);
-  const sortedCells = Array.from(cellMap.values()).sort((a, b) => b.riskScore - a.riskScore);
+  const sortedCells = Array.from(cellMap.values()).sort(
+    (a, b) => b.riskScore - a.riskScore,
+  );
   // eslint-disable-next-line no-console
   console.table(
     sortedCells.map((c) => ({
