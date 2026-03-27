@@ -226,11 +226,13 @@ model HeatMapCell {
   latitude       Float
   longitude      Float
   intensity      Int      @default(1) // Número de ocorrências na célula
+  riskScore      Float    @default(0) // Score ponderado por tipo de ocorrência
   lastOccurrence DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@unique([latitude, longitude])
   @@index([intensity])
+  @@index([riskScore])
   @@index([lastOccurrence])
 }
 

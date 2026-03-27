@@ -522,6 +522,55 @@ async function main() {
     });
   }
 
+  // ── Heat Map (AM-147) ──────────────────────────────────────────────────────
+  // Recalcula o mapa de calor a partir de todas as ocorrências já cadastradas,
+  // espelhando exatamente o algoritmo do CalculateHeatMapUseCase:
+  // grade 1km² (0,01°), peso 1,5 para agressor identificado e 1,0 caso contrário.
+  await prisma.heatMapCell.deleteMany();
+
+  const allOccurrences = await prisma.occurrence.findMany({
+    select: { latitude: true, longitude: true, aggressorId: true, createdAt: true },
+  });
+
+  const cellMap = new Map<
+    string,
+    {
+      cellKey: string;
+      latitude: number;
+      longitude: number;
+      intensity: number;
+      riskScore: number;
+      lastOccurrence: Date;
+    }
+  >();
+
+  for (const occ of allOccurrences) {
+    const cellLat = Math.floor(occ.latitude * 100) / 100;
+    const cellLng = Math.floor(occ.longitude * 100) / 100;
+    const cellKey = `${cellLat.toFixed(2)}_${cellLng.toFixed(2)}`;
+    const weight = occ.aggressorId ? 1.5 : 1.0;
+
+    if (cellMap.has(cellKey)) {
+      const cell = cellMap.get(cellKey)!;
+      cell.intensity += 1;
+      cell.riskScore += weight;
+      if (occ.createdAt > cell.lastOccurrence) cell.lastOccurrence = occ.createdAt;
+    } else {
+      cellMap.set(cellKey, {
+        cellKey,
+        latitude: cellLat + 0.005,
+        longitude: cellLng + 0.005,
+        intensity: 1,
+        riskScore: weight,
+        lastOccurrence: occ.createdAt,
+      });
+    }
+  }
+
+  if (cellMap.size > 0) {
+    await prisma.heatMapCell.createMany({ data: Array.from(cellMap.values()) });
+  }
+
   // ── Relatório ──
   // eslint-disable-next-line no-console
   console.log("\n✅ Seed concluído\n");
@@ -549,7 +598,21 @@ async function main() {
   // eslint-disable-next-line no-console
   console.log(`Alertas: 1 ACTIVE · 2 RESOLVED`);
   // eslint-disable-next-line no-console
-  console.log(`Check-ins: 1 LATE · 1 ACTIVE · 1 ON_TIME\n`);
+  console.log(`Check-ins: 1 LATE · 1 ACTIVE · 1 ON_TIME`);
+
+  // eslint-disable-next-line no-console
+  console.log(`\n🗺️  Heat Map: ${cellMap.size} células geradas\n`);
+  const sortedCells = Array.from(cellMap.values()).sort((a, b) => b.riskScore - a.riskScore);
+  // eslint-disable-next-line no-console
+  console.table(
+    sortedCells.map((c) => ({
+      cellKey: c.cellKey,
+      lat: c.latitude.toFixed(4),
+      lng: c.longitude.toFixed(4),
+      incidências: c.intensity,
+      riskScore: c.riskScore.toFixed(1),
+    })),
+  );
 }
 
 void main()
