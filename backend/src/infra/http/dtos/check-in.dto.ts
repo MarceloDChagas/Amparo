@@ -17,3 +17,17 @@ export const completeCheckInSchema = z.object({
 });
 
 export class CompleteCheckInDto extends createZodDto(completeCheckInSchema) {}
+
+// AM-159 — POST /check-ins/schedule
+export const createCheckInScheduleSchema = z.object({
+  name: z.string().min(1),
+  destinationAddress: z.string().optional(),
+  destinationLat: z.number(),
+  destinationLng: z.number(),
+  expectedArrivalAt: z.string().datetime(),
+  windowMinutes: z.number().int().min(1).max(120).optional(),
+});
+
+export class CreateCheckInScheduleDto extends createZodDto(
+  createCheckInScheduleSchema,
+) {}
