@@ -59,6 +59,7 @@ jobs:
           path: |
             backend/dist
             backend/prisma
+            backend/prisma.config.js
             backend/package.json
             backend/package-lock.json
           retention-days: 1
