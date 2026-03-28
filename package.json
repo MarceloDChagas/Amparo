@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/MarceloDChagas/Amparo#readme",
   "devDependencies": {
+    "@types/pdfkit": "^0.17.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7"
   },

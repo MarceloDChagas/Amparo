@@ -3,9 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
+  Request,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
@@ -67,6 +70,21 @@ export class UserController {
   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     const updatedUser = await this.updateUserUseCase.execute(id, updateUserDto);
     return UserPresenter.toHTTP(updatedUser);
+  }
+
+  /**
+   * RF15 — Anonimização / Exclusão de Conta (LGPD)
+   * Permite que a própria usuária exclua todos os seus dados ("Direito ao Esquecimento").
+   * A rota /me usa o ID extraído do token JWT para evitar que uma usuária exclua a conta de outra.
+   */
+  @Delete("me")
+  @UseGuards(AuthGuard("jwt"), RolesGuard)
+  @Roles(Role.USER, Role.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async removeSelf(@Request() req: any): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.deleteUserUseCase.execute(req.user.id as string);
   }
 
   @Delete(":id")

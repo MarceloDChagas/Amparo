@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, List, Map } from "lucide-react";
+import { FileDown, Flame, List, Map } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HeatMapCell, heatMapService } from "@/services/heat-map-service";
 import { Occurrence, occurrenceService } from "@/services/occurrence-service";
+import { reportService } from "@/services/report-service";
 
 const OccurrencesMap = dynamic(
   () => import("@/presentation/components/map/occurrences-map"),
@@ -35,10 +36,36 @@ export default function OccurrencesPage() {
   const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
   const [heatMapCells, setHeatMapCells] = useState<HeatMapCell[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingOcc, setExportingOcc] = useState(false);
+  const [exportingArea, setExportingArea] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  async function handleExportOccurrences() {
+    setExportingOcc(true);
+    try {
+      await reportService.downloadOccurrencesReport();
+      toast.success("Relatório de ocorrências gerado.");
+    } catch {
+      toast.error("Erro ao gerar relatório.");
+    } finally {
+      setExportingOcc(false);
+    }
+  }
+
+  async function handleExportAreaAnalysis() {
+    setExportingArea(true);
+    try {
+      await reportService.downloadAreaAnalysisReport();
+      toast.success("Relatório de análise de área gerado.");
+    } catch {
+      toast.error("Erro ao gerar relatório.");
+    } finally {
+      setExportingArea(false);
+    }
+  }
 
   async function loadData() {
     try {
@@ -74,9 +101,32 @@ export default function OccurrencesPage() {
           </span>
         </div>
 
-        <Link href="/occurrences/create">
-          <Button>Nova Ocorrência</Button>
-        </Link>
+        {/* RF16 — Relatórios Oficiais */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportAreaAnalysis}
+            disabled={exportingArea}
+            className="flex items-center gap-1.5"
+          >
+            <FileDown className="h-4 w-4" />
+            {exportingArea ? "Gerando..." : "Análise de Área"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportOccurrences}
+            disabled={exportingOcc}
+            className="flex items-center gap-1.5"
+          >
+            <FileDown className="h-4 w-4" />
+            {exportingOcc ? "Gerando..." : "Exportar PDF"}
+          </Button>
+          <Link href="/occurrences/create">
+            <Button>Nova Ocorrência</Button>
+          </Link>
+        </div>
       </div>
 
       {loading ? (
