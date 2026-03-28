@@ -48,4 +48,19 @@ export const userService = {
       throw new Error("Failed to delete user");
     }
   },
+
+  /**
+   * RF15 — "Direito ao Esquecimento" (LGPD)
+   * Exclui a conta da própria usuária autenticada, incluindo todos os seus dados.
+   */
+  async deleteSelf(): Promise<void> {
+    const response = await fetch(`${API_URL}/users/me`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Falha ao excluir a conta");
+    }
+  },
 };

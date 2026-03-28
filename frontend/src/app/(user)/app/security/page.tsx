@@ -1,18 +1,38 @@
 "use client";
 
-import { BellRing, LogOut, ShieldCheck, UserCircle2 } from "lucide-react";
+import {
+  BellRing,
+  LogOut,
+  ShieldCheck,
+  Trash2,
+  UserCircle2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   BottomNavigation,
   EmergencyHeader,
   MainTabType,
 } from "@/components/emergency";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/presentation/hooks/useAuth";
+import { userService } from "@/services/user-service";
 
 export default function UserSecurityPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const handleTabChange = (tab: MainTabType) => {
     if (tab === "HOME") {
@@ -33,6 +53,21 @@ export default function UserSecurityPage() {
     }
     router.push("/app/security");
   };
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      await userService.deleteSelf();
+      logout();
+      router.push("/login");
+      toast.success("Conta excluída com sucesso.");
+    } catch {
+      toast.error("Erro ao excluir a conta. Tente novamente.");
+    } finally {
+      setDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  }
 
   if (!user) return null;
 
@@ -164,10 +199,97 @@ export default function UserSecurityPage() {
               </button>
             </div>
           </div>
+
+          {/* RF15 — Exclusão de Conta (LGPD) */}
+          <div
+            className="rounded-[24px] border p-5 sm:p-7"
+            style={{
+              borderColor: "rgba(180,60,60,0.20)",
+              backgroundColor: "rgba(255,245,245,0.6)",
+              boxShadow: "0 4px 24px rgba(58,37,48,0.05)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            <h3
+              className="text-base font-semibold mb-1"
+              style={{ color: "#a33030" }}
+            >
+              Zona de perigo
+            </h3>
+            <p className="text-sm mb-4" style={{ color: "#7a5565" }}>
+              A exclusão da conta remove permanentemente todos os seus dados da
+              plataforma, incluindo ocorrências, contatos de emergência,
+              check-ins e documentos. Esta ação não pode ser desfeita.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmText("");
+                setShowDeleteDialog(true);
+              }}
+              className="h-11 px-5 rounded-[14px] border text-sm font-semibold transition-colors flex items-center gap-2"
+              style={{
+                borderColor: "rgba(180,60,60,0.35)",
+                backgroundColor: "rgba(255,255,255,0.70)",
+                color: "#a33030",
+              }}
+            >
+              <Trash2 size={15} />
+              Excluir minha conta
+            </button>
+          </div>
         </div>
       </main>
 
       <BottomNavigation activeMainTab="PROFILE" onTabChange={handleTabChange} />
+
+      {/* Dialog de confirmação de exclusão */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir conta permanentemente</DialogTitle>
+            <DialogDescription>
+              Todos os seus dados serão removidos: ocorrências, contatos de
+              emergência, check-ins, documentos e notas. Esta ação é
+              irreversível e não poderá ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-3">
+            <p className="text-sm font-medium text-foreground">
+              Digite <strong>EXCLUIR</strong> para confirmar:
+            </p>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="EXCLUIR"
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-destructive/40"
+              aria-label="Confirme digitando EXCLUIR"
+            />
+          </div>
+
+          <DialogFooter className="mt-4 gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDeleteDialog(false)}
+              className="px-4 py-2 rounded-lg border text-sm font-medium"
+              style={{ color: "#7a5565" }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteAccount}
+              disabled={confirmText !== "EXCLUIR" || deleting}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+              style={{ backgroundColor: "#a33030" }}
+            >
+              {deleting ? "Excluindo..." : "Excluir conta"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

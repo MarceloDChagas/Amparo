@@ -112,8 +112,13 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: { id },
+    // RF15 — "Direito ao Esquecimento" (LGPD)
+    // Occurrences e EmergencyAlerts não têm onDelete: Cascade no schema,
+    // então precisam ser removidos manualmente antes de deletar o usuário.
+    await this.prisma.$transaction(async (tx) => {
+      await tx.occurrence.deleteMany({ where: { userId: id } });
+      await tx.emergencyAlert.deleteMany({ where: { userId: id } });
+      await tx.user.delete({ where: { id } });
     });
   }
 }
