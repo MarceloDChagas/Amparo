@@ -80,4 +80,11 @@ export interface CheckInRepository {
   updateEscalation(id: string, stage: number, overdueAt?: Date): Promise<void>;
   /** Admin fecha manualmente um check-in LATE */
   closeByAdmin(id: string): Promise<CheckInRecord>;
+  /**
+   * RN10 — Retenção de Dados de Localização
+   * Remove registros finalizados (ON_TIME, LATE, CANCELLED) criados antes da data informada.
+   * Registros ACTIVE não são afetados.
+   * Retorna o número de registros deletados.
+   */
+  deleteCreatedBefore(date: Date): Promise<number>;
 }

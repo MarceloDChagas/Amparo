@@ -145,6 +145,17 @@ export class PrismaCheckInRepository implements CheckInRepository {
     });
   }
 
+  /** RN10 — deleta check-ins finalizados criados antes da data informada */
+  async deleteCreatedBefore(date: Date): Promise<number> {
+    const { count } = await this.prisma.checkIn.deleteMany({
+      where: {
+        status: { in: ["ON_TIME", "LATE", "CANCELLED"] },
+        createdAt: { lt: date },
+      },
+    });
+    return count;
+  }
+
   /** Admin fecha manualmente um check-in LATE (sem confirmação de chegada) */
   async closeByAdmin(id: string): Promise<CheckInRecord> {
     const updated = await this.prisma.checkIn.update({

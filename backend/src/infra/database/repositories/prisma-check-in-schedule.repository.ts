@@ -91,4 +91,15 @@ export class PrismaCheckInScheduleRepository implements ICheckInScheduleReposito
     });
     return this.map(row);
   }
+
+  /** RN10 — deleta agendamentos finalizados criados antes da data informada */
+  async deleteCreatedBefore(date: Date): Promise<number> {
+    const { count } = await this.prisma.checkInSchedule.deleteMany({
+      where: {
+        status: { in: ["ARRIVED", "ALERTED", "CANCELLED"] },
+        createdAt: { lt: date },
+      },
+    });
+    return count;
+  }
 }

@@ -13,10 +13,12 @@ import { GetCheckInByIdUseCase } from "@/core/use-cases/get-check-in-by-id.use-c
 import { GetCheckInSchedulesUseCase } from "@/core/use-cases/get-check-in-schedules.use-case";
 import { GetLateCheckInsUseCase } from "@/core/use-cases/get-late-check-ins.use-case";
 import { MonitorCheckInUseCase } from "@/core/use-cases/monitor-check-in.use-case";
+import { PurgeLocationDataUseCase } from "@/core/use-cases/purge-location-data.use-case";
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 import { PrismaCheckInRepository } from "@/infra/database/repositories/prisma-check-in.repository";
 import { PrismaCheckInScheduleRepository } from "@/infra/database/repositories/prisma-check-in-schedule.repository";
 import { CheckInController } from "@/infra/http/controllers/check-in.controller";
+import { LocationDataRetentionCron } from "@/infra/services/location-data-retention.cron";
 import { MonitorCheckInCron } from "@/infra/services/monitor-check-in.cron";
 import { OverdueCheckInCron } from "@/infra/services/overdue-check-in.cron";
 
@@ -59,6 +61,9 @@ import { NotificationModule } from "./notification.module";
     ConfirmCheckInArrivalUseCase,
     MonitorCheckInUseCase,
     MonitorCheckInCron,
+    // RN10 — Retenção de Dados de Localização
+    PurgeLocationDataUseCase,
+    LocationDataRetentionCron,
     {
       provide: "ICheckInScheduleRepository",
       useClass: PrismaCheckInScheduleRepository,

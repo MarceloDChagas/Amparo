@@ -28,4 +28,11 @@ export interface ICheckInScheduleRepository {
   markAsArrived(id: string, arrivedAt: Date): Promise<CheckInSchedule>;
   markAsAlerted(id: string, alertedAt: Date): Promise<CheckInSchedule>;
   markAsCancelled(id: string): Promise<CheckInSchedule>;
+  /**
+   * RN10 — Retenção de Dados de Localização
+   * Remove agendamentos finalizados (ARRIVED, ALERTED, CANCELLED) criados antes da data informada.
+   * Registros PENDING não são afetados.
+   * Retorna o número de registros deletados.
+   */
+  deleteCreatedBefore(date: Date): Promise<number>;
 }
