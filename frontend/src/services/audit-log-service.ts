@@ -19,14 +19,12 @@ function getAuthHeaders() {
 }
 
 export const auditLogService = {
-  async getRecent(): Promise<AuditLog[]> {
-    const response = await fetch(`${API_URL}/audit-logs/recent`, {
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch recent audit logs");
-    }
+  async getRecent(limit = 5): Promise<AuditLog[]> {
+    const response = await fetch(
+      `${API_URL}/audit-logs/recent?limit=${limit}`,
+      { headers: getAuthHeaders() },
+    );
+    if (!response.ok) throw new Error("Failed to fetch recent audit logs");
     return response.json();
   },
 };

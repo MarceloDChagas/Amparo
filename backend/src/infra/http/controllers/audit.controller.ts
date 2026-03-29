@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { Role } from "@/core/domain/enums/role.enum";
@@ -13,10 +13,11 @@ export class AuditController {
 
   @Get("recent")
   @Roles(Role.ADMIN)
-  async getRecent() {
+  async getRecent(@Query("limit") limit?: string) {
+    const take = Math.min(Math.max(parseInt(limit ?? "5", 10) || 5, 1), 50);
     return this.prisma.auditLog.findMany({
       where: { action: { not: "GET" } },
-      take: 5,
+      take,
       orderBy: { createdAt: "desc" },
     });
   }
