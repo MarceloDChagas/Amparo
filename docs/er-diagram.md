@@ -1,7 +1,5 @@
 # Diagrama ER — Amparo
 
-> Gerado em 2026-03-21 | Branch: AM-137
-
 ```mermaid
 erDiagram
     User {
@@ -10,8 +8,8 @@ erDiagram
         string password
         string name
         enum   role "USER | ADMIN | VICTIM"
-        string cpf "encrypted"
-        string cpfHash UK "sha256"
+        string cpf "encrypted, nullable"
+        string cpfHash UK "sha256, nullable"
         datetime createdAt
         datetime updatedAt
     }
@@ -51,7 +49,8 @@ erDiagram
         float    latitude
         float    longitude
         string   address "nullable"
-        string   status "PENDING | ACTIVE | CLOSED"
+        string   status "PENDING | ACTIVE | CLOSED | CANCELLED"
+        string   cancellationReason "nullable"
         string   userId FK "nullable"
         datetime createdAt
     }
@@ -90,6 +89,24 @@ erDiagram
         string   distanceType "SHORT | MEDIUM | LONG"
         string   status "ACTIVE | ON_TIME | LATE | CANCELLED"
         string   userId FK
+        datetime overdueAt "nullable"
+        int      escalationStage "0=nenhum 1=in-app 2=email P1 3=email P2/P3 4=critico"
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    CheckInSchedule {
+        string   id PK
+        string   userId FK
+        string   name
+        string   destinationAddress "nullable"
+        float    destinationLat
+        float    destinationLng
+        datetime expectedArrivalAt
+        int      windowMinutes "tolerancia em minutos, default 15"
+        string   status "PENDING | ARRIVED | ALERTED | CANCELLED"
+        datetime alertedAt "nullable"
+        datetime arrivedAt "nullable"
         datetime createdAt
         datetime updatedAt
     }
@@ -154,6 +171,7 @@ erDiagram
         float    latitude UK
         float    longitude UK
         int      intensity "contagem de ocorrencias"
+        float    riskScore "score ponderado por tipo de ocorrencia"
         datetime lastOccurrence
         datetime updatedAt
     }
@@ -161,7 +179,8 @@ erDiagram
     PatrolRoute {
         string   id PK
         string   name
-        string   waypoints "JSON array de coordenadas"
+        string   waypoints "JSON: Array<{ latitude, longitude, order, riskScore }>"
+        string   routeGeometry "nullable, JSON: Array<[lng, lat]> via OSRM"
         enum     status "PENDING | IN_PROGRESS | COMPLETED | CANCELLED"
         string   assignedTo "nullable, agente/viatura"
         string   generatedBy "nullable, admin id"
@@ -172,11 +191,21 @@ erDiagram
         datetime updatedAt
     }
 
+    PatrolRouteLog {
+        string   id PK
+        string   patrolRouteId FK
+        string   event "GENERATED | ASSIGNED | STARTED | COMPLETED | CANCELLED | UPDATED"
+        string   performedBy "nullable, userId"
+        string   metadata "nullable, JSON"
+        datetime createdAt
+    }
+
     %% Relacionamentos
     User ||--o{ Occurrence         : "registra"
     User ||--o{ EmergencyContact   : "possui"
     User ||--o{ EmergencyAlert     : "aciona"
     User ||--o{ CheckIn            : "realiza"
+    User ||--o{ CheckInSchedule    : "agenda"
     User ||--o{ SafeLocation       : "cadastra"
     User ||--o{ Notification       : "recebe"
     User ||--o{ Note               : "escreve"
@@ -188,6 +217,8 @@ erDiagram
 
     EmergencyAlert ||--o{ NotificationLog : "gera"
     EmergencyAlert ||--o{ AlertEvent      : "registra"
+
+    PatrolRoute ||--o{ PatrolRouteLog : "registra"
 ```
 
 ## Índices notáveis
@@ -196,7 +227,9 @@ erDiagram
 |---|---|---|
 | `CheckIn` | `[userId, status]` | Check-in ativo por usuário |
 | `CheckIn` | `[status, expectedArrivalTime]` | Cron de check-ins vencidos |
+| `CheckIn` | `[status, escalationStage, overdueAt]` | Escalonamento progressivo |
 | `CheckIn` | `[userId, createdAt]` | Histórico de check-ins |
+| `CheckInSchedule` | `[status, expectedArrivalAt]` | Cron de monitoramento de destinos |
 | `EmergencyAlert` | `[status, createdAt]` | Listagem do dashboard |
 | `AlertEvent` | `[alertId, createdAt]` | Timeline de eventos |
 | `NotificationLog` | `[alertId, createdAt]` | Logs de entrega por alerta |
@@ -205,9 +238,4 @@ erDiagram
 | `Document` | `[userId, createdAt]` | Documentos por usuário |
 | `HeatMapCell` | `[latitude, longitude]` UK | Uma célula por coordenada |
 | `PatrolRoute` | `[status]`, `[scheduledAt]` | Rotas por estado e agenda |
-
-## Entidades futuras (esboços — sem use-cases implementados)
-
-- **`SafeLocation`** — locais seguros da vítima para geofencing (RN06)
-- **`HeatMapCell`** — células agregadas do mapa de calor para RF02
-- **`PatrolRoute`** — rotas de patrulhamento para RF06
+| `PatrolRouteLog` | `[patrolRouteId]`, `[event]` | Logs de rota por evento |
