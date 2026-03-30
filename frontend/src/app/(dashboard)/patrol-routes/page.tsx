@@ -303,7 +303,10 @@ export default function PatrolRoutesPage() {
                     {STATUS_LABEL[selected.status]}
                   </Badge>
                 </div>
-                <PatrolRouteMap waypoints={selected.waypoints} />
+                <PatrolRouteMap
+                  waypoints={selected.waypoints}
+                  routeGeometry={selected.routeGeometry}
+                />
               </div>
 
               {/* Ações de status + metadados */}

@@ -247,8 +247,9 @@ enum PatrolRouteStatus {
 model PatrolRoute {
   id          String              @id @default(uuid())
   name        String              // Ex: "Rota Carnaval - Centro"
-  waypoints   String              // JSON: Array<{ latitude: Float, longitude: Float, order: Int, riskScore: Float }>
-  status      PatrolRouteStatus   @default(PENDING)
+  waypoints      String              // JSON: Array<{ latitude: Float, longitude: Float, order: Int, riskScore: Float }>
+  routeGeometry  String?             // JSON: Array<[longitude, latitude]> — geometria real das ruas via OSRM
+  status         PatrolRouteStatus   @default(PENDING)
   assignedTo  String?             // ID do agente/viatura responsável
   generatedBy String?             // ID do admin que gerou a rota
   scheduledAt DateTime?

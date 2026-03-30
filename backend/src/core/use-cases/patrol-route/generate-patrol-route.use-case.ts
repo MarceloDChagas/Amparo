@@ -57,14 +57,18 @@ export class GeneratePatrolRouteUseCase {
       longitude: request.vehicleLongitude,
     });
 
+    // Busca geometria real das ruas via OSRM (fallback silencioso para linha reta)
+    const routeGeometry = await this.fetchOsrmGeometry(waypoints);
+
     this.logger.log(
-      `Rota "${request.name}" gerada com ${waypoints.length} waypoints (max riskScore: ${waypoints[0]?.riskScore ?? 0})`,
+      `Rota "${request.name}" gerada com ${waypoints.length} waypoints (max riskScore: ${waypoints[0]?.riskScore ?? 0}, OSRM: ${routeGeometry ? "ok" : "indisponível"})`,
     );
 
     // Persiste a rota
     const route = await this.patrolRouteRepository.create({
       name: request.name,
       waypoints,
+      routeGeometry,
       generatedBy: request.generatedBy,
       assignedTo: request.assignedTo,
       scheduledAt: request.scheduledAt,
@@ -92,6 +96,48 @@ export class GeneratePatrolRouteUseCase {
     }
 
     return route;
+  }
+
+  /**
+   * Chama a API pública do OSRM para obter a geometria real das ruas.
+   * Retorna Array de [longitude, latitude] ou null em caso de falha.
+   * URL configurável via OSRM_URL (padrão: servidor público de demonstração).
+   */
+  private async fetchOsrmGeometry(
+    waypoints: Waypoint[],
+  ): Promise<[number, number][] | null> {
+    try {
+      const osrmUrl = process.env.OSRM_URL ?? "http://router.project-osrm.org";
+      const coords = [...waypoints]
+        .sort((a, b) => a.order - b.order)
+        .map((wp) => `${wp.longitude},${wp.latitude}`)
+        .join(";");
+
+      const url = `${osrmUrl}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+
+      if (!res.ok) {
+        this.logger.warn(`OSRM retornou HTTP ${res.status}`);
+        return null;
+      }
+
+      const data = (await res.json()) as {
+        code: string;
+        routes?: Array<{
+          geometry: { coordinates: [number, number][] };
+        }>;
+      };
+
+      if (data.code !== "Ok" || !data.routes?.length) {
+        this.logger.warn(`OSRM code: ${data.code}`);
+        return null;
+      }
+
+      return data.routes[0].geometry.coordinates;
+    } catch (err) {
+      this.logger.warn(`OSRM indisponível, usando linha reta: ${String(err)}`);
+      return null;
+    }
   }
 
   /**

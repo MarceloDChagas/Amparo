@@ -5,10 +5,11 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useRef } from "react";
 
-import { Waypoint } from "@/services/patrol-route-service";
+import { PatrolRoute, Waypoint } from "@/services/patrol-route-service";
 
 interface Props {
   waypoints: Waypoint[];
+  routeGeometry?: PatrolRoute["routeGeometry"];
 }
 
 function riskColor(score: number): string {
@@ -17,7 +18,7 @@ function riskColor(score: number): string {
   return "#10b981";
 }
 
-export default function PatrolRouteMap({ waypoints }: Props) {
+export default function PatrolRouteMap({ waypoints, routeGeometry }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -31,13 +32,13 @@ export default function PatrolRouteMap({ waypoints }: Props) {
     }
 
     const sorted = [...waypoints].sort((a, b) => a.order - b.order);
-    const latlngs: [number, number][] = sorted.map((wp) => [
+    const waypointLatLngs: [number, number][] = sorted.map((wp) => [
       wp.latitude,
       wp.longitude,
     ]);
 
     const map = L.map(containerRef.current, { preferCanvas: true }).setView(
-      latlngs[0],
+      waypointLatLngs[0],
       14,
     );
     mapRef.current = map;
@@ -46,10 +47,16 @@ export default function PatrolRouteMap({ waypoints }: Props) {
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    L.polyline(latlngs, {
+    // Se há geometria real (OSRM), usa as ruas; senão fallback para linha reta
+    const polylineCoords: [number, number][] =
+      routeGeometry && routeGeometry.length > 0
+        ? routeGeometry.map(([lng, lat]) => [lat, lng])
+        : waypointLatLngs;
+
+    L.polyline(polylineCoords, {
       color: "#6366f1",
-      weight: 3,
-      dashArray: "6,4",
+      weight: 4,
+      ...(routeGeometry ? {} : { dashArray: "6,4" }),
     }).addTo(map);
 
     sorted.forEach((wp, i) => {
@@ -67,15 +74,15 @@ export default function PatrolRouteMap({ waypoints }: Props) {
         );
     });
 
-    if (latlngs.length > 1) {
-      map.fitBounds(L.latLngBounds(latlngs), { padding: [24, 24] });
+    if (waypointLatLngs.length > 1) {
+      map.fitBounds(L.latLngBounds(waypointLatLngs), { padding: [24, 24] });
     }
 
     return () => {
       map.remove();
       mapRef.current = null;
     };
-  }, [waypoints]);
+  }, [waypoints, routeGeometry]);
 
   if (waypoints.length === 0) {
     return (

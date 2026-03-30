@@ -37,10 +37,14 @@ export class PrismaPatrolRouteRepository implements IPatrolRouteRepository {
 
   private map(row: PrismaRoute & { logs?: PrismaLog[] }): PatrolRoute {
     const waypoints = JSON.parse(row.waypoints) as Waypoint[];
+    const routeGeometry = row.routeGeometry
+      ? (JSON.parse(row.routeGeometry) as [number, number][])
+      : null;
     return {
       id: row.id,
       name: row.name,
       waypoints,
+      routeGeometry,
       status: row.status as PatrolRouteStatus,
       assignedTo: row.assignedTo,
       generatedBy: row.generatedBy,
@@ -58,6 +62,9 @@ export class PrismaPatrolRouteRepository implements IPatrolRouteRepository {
       data: {
         name: data.name,
         waypoints: JSON.stringify(data.waypoints),
+        routeGeometry: data.routeGeometry
+          ? JSON.stringify(data.routeGeometry)
+          : null,
         generatedBy: data.generatedBy,
         assignedTo: data.assignedTo,
         scheduledAt: data.scheduledAt,

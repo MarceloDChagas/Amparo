@@ -26,6 +26,8 @@ export interface PatrolRoute {
   id: string;
   name: string;
   waypoints: Waypoint[];
+  /** Geometria real das ruas via OSRM: Array de [longitude, latitude] */
+  routeGeometry?: [number, number][] | null;
   status: PatrolRouteStatus;
   assignedTo?: string | null;
   generatedBy?: string | null;

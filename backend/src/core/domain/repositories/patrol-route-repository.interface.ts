@@ -8,6 +8,7 @@ import type {
 export interface CreatePatrolRouteData {
   name: string;
   waypoints: Waypoint[];
+  routeGeometry?: [number, number][] | null;
   generatedBy?: string;
   assignedTo?: string;
   scheduledAt?: Date;
