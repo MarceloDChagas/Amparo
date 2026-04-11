@@ -120,9 +120,18 @@ export class PrismaService
       return await fn();
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
-      if (code === "P1017" || code === "P1001") {
+      const message = (err as { message?: string })?.message ?? "";
+
+      // P1017/P1001 = Prisma connection errors; "Connection terminated" = pg driver timeout
+      const isTransient =
+        code === "P1017" ||
+        code === "P1001" ||
+        message.includes("Connection terminated") ||
+        message.includes("connection timeout");
+
+      if (isTransient) {
         this.logger.warn(
-          `Transient connection error (${code}) — reconnecting and retrying…`,
+          `Transient connection error (${code ?? "pg"}) — reconnecting and retrying…`,
         );
         await this.reconnect();
         return fn();

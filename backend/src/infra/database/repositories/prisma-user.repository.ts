@@ -59,19 +59,19 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.prisma.withRetry(() =>
+      this.prisma.user.findUnique({ where: { email } }),
+    );
     if (!user) return null;
     return this.mapToEntity(user);
   }
 
   async findByCpf(cpf: string): Promise<User | null> {
     const cpfHash = this.encryptionService.hash(cpf);
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.withRetry(() =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-      where: { cpfHash } as any,
-    });
+      this.prisma.user.findUnique({ where: { cpfHash } as any }),
+    );
     if (!user) return null;
     return this.mapToEntity(user);
   }

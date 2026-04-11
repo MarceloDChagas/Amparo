@@ -70,11 +70,6 @@ export function BottomNavigation({
               // NRF10 — aria-current="page" informa o tab ativo para leitores de tela
               aria-current={isActive ? "page" : undefined}
               className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-colors"
-              style={{
-                backgroundColor: isActive
-                  ? "rgba(124, 58, 237, 0.10)"
-                  : "transparent",
-              }}
             >
               {/* Indicador pip acima do ícone ativo — reforça o estado além da cor */}
               <div

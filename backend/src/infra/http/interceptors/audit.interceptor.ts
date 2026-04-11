@@ -53,28 +53,23 @@ export class AuditInterceptor implements NestInterceptor {
     // GETs não representam ações do usuário — não têm valor na trilha de auditoria.
     if (method === "GET") return next.handle();
 
-    this.logger.log(
-      `[audit] ${method} ${url} — user: ${user?.id ?? "anonymous"}`,
-    );
+    // Rotas públicas (ex: /auth/login) não carregam user no request — não há o que auditar.
+    if (!user) return next.handle();
+
+    this.logger.log(`[audit] ${method} ${url} — user: ${user.id}`);
 
     return next.handle().pipe(
       tap(() => {
-        if (user) {
-          const log = new AuditLog({
-            userId: user.id,
-            action: method,
-            resource: url,
-            ipAddress: ip,
-            createdAt: new Date(),
-          });
-          this.auditLogger.log(log).catch((err: unknown) => {
-            this.logger.error("Falha ao salvar audit log", err);
-          });
-        } else {
-          this.logger.warn(
-            `[audit] tap disparou mas user é undefined — ${method} ${url}`,
-          );
-        }
+        const log = new AuditLog({
+          userId: user.id,
+          action: method,
+          resource: url,
+          ipAddress: ip,
+          createdAt: new Date(),
+        });
+        this.auditLogger.log(log).catch((err: unknown) => {
+          this.logger.error("Falha ao salvar audit log", err);
+        });
       }),
     );
   }

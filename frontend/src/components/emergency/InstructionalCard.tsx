@@ -2,34 +2,77 @@
  * RN01 — Ativação por Tempo Contínuo: informa a usuária sobre o mecanismo de hold de 2s.
  * NRF09 — Usabilidade Sob Estresse: instrução clara e direta, sem texto desnecessário.
  */
-import { Hand } from "lucide-react";
 import React from "react";
 
 export function InstructionalCard() {
   return (
-    <div
-      className="mb-4 w-full max-w-sm rounded-2xl px-4 py-3 backdrop-blur-sm"
-      style={{
-        backgroundColor: "rgba(255,255,255,0.50)",
-        border: "1px solid rgba(196,112,90,0.18)",
-      }}
-    >
-      <div className="flex items-center gap-3">
-        {/* RN01 — ícone reforça o gesto de segurar */}
-        <div
-          aria-hidden="true"
-          className="shrink-0 rounded-xl p-2"
-          style={{ backgroundColor: "rgba(196,112,90,0.12)" }}
+    <div className="mb-5 flex items-center gap-2.5">
+      {/* Indicador circular — reforça o gesto de segurar sem um card pesado */}
+      <div
+        aria-hidden="true"
+        className="shrink-0 flex items-center justify-center"
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          border: "1.5px solid rgba(196,112,90,0.40)",
+        }}
+      >
+        <svg
+          width="12"
+          height="14"
+          viewBox="0 0 12 14"
+          fill="none"
+          style={{ color: "#c4705a" }}
         >
-          <Hand size={16} style={{ color: "#c4705a" }} />
-        </div>
-        <p
-          className="text-sm font-medium leading-snug"
-          style={{ color: "#7a5565" }}
-        >
-          Segure o botão por 2 segundos para acionar o alerta.
-        </p>
+          {/* ícone de mão simplificado — dedo indicando pressão */}
+          <rect
+            x="4"
+            y="0"
+            width="4"
+            height="9"
+            rx="2"
+            fill="currentColor"
+            opacity="0.9"
+          />
+          <rect
+            x="0"
+            y="4"
+            width="4"
+            height="7"
+            rx="2"
+            fill="currentColor"
+            opacity="0.65"
+          />
+          <rect
+            x="8"
+            y="4"
+            width="4"
+            height="7"
+            rx="2"
+            fill="currentColor"
+            opacity="0.65"
+          />
+          <rect
+            x="0"
+            y="9"
+            width="12"
+            height="5"
+            rx="2.5"
+            fill="currentColor"
+            opacity="0.5"
+          />
+        </svg>
       </div>
+
+      <p
+        className="text-xs leading-snug"
+        style={{ color: "rgba(90,53,69,0.7)", fontWeight: 500 }}
+      >
+        Mantenha pressionado por{" "}
+        <span style={{ color: "#c4705a", fontWeight: 650 }}>2 segundos</span>{" "}
+        para acionar o alerta
+      </p>
     </div>
   );
 }

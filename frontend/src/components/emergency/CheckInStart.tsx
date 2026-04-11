@@ -110,7 +110,10 @@ export function CheckInStart({
       </div>
 
       <div className="mt-6 text-center w-full z-30">
-        <Label className="text-sm font-medium block mb-2 text-white/70">
+        <Label
+          className="text-sm font-medium block mb-2"
+          style={{ color: "rgba(90,53,69,0.7)" }}
+        >
           Tempo de deslocamento
         </Label>
         <div className="mx-auto w-[200px]">
@@ -118,7 +121,15 @@ export function CheckInStart({
             value={selectedDistance}
             onValueChange={(val) => setSelectedDistance(val as DistanceType)}
           >
-            <SelectTrigger className="bg-white/20 border-white/30 text-white placeholder:text-white/70 h-12 w-full">
+            <SelectTrigger
+              className="h-12 w-full"
+              style={{
+                backgroundColor: "rgba(255,255,255,0.55)",
+                borderColor: "rgba(180,140,160,0.25)",
+                color: "#3a2530",
+                backdropFilter: "blur(8px)",
+              }}
+            >
               <SelectValue placeholder="Tempo estimado" />
             </SelectTrigger>
             <SelectContent>

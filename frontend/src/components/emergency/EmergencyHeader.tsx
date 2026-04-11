@@ -52,11 +52,12 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
   return (
     <header className="flex items-center justify-between gap-3 px-4 py-3">
       <h1
-        className="font-bold text-xl"
+        className="text-xl"
         style={{
           fontFamily: "var(--font-brand)",
-          letterSpacing: "0.05em",
-          color: textColor,
+          fontWeight: 800,
+          color: isLight ? "#c4705a" : "white",
+          letterSpacing: "0.02em",
         }}
         aria-label="Amparo — Aplicativo de proteção"
       >
@@ -64,7 +65,7 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
       </h1>
 
       <div className="flex items-center gap-2 ml-auto">
-        <QuickExitButton />
+        <QuickExitButton variant={variant} />
 
         <div className="relative">
           <button

@@ -118,10 +118,6 @@ export default function UsersPage() {
           usuário{users.length !== 1 ? "s" : ""} cadastrado
           {users.length !== 1 ? "s" : ""}
         </span>
-        {/* RN04 — aviso sobre mascaramento */}
-        <span className="ml-2 text-xs font-medium border-l border-border pl-3 text-muted-foreground">
-          CPF mascarado por padrão
-        </span>
       </div>
 
       {loading ? (
@@ -139,7 +135,7 @@ export default function UsersPage() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 {/* RN04 — label explicita que o dado é sensível e mascarado */}
-                <TableHead>CPF (mascarado)</TableHead>
+                <TableHead>CPF</TableHead>
                 <TableHead className="w-[120px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
