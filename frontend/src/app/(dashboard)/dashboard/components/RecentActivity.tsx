@@ -137,8 +137,8 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
     <div className="p-6 rounded-2xl border border-border h-fit bg-card shadow-sm">
       {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-5">
-        <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Atividade Recente
+        <span className="text-sm font-semibold text-foreground">
+          Atividade recente
         </span>
         {activities.length > 0 && (
           <button

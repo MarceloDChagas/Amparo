@@ -93,18 +93,26 @@ export function Sidebar() {
           aria-label="Amparo — Painel institucional"
         >
           <div>
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "rgba(249, 250, 251, 0.72)" }}
-            >
-              Painel institucional
-            </p>
             <h1
-              className="text-2xl font-bold"
-              style={{ fontFamily: "var(--font-brand)" }}
+              className="text-2xl"
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontWeight: 800,
+                color: "#c4705a",
+                letterSpacing: "0.02em",
+              }}
             >
               amparo
             </h1>
+            <p
+              className="text-[10px] font-medium"
+              style={{
+                color: "rgba(249, 250, 251, 0.40)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              painel institucional
+            </p>
           </div>
         </Link>
 
@@ -122,15 +130,17 @@ export function Sidebar() {
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
                       // NRF09 — min-h-11 garante área clicável de 44px
-                      "group flex w-full min-h-11 cursor-pointer items-center justify-start rounded-xl p-3 text-sm font-medium transition",
+                      "group flex w-full min-h-11 cursor-pointer items-center justify-start rounded-xl p-3 text-sm transition",
                     )}
                     style={{
-                      backgroundColor: isActive
-                        ? "rgba(255,255,255,0.12)"
-                        : "transparent",
+                      fontWeight: isActive ? 600 : 400,
+                      borderLeft: isActive
+                        ? "2px solid rgba(255,255,255,0.55)"
+                        : "2px solid transparent",
                       color: isActive
-                        ? "var(--primary-foreground)"
-                        : "rgba(249, 250, 251, 0.72)",
+                        ? "rgba(255,255,255,0.95)"
+                        : "rgba(249, 250, 251, 0.55)",
+                      paddingLeft: "10px",
                     }}
                   >
                     <route.icon

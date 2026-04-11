@@ -16,6 +16,8 @@ const sourceSans = Source_Sans_3({
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-source-serif",
+  style: ["normal", "italic"],
+  weight: ["400", "600"],
 });
 
 const nunito = Nunito({

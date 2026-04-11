@@ -1,6 +1,11 @@
 /**
  * Paleta Dark Mode Acolhimento - Sistema Amparo
  * Navy Profundo + Rosa/Violeta Acolhedor
+ *
+ * ATENÇÃO: Este arquivo define a paleta raw do dashboard (dark mode).
+ * No contexto do app da vítima (data-surface="victim"), use os tokens
+ * de `globals.css` via `var(--token)` ou o objeto `tokens` exportado abaixo.
+ * Importar cores diretamente daqui no app da vítima causa inconsistências visuais.
  */
 
 export const colors = {

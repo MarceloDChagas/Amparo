@@ -104,6 +104,7 @@
   /* Tokens semânticos de status — RF01, RF03, NRF09 */
   /* Vermelho RESERVADO para emergência (RN01/RF01). Nunca usar decorativamente. */
   --emergency: #dc2626;
+  --emergency-glow: rgba(220, 38, 38, 0.35);
   --emergency-foreground: #ffffff;
   --emergency-soft: #fef2f2;
   /* Âmbar para estados de atenção (check-in atrasando, alertas de nível médio) */
@@ -140,7 +141,7 @@
   --secondary:           rgba(255, 255, 255, 0.40);
   --secondary-foreground:#3a2530;
   --muted:               rgba(180, 140, 160, 0.18);
-  --muted-foreground:    #7a5565;
+  --muted-foreground:    #5a3545;
   --accent:              #7ab5a0;
   --accent-foreground:   #ffffff;
   --border:              rgba(180, 140, 160, 0.25);
@@ -225,6 +226,21 @@
     transform: scale(1.08);
     opacity: 0.85;
   }
+}
+
+/* Pulsação do glow vermelho no estado idle do botão de emergência */
+@keyframes emergency-glow-idle {
+  0%,
+  100% {
+    box-shadow: 0 0 44px rgba(220, 38, 38, 0.30);
+  }
+  50% {
+    box-shadow: 0 0 70px rgba(220, 38, 38, 0.55);
+  }
+}
+
+.emergency-blob-idle {
+  animation: emergency-glow-idle 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse-active {

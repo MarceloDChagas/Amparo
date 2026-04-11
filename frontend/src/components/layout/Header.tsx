@@ -55,10 +55,17 @@ export function Header() {
     >
       {/* RF04 — breadcrumb dinâmico via usePathname */}
       <div
-        className="text-lg font-semibold text-foreground"
+        className="flex items-center gap-2"
         aria-label={`Seção atual: ${title}`}
       >
-        {title}
+        <span
+          className="text-sm text-muted-foreground"
+          style={{ fontFamily: "var(--font-brand)", fontWeight: 700 }}
+        >
+          amparo
+        </span>
+        <span className="text-muted-foreground/40 text-sm select-none">/</span>
+        <span className="text-sm font-semibold text-foreground">{title}</span>
       </div>
 
       <div className="flex items-center gap-3">
