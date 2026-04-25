@@ -23,18 +23,21 @@ const C = {
   white: "#ffffff",
 };
 
-// ── Geocodificação reversa (Nominatim OSM) ────────────────────────────────────
-// Máx 1 req/s conforme ToS. Usada apenas para o Top 5 de zonas críticas.
+const PAGE_W = 595.28; // A4
+const MARGIN = 50;
+const CONTENT_W = PAGE_W - MARGIN * 2; // 495
+
+// ── Geocodificação reversa ────────────────────────────────────────────────────
 async function reverseGeocode(lat: number, lng: number): Promise<string> {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`;
-    const res = await fetch(url, {
+    const r = await fetch(url, {
       headers: {
         "User-Agent": "Amparo-Report/1.0 (sistema de proteção à mulher)",
       },
     });
-    if (!res.ok) return formatCoords(lat, lng);
-    const data = (await res.json()) as {
+    if (!r.ok) return fmtCoord(lat, lng);
+    const d = (await r.json()) as {
       address?: {
         suburb?: string;
         neighbourhood?: string;
@@ -42,23 +45,22 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
         town?: string;
         city?: string;
       };
-      display_name?: string;
     };
-    const a = data.address ?? {};
+    const a = d.address ?? {};
     return (
       a.suburb ??
       a.neighbourhood ??
       a.road ??
       a.town ??
       a.city ??
-      formatCoords(lat, lng)
+      fmtCoord(lat, lng)
     );
   } catch {
-    return formatCoords(lat, lng);
+    return fmtCoord(lat, lng);
   }
 }
 
-function formatCoords(lat: number, lng: number): string {
+function fmtCoord(lat: number, lng: number): string {
   return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
 }
 
@@ -66,121 +68,38 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// ── Utilitários de desenho PDFKit ─────────────────────────────────────────────
-function badge(
-  doc: PDFKit.PDFDocument,
-  x: number,
-  y: number,
-  label: string,
-  bg: string,
-  fg = C.white,
-) {
-  const w = doc.widthOfString(label) + 14;
-  doc.roundedRect(x, y, w, 14, 3).fill(bg);
-  doc
-    .fontSize(7.5)
-    .font("Helvetica-Bold")
-    .fillColor(fg)
-    .text(label, x + 7, y + 3.5, { lineBreak: false });
-}
+// ── Primitivas de desenho — todas retornam o novo y ──────────────────────────
 
-function riskBadge(
-  doc: PDFKit.PDFDocument,
-  x: number,
-  y: number,
-  score: number,
-) {
-  if (score >= 6) badge(doc, x, y, `CRÍTICO  ${score.toFixed(1)}`, C.danger);
-  else if (score >= 3)
-    badge(doc, x, y, `ELEVADO  ${score.toFixed(1)}`, C.warning, C.ink);
-  else badge(doc, x, y, `BAIXO  ${score.toFixed(1)}`, C.success);
-}
-
-function kpiCard(
-  doc: PDFKit.PDFDocument,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  value: string,
-  label: string,
-  accent: string,
-) {
-  doc.roundedRect(x, y, w, h, 6).fill(C.surface);
-  doc.roundedRect(x, y, 4, h, 2).fill(accent);
-  doc
-    .fontSize(26)
-    .font("Helvetica-Bold")
-    .fillColor(accent)
-    .text(value, x + 14, y + 10, { width: w - 18, lineBreak: false });
-  doc
-    .fontSize(8)
-    .font("Helvetica")
-    .fillColor(C.muted)
-    .text(label, x + 14, y + h - 18, { width: w - 18, lineBreak: false });
-}
-
-// Barra horizontal proporcional
-function barH(
-  doc: PDFKit.PDFDocument,
-  x: number,
-  y: number,
-  maxW: number,
-  h: number,
-  value: number,
-  maxValue: number,
-  color: string,
-  label: string,
-) {
-  const barW = maxValue > 0 ? Math.max((value / maxValue) * maxW, 2) : 2;
-  doc.rect(x, y, maxW, h).fill("#f3f4f6");
-  doc.roundedRect(x, y, barW, h, 2).fill(color);
-  doc
-    .fontSize(8)
-    .font("Helvetica")
-    .fillColor(C.inkSoft)
-    .text(label, x - 120, y + 1, {
-      width: 115,
-      align: "right",
-      lineBreak: false,
-    });
-  doc
-    .fontSize(8)
-    .font("Helvetica-Bold")
-    .fillColor(C.ink)
-    .text(String(value), x + barW + 4, y + 1, { lineBreak: false });
-}
-
-// ── Cabeçalho e rodapé ────────────────────────────────────────────────────────
+/** Faixa de cabeçalho. Retorna y logo abaixo do cabeçalho. */
 function drawHeader(
   doc: PDFKit.PDFDocument,
   title: string,
   subtitle?: string,
   from?: string,
   to?: string,
-) {
-  // Faixa superior
-  doc.rect(0, 0, doc.page.width, 72).fill(C.brand);
-  doc.rect(0, 68, doc.page.width, 4).fill(C.warning);
+): number {
+  const H = 72;
+  doc.rect(0, 0, PAGE_W, H).fill(C.brand);
+  doc.rect(0, H - 4, PAGE_W, 4).fill(C.warning);
 
   doc
     .fontSize(18)
     .font("Helvetica-Bold")
     .fillColor(C.white)
-    .text("AMPARO", 50, 18);
+    .text("AMPARO", MARGIN, 18);
   doc
     .fontSize(8)
     .font("Helvetica")
     .fillColor("rgba(255,255,255,0.7)")
-    .text("Sistema de Proteção à Mulher", 50, 40);
+    .text("Sistema de Proteção à Mulher", MARGIN, 40);
 
   doc
     .fontSize(13)
     .font("Helvetica-Bold")
     .fillColor(C.white)
-    .text(title, 0, 16, {
+    .text(title, MARGIN, 16, {
       align: "right",
-      width: doc.page.width - 50,
+      width: CONTENT_W,
       lineBreak: false,
     });
   if (subtitle) {
@@ -188,39 +107,39 @@ function drawHeader(
       .fontSize(8)
       .font("Helvetica")
       .fillColor("rgba(255,255,255,0.75)")
-      .text(subtitle, 0, 34, {
+      .text(subtitle, MARGIN, 34, {
         align: "right",
-        width: doc.page.width - 50,
+        width: CONTENT_W,
         lineBreak: false,
       });
   }
 
-  doc.y = 86;
-  const gerado = `Gerado em ${new Date().toLocaleString("pt-BR")}`;
-  const periodo =
-    from || to
+  let y = H + 10;
+  const meta =
+    `Gerado em ${new Date().toLocaleString("pt-BR")}` +
+    (from || to
       ? ` · Período: ${from ? new Date(from).toLocaleDateString("pt-BR") : "início"} → ${to ? new Date(to).toLocaleDateString("pt-BR") : "hoje"}`
-      : "";
+      : "");
   doc
     .fontSize(8)
     .font("Helvetica")
     .fillColor(C.muted)
-    .text(gerado + periodo, { align: "right" });
-  doc.moveDown(0.6);
+    .text(meta, MARGIN, y, { align: "right", width: CONTENT_W });
+  y += 14;
   doc
-    .moveTo(50, doc.y)
-    .lineTo(545, doc.y)
+    .moveTo(MARGIN, y)
+    .lineTo(MARGIN + CONTENT_W, y)
     .strokeColor(C.border)
     .lineWidth(0.5)
     .stroke();
-  doc.moveDown(0.8);
+  return y + 12;
 }
 
 function drawFooter(doc: PDFKit.PDFDocument) {
-  const bottom = doc.page.height - 38;
+  const bottom = doc.page.height - 36;
   doc
-    .moveTo(50, bottom)
-    .lineTo(545, bottom)
+    .moveTo(MARGIN, bottom)
+    .lineTo(MARGIN + CONTENT_W, bottom)
     .strokeColor(C.border)
     .lineWidth(0.5)
     .stroke();
@@ -230,13 +149,113 @@ function drawFooter(doc: PDFKit.PDFDocument) {
     .fillColor(C.muted)
     .text(
       "Documento gerado automaticamente pelo sistema Amparo · Uso restrito a fins oficiais.",
-      50,
+      MARGIN,
       bottom + 8,
-      {
-        align: "center",
-        width: 495,
-      },
+      { align: "center", width: CONTENT_W },
     );
+}
+
+/** KPI card. Retorna x + w (para encadear side-by-side). */
+function kpiCard(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  value: string,
+  label: string,
+  accent: string,
+): void {
+  doc.roundedRect(x, y, w, h, 5).fill(C.surface);
+  doc.rect(x, y, 4, h).fill(accent); // barra lateral
+  doc
+    .fontSize(22)
+    .font("Helvetica-Bold")
+    .fillColor(accent)
+    .text(value, x + 12, y + 8, { width: w - 16, lineBreak: false });
+  doc
+    .fontSize(7.5)
+    .font("Helvetica")
+    .fillColor(C.muted)
+    .text(label, x + 12, y + h - 16, { width: w - 16, lineBreak: false });
+}
+
+/** Barra horizontal. Retorna y + rowH. */
+function barRow(
+  doc: PDFKit.PDFDocument,
+  y: number,
+  label: string,
+  value: number,
+  maxValue: number,
+  barColor: string,
+  labelW = 130,
+  barX = MARGIN + 135,
+  barMaxW = 290,
+  rowH = 16,
+): number {
+  const barW = maxValue > 0 ? Math.max((value / maxValue) * barMaxW, 3) : 3;
+  const barY = y + (rowH - 10) / 2;
+
+  // label à esquerda
+  doc
+    .fontSize(8)
+    .font("Helvetica")
+    .fillColor(C.inkSoft)
+    .text(label, MARGIN, y + 2, { width: labelW, lineBreak: false });
+  // trilho cinza
+  doc.roundedRect(barX, barY, barMaxW, 10, 2).fill("#e5e7eb");
+  // barra colorida
+  doc.roundedRect(barX, barY, barW, 10, 2).fill(barColor);
+  // valor à direita
+  doc
+    .fontSize(8)
+    .font("Helvetica-Bold")
+    .fillColor(C.ink)
+    .text(String(value), barX + barMaxW + 6, y + 2, { lineBreak: false });
+
+  return y + rowH + 2;
+}
+
+/** Badge colorido. Retorna largura do badge. */
+function badge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  label: string,
+  bg: string,
+  fg = C.white,
+): number {
+  doc.fontSize(7.5).font("Helvetica-Bold");
+  const w = doc.widthOfString(label) + 12;
+  doc.roundedRect(x, y, w, 13, 3).fill(bg);
+  doc.fillColor(fg).text(label, x + 6, y + 2.5, { lineBreak: false });
+  return w;
+}
+
+function riskBadge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  score: number,
+): void {
+  if (score >= 6) badge(doc, x, y, `CRÍTICO  ${score.toFixed(1)}`, C.danger);
+  else if (score >= 3)
+    badge(doc, x, y, `ELEVADO  ${score.toFixed(1)}`, C.warning, C.ink);
+  else badge(doc, x, y, `BAIXO  ${score.toFixed(1)}`, C.success);
+}
+
+function sectionTitle(
+  doc: PDFKit.PDFDocument,
+  y: number,
+  text: string,
+): number {
+  doc.rect(MARGIN, y, CONTENT_W, 20).fill(C.primary);
+  doc
+    .fontSize(9)
+    .font("Helvetica-Bold")
+    .fillColor(C.white)
+    .text(text, MARGIN + 8, y + 5, { width: CONTENT_W - 16, lineBreak: false });
+  return y + 20 + 6;
 }
 
 // ── Controller ────────────────────────────────────────────────────────────────
@@ -246,7 +265,7 @@ function drawFooter(doc: PDFKit.PDFDocument) {
 export class ReportController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ── Relatório de Ocorrências ─────────────────────────────────────────────
+  // ── Relatório de Ocorrências ────────────────────────────────────────────────
   @Get("occurrences")
   async occurrencesReport(
     @Res() res: Response,
@@ -267,29 +286,31 @@ export class ReportController {
       orderBy: { createdAt: "desc" },
     });
 
-    // KPI derivados
     const total = occurrences.length;
     const withAggressor = occurrences.filter((o) => o.aggressorId).length;
     const last30 = occurrences.filter((o) => {
-      const age = Date.now() - new Date(o.createdAt).getTime();
-      return age <= 30 * 24 * 60 * 60 * 1000;
+      return (
+        Date.now() - new Date(o.createdAt).getTime() <= 30 * 24 * 3600 * 1000
+      );
     }).length;
 
-    // Tendência mensal (últimos 6 meses)
-    const monthlyCounts: Record<string, number> = {};
-    const now = new Date();
+    // Tendência mensal — últimos 6 meses
+    const monthMap: Record<string, number> = {};
     for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      monthlyCounts[
+      const d = new Date();
+      d.setDate(1);
+      d.setMonth(d.getMonth() - i);
+      monthMap[
         `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
       ] = 0;
     }
     for (const o of occurrences) {
-      const key = `${new Date(o.createdAt).getFullYear()}-${String(new Date(o.createdAt).getMonth() + 1).padStart(2, "0")}`;
-      if (key in monthlyCounts) monthlyCounts[key]++;
+      const d = new Date(o.createdAt);
+      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (k in monthMap) monthMap[k]++;
     }
 
-    const doc: PDFKit.PDFDocument = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = new PDFDocument({ margin: MARGIN, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -297,157 +318,135 @@ export class ReportController {
     );
     doc.pipe(res);
 
-    drawHeader(doc, "Relatório de Ocorrências", undefined, from, to);
+    let y = drawHeader(doc, "Relatório de Ocorrências", undefined, from, to);
 
-    // ── KPI cards ──
-    const cardW = 148,
-      cardH = 56,
-      gap = 10,
-      startX = 50;
+    // ── KPI cards ──────────────────────────────────────────────────────────
+    const cw = 150,
+      ch = 54,
+      gap = 10;
     kpiCard(
       doc,
-      startX,
-      doc.y,
-      cardW,
-      cardH,
+      MARGIN,
+      y,
+      cw,
+      ch,
       String(total),
       "Total de ocorrências",
       C.primary,
     );
     kpiCard(
       doc,
-      startX + cardW + gap,
-      doc.y,
-      cardW,
-      cardH,
+      MARGIN + cw + gap,
+      y,
+      cw,
+      ch,
       String(withAggressor),
       "Com agressor identificado",
       C.danger,
     );
     kpiCard(
       doc,
-      startX + (cardW + gap) * 2,
-      doc.y,
-      cardW,
-      cardH,
+      MARGIN + (cw + gap) * 2,
+      y,
+      cw,
+      ch,
       String(last30),
       "Últimos 30 dias",
       C.warning,
     );
-    doc.y += cardH + 18;
+    y += ch + 16;
 
-    // ── Gráfico de tendência mensal ──
-    doc
-      .fontSize(10)
-      .font("Helvetica-Bold")
-      .fillColor(C.ink)
-      .text("Tendência mensal (últimos 6 meses)");
-    doc.moveDown(0.4);
-
-    const chartStartY = doc.y;
-    const maxCount = Math.max(...Object.values(monthlyCounts), 1);
-    const months = Object.entries(monthlyCounts);
-
-    for (const [monthKey, count] of months) {
-      const [y, m] = monthKey.split("-");
-      const label = new Date(Number(y), Number(m) - 1, 1).toLocaleDateString(
+    // ── Tendência mensal ───────────────────────────────────────────────────
+    y = sectionTitle(doc, y, "Tendência mensal — últimos 6 meses");
+    const maxMonth = Math.max(...Object.values(monthMap), 1);
+    for (const [key, count] of Object.entries(monthMap)) {
+      const [yr, mo] = key.split("-");
+      const label = new Date(Number(yr), Number(mo) - 1, 1).toLocaleDateString(
         "pt-BR",
         { month: "short", year: "2-digit" },
       );
-      barH(
-        doc,
-        170,
-        doc.y,
-        360,
-        14,
-        count,
-        maxCount,
-        count === maxCount ? C.danger : C.primary,
-        label,
-      );
-      doc.y += 18;
+      const color = count === maxMonth && count > 0 ? C.danger : C.primary;
+      y = barRow(doc, y, label, count, maxMonth, color, 60, MARGIN + 65, 350);
     }
-    doc.y = chartStartY + months.length * 18 + 10;
-    doc
-      .moveTo(50, doc.y)
-      .lineTo(545, doc.y)
-      .strokeColor(C.border)
-      .lineWidth(0.5)
-      .stroke();
-    doc.moveDown(1.2);
+    y += 10;
 
-    // ── Lista de ocorrências ──
-    doc
-      .fontSize(10)
-      .font("Helvetica-Bold")
-      .fillColor(C.ink)
-      .text("Detalhamento");
-    doc.moveDown(0.5);
+    // ── Lista de ocorrências ───────────────────────────────────────────────
+    y = sectionTitle(doc, y, "Detalhamento das ocorrências");
 
     if (total === 0) {
       doc
         .fontSize(9)
         .font("Helvetica")
         .fillColor(C.muted)
-        .text("Nenhuma ocorrência no período selecionado.");
+        .text("Nenhuma ocorrência no período.", MARGIN, y);
+      y += 20;
     } else {
+      const ROW = 46;
       for (let i = 0; i < occurrences.length; i++) {
-        const occ = occurrences[i];
-
-        if (doc.y > doc.page.height - 120) {
+        if (y + ROW > doc.page.height - 60) {
+          drawFooter(doc);
           doc.addPage();
-          doc.y = 50;
+          y = MARGIN;
         }
+        const occ = occurrences[i];
+        const bg = i % 2 === 0 ? C.surface : C.white;
+        doc.rect(MARGIN, y, CONTENT_W, ROW).fill(bg);
 
-        const rowY = doc.y;
-        // fundo alternado
-        if (i % 2 === 0) doc.rect(50, rowY, 495, 50).fill(C.surface);
-
-        // Número e data
+        // Índice + data
         doc
           .fontSize(8)
           .font("Helvetica-Bold")
           .fillColor(C.muted)
-          .text(`#${i + 1}`, 55, rowY + 5, { width: 25, lineBreak: false });
+          .text(`#${i + 1}`, MARGIN + 4, y + 4, {
+            width: 22,
+            lineBreak: false,
+          });
         doc
           .fontSize(8)
           .font("Helvetica")
           .fillColor(C.muted)
           .text(
             new Date(occ.createdAt).toLocaleDateString("pt-BR"),
-            80,
-            rowY + 5,
+            MARGIN + 28,
+            y + 4,
             { lineBreak: false },
           );
 
         // Badge de agressor
         if (occ.aggressor) {
-          badge(doc, 160, rowY + 4, `⚠ ${occ.aggressor.name}`, C.danger);
+          badge(doc, MARGIN + 110, y + 3, `⚠ ${occ.aggressor.name}`, C.danger);
         }
 
         // Descrição
         doc
-          .fontSize(9)
+          .fontSize(8.5)
           .font("Helvetica")
           .fillColor(C.inkSoft)
-          .text(occ.description, 55, rowY + 19, {
-            width: 440,
+          .text(occ.description, MARGIN + 4, y + 18, {
+            width: CONTENT_W - 8,
             lineBreak: false,
           });
 
-        // Coordenadas discretas (apenas referência, sem destaque)
+        // Coordenadas discretas
         doc
           .fontSize(7)
           .font("Helvetica")
           .fillColor(C.muted)
           .text(
             `${occ.latitude.toFixed(4)}, ${occ.longitude.toFixed(4)}`,
-            55,
-            rowY + 36,
+            MARGIN + 4,
+            y + 33,
             { lineBreak: false },
           );
 
-        doc.y = rowY + 52;
+        // Linha separadora
+        doc
+          .moveTo(MARGIN, y + ROW)
+          .lineTo(MARGIN + CONTENT_W, y + ROW)
+          .strokeColor(C.border)
+          .lineWidth(0.4)
+          .stroke();
+        y += ROW;
       }
     }
 
@@ -455,41 +454,36 @@ export class ReportController {
     doc.end();
   }
 
-  // ── Análise de risco por área ─────────────────────────────────────────────
+  // ── Análise de risco por área ───────────────────────────────────────────────
   @Get("area-analysis")
   async areaAnalysisReport(@Res() res: Response) {
-    const [heatMapCells, totalOccurrences, totalAggressors] = await Promise.all(
-      [
-        this.prisma.heatMapCell.findMany({
-          orderBy: { riskScore: "desc" },
-          take: 20,
-        }),
-        this.prisma.occurrence.count(),
-        this.prisma.aggressor.count(),
-      ],
-    );
+    const [cells, totalOcc, totalAgg] = await Promise.all([
+      this.prisma.heatMapCell.findMany({
+        orderBy: { riskScore: "desc" },
+        take: 20,
+      }),
+      this.prisma.occurrence.count(),
+      this.prisma.aggressor.count(),
+    ]);
 
-    // Geocodificação reversa do Top 5 (1 req/s)
-    const geocoded: string[] = [];
-    for (let i = 0; i < Math.min(5, heatMapCells.length); i++) {
-      const c = heatMapCells[i];
-      geocoded.push(await reverseGeocode(c.latitude, c.longitude));
-      if (i < 4) await sleep(1100);
-    }
-    for (let i = 5; i < heatMapCells.length; i++) {
-      geocoded.push(
-        formatCoords(heatMapCells[i].latitude, heatMapCells[i].longitude),
-      );
+    // Geocodificação reversa — Top 5 apenas (1 req/s)
+    const geo: string[] = [];
+    for (let i = 0; i < cells.length; i++) {
+      if (i < 5) {
+        geo.push(await reverseGeocode(cells[i].latitude, cells[i].longitude));
+        if (i < 4) await sleep(1100);
+      } else {
+        geo.push(fmtCoord(cells[i].latitude, cells[i].longitude));
+      }
     }
 
-    const maxScore = heatMapCells[0]?.riskScore ?? 1;
-    const totalCells = heatMapCells.length;
-    const criticalZones = heatMapCells.filter((c) => c.riskScore >= 6).length;
-    const avgScore = heatMapCells.length
-      ? heatMapCells.reduce((s, c) => s + c.riskScore, 0) / heatMapCells.length
+    const maxScore = cells[0]?.riskScore ?? 1;
+    const critical = cells.filter((c) => c.riskScore >= 6).length;
+    const avgScore = cells.length
+      ? cells.reduce((s, c) => s + c.riskScore, 0) / cells.length
       : 0;
 
-    const doc: PDFKit.PDFDocument = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = new PDFDocument({ margin: MARGIN, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -497,218 +491,193 @@ export class ReportController {
     );
     doc.pipe(res);
 
-    drawHeader(
+    let y = drawHeader(
       doc,
       "Análise de Risco por Área",
-      "Zonas críticas · heatmap · distribuição geográfica",
+      "Zonas críticas · distribuição geográfica",
     );
 
-    // ── KPI cards ──
-    const cardW = 110,
-      cardH = 56,
-      gap = 10,
-      startX = 50;
+    // ── KPI cards ──────────────────────────────────────────────────────────
+    const cw = 110,
+      ch = 54,
+      gap = 9;
     kpiCard(
       doc,
-      startX,
-      doc.y,
-      cardW,
-      cardH,
-      String(totalOccurrences),
+      MARGIN,
+      y,
+      cw,
+      ch,
+      String(totalOcc),
       "Ocorrências totais",
       C.primary,
     );
     kpiCard(
       doc,
-      startX + cardW + gap,
-      doc.y,
-      cardW,
-      cardH,
-      String(totalAggressors),
-      "Agressores cadastrados",
+      MARGIN + cw + gap,
+      y,
+      cw,
+      ch,
+      String(totalAgg),
+      "Agressores",
       C.danger,
     );
     kpiCard(
       doc,
-      startX + (cardW + gap) * 2,
-      doc.y,
-      cardW,
-      cardH,
-      String(totalCells),
+      MARGIN + (cw + gap) * 2,
+      y,
+      cw,
+      ch,
+      String(cells.length),
       "Zonas mapeadas",
       C.warning,
     );
     kpiCard(
       doc,
-      startX + (cardW + gap) * 3,
-      doc.y,
-      cardW,
-      cardH,
-      String(criticalZones),
+      MARGIN + (cw + gap) * 3,
+      y,
+      cw,
+      ch,
+      String(critical),
       "Zonas críticas",
       C.danger,
     );
-    doc.y += cardH + 18;
+    y += ch + 16;
 
-    // ── Gráfico de barras: Top 10 zonas por score ──
-    doc
-      .fontSize(10)
-      .font("Helvetica-Bold")
-      .fillColor(C.ink)
-      .text("Top 10 zonas por score de risco");
-    doc.moveDown(0.4);
-
-    const top10 = heatMapCells.slice(0, 10);
+    // ── Gráfico Top 10 ─────────────────────────────────────────────────────
+    y = sectionTitle(doc, y, "Top 10 zonas por score de risco");
+    const top10 = cells.slice(0, 10);
     for (let i = 0; i < top10.length; i++) {
       const c = top10[i];
-      const loc =
-        i < geocoded.length
-          ? geocoded[i]
-          : formatCoords(c.latitude, c.longitude);
+      const loc = geo[i] ?? fmtCoord(c.latitude, c.longitude);
+      const label = `${i + 1}. ${loc.length > 24 ? loc.slice(0, 22) + "…" : loc}`;
       const color =
         c.riskScore >= 6 ? C.danger : c.riskScore >= 3 ? C.warning : C.success;
-      barH(
+      y = barRow(
         doc,
-        200,
-        doc.y,
-        280,
-        13,
+        y,
+        label,
         c.riskScore,
         maxScore,
         color,
-        `${i + 1}. ${loc.length > 22 ? loc.slice(0, 20) + "…" : loc}`,
+        155,
+        MARGIN + 160,
+        260,
+        17,
       );
-      riskBadge(doc, 488, doc.y - 1, c.riskScore);
-      doc.y += 18;
+      // badge de risco à direita da barra
+      riskBadge(doc, MARGIN + 160 + 260 + 20, y - 15, c.riskScore);
     }
+    y += 10;
 
-    doc
-      .moveTo(50, doc.y + 4)
-      .lineTo(545, doc.y + 4)
-      .strokeColor(C.border)
-      .lineWidth(0.5)
-      .stroke();
-    doc.moveDown(1.4);
-
-    // ── Tabela completa (sem lat/lng em destaque) ──
-    doc
-      .fontSize(10)
-      .font("Helvetica-Bold")
-      .fillColor(C.ink)
-      .text("Detalhamento completo das zonas");
-    doc.moveDown(0.6);
+    // ── Tabela completa ────────────────────────────────────────────────────
+    y = sectionTitle(doc, y, "Detalhamento completo das zonas");
 
     // Cabeçalho da tabela
-    const tTop = doc.y;
-    const col = { rank: 55, local: 80, intens: 340, score: 395, date: 450 };
-    doc.rect(50, tTop, 495, 16).fill(C.primary);
+    const col = {
+      rank: MARGIN + 4,
+      local: MARGIN + 28,
+      intens: MARGIN + 330,
+      score: MARGIN + 375,
+      date: MARGIN + 435,
+    };
+    doc.rect(MARGIN, y, CONTENT_W, 16).fill("#374151");
     doc
-      .fontSize(8)
+      .fontSize(7.5)
       .font("Helvetica-Bold")
       .fillColor(C.white)
-      .text("#", col.rank, tTop + 4, {
-        width: 20,
-        align: "center",
+      .text("#", col.rank, y + 4, { width: 20, lineBreak: false })
+      .text("Localidade / Referência", col.local, y + 4, {
+        width: 298,
         lineBreak: false,
       })
-      .text("Localidade / Referência", col.local, tTop + 4, {
-        width: 255,
-        lineBreak: false,
-      })
-      .text("Ocorr.", col.intens, tTop + 4, {
-        width: 50,
+      .text("Ocorr.", col.intens, y + 4, {
+        width: 40,
         align: "right",
         lineBreak: false,
       })
-      .text("Risco", col.score, tTop + 4, {
-        width: 50,
+      .text("Risco", col.score, y + 4, {
+        width: 55,
         align: "center",
         lineBreak: false,
       })
-      .text("Últ. registro", col.date, tTop + 4, {
-        width: 90,
-        lineBreak: false,
-      });
+      .text("Últ. registro", col.date, y + 4, { width: 60, lineBreak: false });
+    y += 16;
 
-    let rowY = tTop + 18;
-
-    for (let i = 0; i < heatMapCells.length; i++) {
-      const cell = heatMapCells[i];
-      const loc =
-        i < geocoded.length
-          ? geocoded[i]
-          : formatCoords(cell.latitude, cell.longitude);
+    for (let i = 0; i < cells.length; i++) {
+      if (y + 16 > doc.page.height - 60) {
+        drawFooter(doc);
+        doc.addPage();
+        y = MARGIN;
+      }
+      const c = cells[i];
+      const loc = geo[i] ?? fmtCoord(c.latitude, c.longitude);
       const bg = i % 2 === 0 ? C.surface : C.white;
 
-      if (rowY > doc.page.height - 80) {
-        doc.addPage();
-        rowY = 60;
-      }
-
-      doc.rect(50, rowY, 495, 17).fill(bg);
+      doc.rect(MARGIN, y, CONTENT_W, 16).fill(bg);
       doc
-        .fontSize(8)
+        .fontSize(7.5)
         .font("Helvetica")
         .fillColor(C.ink)
-        .text(String(i + 1), col.rank, rowY + 4, {
-          width: 20,
-          align: "center",
-          lineBreak: false,
-        })
+        .text(String(i + 1), col.rank, y + 3.5, { width: 20, lineBreak: false })
         .text(
-          loc.length > 38 ? loc.slice(0, 36) + "…" : loc,
+          loc.length > 44 ? loc.slice(0, 42) + "…" : loc,
           col.local,
-          rowY + 4,
-          { width: 255, lineBreak: false },
+          y + 3.5,
+          { width: 298, lineBreak: false },
         )
-        .text(String(cell.intensity), col.intens, rowY + 4, {
-          width: 50,
+        .text(String(c.intensity), col.intens, y + 3.5, {
+          width: 40,
           align: "right",
           lineBreak: false,
         });
 
-      riskBadge(doc, col.score, rowY + 3, cell.riskScore);
+      riskBadge(doc, col.score - 2, y + 2, c.riskScore);
 
       doc
-        .fontSize(8)
+        .fontSize(7.5)
         .font("Helvetica")
         .fillColor(C.ink)
         .text(
-          new Date(cell.lastOccurrence).toLocaleDateString("pt-BR"),
+          new Date(c.lastOccurrence).toLocaleDateString("pt-BR"),
           col.date,
-          rowY + 4,
-          { width: 90, lineBreak: false },
+          y + 3.5,
+          { width: 60, lineBreak: false },
         );
 
-      rowY += 17;
+      doc
+        .moveTo(MARGIN, y + 16)
+        .lineTo(MARGIN + CONTENT_W, y + 16)
+        .strokeColor(C.border)
+        .lineWidth(0.3)
+        .stroke();
+      y += 16;
     }
+    y += 12;
 
-    doc
-      .rect(50, tTop, 495, rowY - tTop)
-      .strokeColor(C.border)
-      .lineWidth(0.5)
-      .stroke();
-    doc.y = rowY + 10;
-
-    // ── Nota de rodapé analítica ──
-    doc.moveDown(1);
-    doc.roundedRect(50, doc.y, 495, 38, 4).fill("#fef3c7");
+    // ── Nota interpretativa ────────────────────────────────────────────────
+    if (y + 40 > doc.page.height - 60) {
+      drawFooter(doc);
+      doc.addPage();
+      y = MARGIN;
+    }
+    doc.roundedRect(MARGIN, y, CONTENT_W, 36, 4).fill("#fef3c7");
     doc
       .fontSize(8)
       .font("Helvetica-Bold")
       .fillColor("#92400e")
-      .text("Interpretação do Score de Risco", 60, doc.y + 6);
+      .text("Interpretação do Score de Risco", MARGIN + 8, y + 6, {
+        lineBreak: false,
+      });
     doc
       .fontSize(7.5)
       .font("Helvetica")
       .fillColor("#78350f")
       .text(
-        `Score ≥ 6 (CRÍTICO): requer patrulhamento prioritário.  Score 3–5.9 (ELEVADO): monitoramento regular.  Score < 3 (BAIXO): acompanhamento periódico.  Média atual do mapeamento: ${avgScore.toFixed(2)}.`,
-        60,
-        doc.y + 16,
-        { width: 475, lineBreak: false },
+        `Score ≥ 6 (CRÍTICO): patrulhamento prioritário.  Score 3–5,9 (ELEVADO): monitoramento regular.  Score < 3 (BAIXO): acompanhamento periódico.  Média atual: ${avgScore.toFixed(2)}.`,
+        MARGIN + 8,
+        y + 18,
+        { width: CONTENT_W - 16, lineBreak: false },
       );
-    doc.y += 44;
 
     drawFooter(doc);
     doc.end();
