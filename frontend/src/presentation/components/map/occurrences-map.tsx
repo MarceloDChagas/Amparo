@@ -385,7 +385,32 @@ export default function OccurrencesMap({
 
           {/* Clusters — visível acima do limiar */}
           {showCluster && (
-            <MarkerClusterGroup chunkedLoading>
+            <MarkerClusterGroup
+              chunkedLoading
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              iconCreateFunction={(cluster: any) => {
+                const count = cluster.getChildCount();
+                const size = count < 10 ? 44 : count < 100 ? 52 : 60;
+                const bg = count >= 10 ? "#dc2626" : "#244b7a";
+                return L.divIcon({
+                  html: `<div style="
+                    width:${size}px;height:${size}px;
+                    background:${bg};
+                    border:3px solid rgba(255,255,255,0.85);
+                    border-radius:50%;
+                    display:flex;align-items:center;justify-content:center;
+                    color:#fff;font-weight:900;
+                    font-size:${count < 10 ? 18 : count < 100 ? 16 : 14}px;
+                    font-family:system-ui,sans-serif;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.35);
+                    letter-spacing:-0.5px;
+                  ">${count}</div>`,
+                  className: "",
+                  iconSize: [size, size],
+                  iconAnchor: [size / 2, size / 2],
+                });
+              }}
+            >
               {filtered.map((occ) => {
                 if (occ.latitude == null || occ.longitude == null) return null;
                 return (
