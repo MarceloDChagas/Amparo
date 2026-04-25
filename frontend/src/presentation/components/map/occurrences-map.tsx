@@ -348,15 +348,21 @@ export default function OccurrencesMap({
             {o.label}
           </button>
         ))}
-        <span className="ml-auto flex items-baseline gap-1.5">
-          <span className="text-2xl font-black tabular-nums text-foreground leading-none">
+        <span className="ml-auto flex items-baseline gap-2">
+          <span
+            className="text-5xl font-black tabular-nums leading-none"
+            style={{ color: "var(--primary)" }}
+          >
             {filtered.length}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             ocorrência{filtered.length !== 1 ? "s" : ""}
-            {currentZoom >= CLUSTER_ZOOM_THRESHOLD
-              ? " · marcadores"
-              : " · mapa de calor"}
+            <br />
+            <span className="text-xs">
+              {currentZoom >= CLUSTER_ZOOM_THRESHOLD
+                ? "marcadores"
+                : "mapa de calor"}
+            </span>
           </span>
         </span>
       </div>
