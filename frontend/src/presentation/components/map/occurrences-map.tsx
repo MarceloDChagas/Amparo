@@ -348,11 +348,16 @@ export default function OccurrencesMap({
             {o.label}
           </button>
         ))}
-        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-          {filtered.length} ocorrência{filtered.length !== 1 ? "s" : ""}
-          {currentZoom >= CLUSTER_ZOOM_THRESHOLD
-            ? " · marcadores"
-            : " · mapa de calor"}
+        <span className="ml-auto flex items-baseline gap-1.5">
+          <span className="text-2xl font-black tabular-nums text-foreground leading-none">
+            {filtered.length}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            ocorrência{filtered.length !== 1 ? "s" : ""}
+            {currentZoom >= CLUSTER_ZOOM_THRESHOLD
+              ? " · marcadores"
+              : " · mapa de calor"}
+          </span>
         </span>
       </div>
 
