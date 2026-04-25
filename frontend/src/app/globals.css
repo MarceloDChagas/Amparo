@@ -296,3 +296,14 @@
   40%       { border-radius: 55% 45% 42% 58% / 45% 55% 42% 58%; }
   70%       { border-radius: 48% 52% 60% 40% / 62% 38% 48% 52%; }
 }
+
+/* ⑳ — Wordmark canônico: única fonte de verdade para a marca "amparo".
+ * Usar .amparo-mark em vez de declarar font/weight/case inline por componente.
+ * Isso garante reprodução correta em parceiros (gov.br, imprensa, integrações). */
+.amparo-mark {
+  font-family: var(--font-brand), "Nunito", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}

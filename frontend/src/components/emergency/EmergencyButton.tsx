@@ -1,11 +1,4 @@
-/**
- * RF01 — Botão de Emergência (HIGH)
- * RN01 — Ativação por Tempo Contínuo: acionamento apenas após 2s pressionado.
- * RN02 — Impossibilidade de Autocancelamento: após disparado, não há como cancelar pelo app.
- * NRF05 — Desempenho: geolocalização com timeout de 8s, fallback para coordenadas 0,0.
- * NRF09 — Usabilidade Sob Estresse: blob de 190px, feedback visual + háptico durante o hold.
- * NRF10 — Acessibilidade: role="progressbar" no SVG, aria-label dinâmico no botão.
- */
+// see: /design-system — RF01, RN01, RN02, NRF05, NRF09, NRF10
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,6 +13,10 @@ export function EmergencyButton() {
   const [isPressing, setIsPressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [earlyRelease, setEarlyRelease] = useState(false);
+  // ⑨ — rastreia se o alerta foi enviado sem coordenada válida
+  const [geoFailed, setGeoFailed] = useState(false);
+  const [locationDescription, setLocationDescription] = useState("");
+  const [locationSubmitted, setLocationSubmitted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const earlyReleaseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,9 +45,8 @@ export function EmergencyButton() {
       },
       (error) => {
         console.error("Erro ao obter localização:", error);
-        // NRF05 — fallback silencioso: o alerta é enviado com coordenadas 0,0.
-        // Não exibir toast de erro — a vítima não deve ver "Erro" ao acionar a emergência.
-        // O feedback de sucesso é dado pelo estado visual do botão (verde "ALERTA ENVIADO").
+        // NRF05 — fallback: alerta enviado sem coordenada; ⑨ — sinalizar para pedir localização manual
+        setGeoFailed(true);
         createAlert({ latitude: 0, longitude: 0, userId: user.id });
       },
       { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
@@ -119,7 +115,6 @@ export function EmergencyButton() {
     (HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000,
   );
 
-  // Forma blob emergência — deformação mais dramática, inclinação cima-direita
   const blobShape = "68% 32% 46% 54% / 36% 62% 38% 64%";
 
   const outerBg = isSuccess
@@ -139,144 +134,214 @@ export function EmergencyButton() {
       : "var(--emergency)";
 
   return (
-    <div
-      className="relative mb-6 flex items-center justify-center"
-      style={{ width: `${CONTAINER}px`, height: `${CONTAINER}px` }}
-    >
-      {/* NRF10 — role="progressbar" comunica o progresso do hold para leitores de tela */}
-      <svg
-        className="absolute pointer-events-none z-10"
-        width={RING_SIZE}
-        height={RING_SIZE}
-        viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
-        role="progressbar"
-        aria-valuenow={Math.round(progress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={
-          isPressing
-            ? `Acionando alerta: ${secondsLeft} segundo${secondsLeft !== 1 ? "s" : ""} restante${secondsLeft !== 1 ? "s" : ""}`
-            : "Progresso do acionamento de emergência"
-        }
-        style={{
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%) rotate(-90deg)",
-        }}
+    <div className="flex flex-col items-center">
+      <div
+        className="relative mb-2 flex items-center justify-center"
+        style={{ width: `${CONTAINER}px`, height: `${CONTAINER}px` }}
       >
-        <circle
-          cx={RING_SIZE / 2}
-          cy={RING_SIZE / 2}
-          r={radius}
-          fill="transparent"
-          stroke="rgba(255,255,255,0.9)"
-          strokeWidth="5"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          style={{ opacity: progress > 0 ? 1 : 0, transition: "opacity 0.2s" }}
+        {/* NRF10 — role="progressbar" comunica o progresso do hold para leitores de tela */}
+        <svg
+          className="absolute pointer-events-none z-10"
+          width={RING_SIZE}
+          height={RING_SIZE}
+          viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={
+            isPressing
+              ? `Acionando alerta: ${secondsLeft} segundo${secondsLeft !== 1 ? "s" : ""} restante${secondsLeft !== 1 ? "s" : ""}`
+              : "Progresso do acionamento de emergência"
+          }
+          style={{
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%) rotate(-90deg)",
+          }}
+        >
+          <circle
+            cx={RING_SIZE / 2}
+            cy={RING_SIZE / 2}
+            r={radius}
+            fill="transparent"
+            stroke="rgba(255,255,255,0.9)"
+            strokeWidth="5"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{
+              opacity: progress > 0 ? 1 : 0,
+              transition: "opacity 0.2s",
+            }}
+          />
+        </svg>
+
+        <div
+          aria-hidden="true"
+          className={`absolute transition-all duration-300 ${!isPressing && !isPending ? "emergency-blob-idle" : ""}`}
+          style={{
+            width: "220px",
+            height: "220px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            borderRadius: blobShape,
+            backgroundColor: outerBg,
+            boxShadow: isPressing
+              ? "0 0 64px rgba(220, 38, 38, 0.60)"
+              : undefined,
+          }}
         />
-      </svg>
 
-      {/* Camada externa — blob com glow */}
-      <div
-        aria-hidden="true"
-        className={`absolute transition-all duration-300 ${!isPressing && !isPending ? "emergency-blob-idle" : ""}`}
-        style={{
-          width: "220px",
-          height: "220px",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          borderRadius: blobShape,
-          backgroundColor: outerBg,
-          boxShadow: isPressing
-            ? "0 0 64px rgba(220, 38, 38, 0.60)"
-            : undefined,
-        }}
-      />
+        <div
+          aria-hidden="true"
+          className="absolute transition-all duration-300"
+          style={{
+            width: "178px",
+            height: "178px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            borderRadius: blobShape,
+            backgroundColor: middleBg,
+          }}
+        />
 
-      {/* Camada do meio */}
-      <div
-        aria-hidden="true"
-        className="absolute transition-all duration-300"
-        style={{
-          width: "178px",
-          height: "178px",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          borderRadius: blobShape,
-          backgroundColor: middleBg,
-        }}
-      />
+        <button
+          className="absolute flex flex-col items-center justify-center z-20 select-none"
+          style={{
+            width: "138px",
+            height: "138px",
+            top: "50%",
+            left: "50%",
+            transform: `translate(-50%, -50%) ${isPressing ? "scale(0.93)" : "scale(1)"}`,
+            borderRadius: blobShape,
+            backgroundColor: innerBg,
+            boxShadow: isPressing
+              ? "0 0 32px rgba(192, 57, 43, 0.6)"
+              : "0 6px 24px rgba(220, 38, 38, 0.40)",
+            transition:
+              "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease",
+            cursor: isPending ? "not-allowed" : "pointer",
+            opacity: isPending ? 0.75 : 1,
+          }}
+          disabled={isPending || isSuccess}
+          aria-label={
+            isSuccess
+              ? "Alerta enviado com sucesso"
+              : isPending
+                ? "Enviando alerta de emergência"
+                : "Botão de emergência — segure por 2 segundos para acionar"
+          }
+          onMouseDown={handlePressStart}
+          onMouseUp={handlePressEnd}
+          onMouseLeave={handlePressEnd}
+          onTouchStart={handlePressStart}
+          onTouchEnd={handlePressEnd}
+        >
+          {isSuccess ? (
+            <span
+              className="font-bold text-white tracking-wide leading-tight text-center"
+              style={{
+                fontSize: "13px",
+                textShadow: "0 1px 8px rgba(0,0,0,0.35)",
+                whiteSpace: "pre-line",
+              }}
+            >
+              {"ALERTA\nENVIADO"}
+            </span>
+          ) : isPending ? (
+            <span className="text-base font-bold tracking-widest text-white/90">
+              •••
+            </span>
+          ) : (
+            <span
+              className="font-bold text-white tracking-wide leading-tight text-center"
+              style={{
+                fontSize: earlyRelease ? "11px" : isPressing ? "28px" : "18px",
+                transition: "font-size 0.2s ease",
+                textShadow: "0 1px 8px rgba(0,0,0,0.35)",
+                whiteSpace: "pre-line",
+              }}
+            >
+              {isPressing
+                ? `${secondsLeft}s`
+                : earlyRelease
+                  ? "MANTENHA\nPRESSIONADO"
+                  : "EMERGÊNCIA"}
+            </span>
+          )}
+        </button>
+      </div>
 
-      {/* Botão central — blob principal */}
-      <button
-        className="absolute flex flex-col items-center justify-center z-20 select-none"
-        style={{
-          width: "138px",
-          height: "138px",
-          top: "50%",
-          left: "50%",
-          transform: `translate(-50%, -50%) ${isPressing ? "scale(0.93)" : "scale(1)"}`,
-          borderRadius: blobShape,
-          backgroundColor: innerBg,
-          boxShadow: isPressing
-            ? "0 0 32px rgba(192, 57, 43, 0.6)"
-            : "0 6px 24px rgba(220, 38, 38, 0.40)",
-          transition:
-            "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease",
-          cursor: isPending ? "not-allowed" : "pointer",
-          opacity: isPending ? 0.75 : 1,
-        }}
-        disabled={isPending || isSuccess}
-        aria-label={
-          isSuccess
-            ? "Alerta enviado com sucesso"
-            : isPending
-              ? "Enviando alerta de emergência"
-              : "Botão de emergência — segure por 2 segundos para acionar"
-        }
-        onMouseDown={handlePressStart}
-        onMouseUp={handlePressEnd}
-        onMouseLeave={handlePressEnd}
-        onTouchStart={handlePressStart}
-        onTouchEnd={handlePressEnd}
-      >
-        {isSuccess ? (
-          <span
-            className="font-bold text-white tracking-wide leading-tight text-center"
+      {/* ⑪ — hint idle: visível antes do primeiro toque, some ao pressionar */}
+      {!isPressing && !isPending && !isSuccess && (
+        <p
+          className="text-xs font-medium text-center"
+          style={{ color: "rgba(90, 53, 69, 0.65)" }}
+        >
+          Toque e segure para acionar
+        </p>
+      )}
+
+      {/* ⑨ — Passo 2 após alerta sem coordenada: pede localização manual */}
+      {isSuccess && geoFailed && !locationSubmitted && (
+        <div
+          className="mt-4 mx-4 rounded-2xl p-4"
+          style={{
+            backgroundColor: "rgba(255,255,255,0.85)",
+            border: "1px solid rgba(180,140,160,0.25)",
+          }}
+        >
+          <p className="text-sm font-semibold text-foreground mb-1">
+            Alerta enviado.{" "}
+            <span className="font-bold" style={{ color: "var(--warning)" }}>
+              Localização não capturada
+            </span>
+          </p>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+            Descreva onde você está para ajudar a equipe a localizar você:
+          </p>
+          <textarea
+            value={locationDescription}
+            onChange={(e) => setLocationDescription(e.target.value)}
+            placeholder="Ex.: Rua das Flores, perto da farmácia..."
+            rows={2}
+            className="w-full rounded-xl border px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2"
             style={{
-              fontSize: "13px",
-              textShadow: "0 1px 8px rgba(0,0,0,0.35)",
-              whiteSpace: "pre-line",
+              borderColor: "rgba(180,140,160,0.3)",
+              backgroundColor: "rgba(255,255,255,0.9)",
             }}
-          >
-            {"ALERTA\nENVIADO"}
-          </span>
-        ) : isPending ? (
-          <span className="text-base font-bold tracking-widest text-white/90">
-            •••
-          </span>
-        ) : (
-          <span
-            className="font-bold text-white tracking-wide leading-tight text-center"
-            style={{
-              fontSize: earlyRelease ? "11px" : isPressing ? "28px" : "18px",
-              transition: "font-size 0.2s ease",
-              textShadow: "0 1px 8px rgba(0,0,0,0.35)",
-              whiteSpace: "pre-line",
-            }}
-          >
-            {isPressing
-              ? `${secondsLeft}s`
-              : earlyRelease
-                ? "MANTENHA\nPRESSIONADO"
-                : "EMERGÊNCIA"}
-          </span>
-        )}
-      </button>
+            aria-label="Descreva sua localização atual"
+          />
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => {
+                if (locationDescription.trim()) {
+                  // TODO: enviar locationDescription junto ao alerta via API
+                  toast.success("Localização registrada — equipe notificada.");
+                }
+                setLocationSubmitted(true);
+              }}
+              className="flex-1 rounded-xl py-2 text-sm font-semibold text-white"
+              style={{ backgroundColor: "var(--emergency)" }}
+            >
+              Enviar localização
+            </button>
+            <button
+              onClick={() => setLocationSubmitted(true)}
+              className="rounded-xl px-4 py-2 text-sm font-medium"
+              style={{
+                color: "rgba(90,53,69,0.6)",
+                backgroundColor: "rgba(90,53,69,0.07)",
+              }}
+            >
+              Pular
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

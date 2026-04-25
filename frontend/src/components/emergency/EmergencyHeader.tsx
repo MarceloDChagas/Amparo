@@ -56,7 +56,7 @@ export function EmergencyHeader({ variant = "dark" }: EmergencyHeaderProps) {
         style={{
           fontFamily: "var(--font-brand)",
           fontWeight: 800,
-          color: isLight ? "#c4705a" : "white",
+          color: isLight ? "var(--foreground)" : "white", // ⑫ — foreground no light; salmão reservado para ações primárias
           letterSpacing: "0.02em",
         }}
         aria-label="Amparo — Aplicativo de proteção"

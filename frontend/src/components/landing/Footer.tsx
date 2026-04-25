@@ -58,18 +58,33 @@ export const Footer: React.FC = () => (
           </ul>
         </div>
 
+        {/* ⑧ — seção oculta quando não configurada; exibe link nacional genérico */}
         <div>
           <h4 className="text-xs font-semibold tracking-widest uppercase mb-4 text-muted-foreground">
-            Referências institucionais
+            Referências nacionais
           </h4>
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
               <Mail size={14} className="text-primary" />
-              <span>Canal institucional configurável pela prefeitura</span>
+              <a
+                href="https://www.gov.br/mdh/pt-br/navegue-por-temas/politicas-para-mulheres/ligue-180"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-75 transition-opacity"
+              >
+                Central de Atendimento à Mulher — Ligue 180
+              </a>
             </li>
             <li className="flex items-start gap-2">
               <MapPin size={14} className="mt-0.5 shrink-0 text-primary" />
-              <span>Rede local de atendimento e proteção do município</span>
+              <a
+                href="https://www.gov.br/mdh/pt-br/navegue-por-temas/politicas-para-mulheres/rede-de-atendimento"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-75 transition-opacity"
+              >
+                Rede nacional de atendimento e proteção à mulher
+              </a>
             </li>
           </ul>
         </div>

@@ -8,9 +8,12 @@ import { AuthProvider } from "@/presentation/hooks/useAuth";
 
 import QueryProvider from "./query-provider";
 
+// ⑲ — fallback explícito + adjustFontFallback evita reflow quando fonte carrega tarde
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-source-sans",
+  fallback: ["Source Sans 3", "Inter", "system-ui", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 const sourceSerif = Source_Serif_4({
@@ -18,12 +21,16 @@ const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
   style: ["normal", "italic"],
   weight: ["400", "600"],
+  fallback: ["Georgia", "Times New Roman", "serif"],
+  adjustFontFallback: true,
 });
 
 const nunito = Nunito({
   subsets: ["latin"],
   variable: "--font-brand",
   weight: ["400", "600", "700", "800"],
+  fallback: ["Nunito", "Inter", "system-ui", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

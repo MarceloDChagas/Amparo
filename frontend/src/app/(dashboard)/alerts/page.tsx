@@ -10,8 +10,9 @@ import {
   Truck,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { usePersistedFilters } from "@/hooks/use-persisted-filters";
 import {
   AlertStatusType,
   EmergencyAlert,
@@ -98,6 +99,11 @@ function relativeTime(date: string): string {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<EmergencyAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  // ⑰ — filtros persistidos: plantão não refaz filtro a cada login
+  const { filters, setFilters } = usePersistedFilters("amparo:filters:alerts", {
+    period: "24h",
+    status: "all",
+  });
 
   useEffect(() => {
     const loadAlerts = async () => {
@@ -114,7 +120,26 @@ export default function AlertsPage() {
     void loadAlerts();
   }, []);
 
-  const counts = alerts.reduce(
+  const filteredAlerts = useMemo(() => {
+    const now = Date.now();
+    const cutoff =
+      filters.period === "24h"
+        ? now - 24 * 60 * 60 * 1000
+        : filters.period === "7d"
+          ? now - 7 * 24 * 60 * 60 * 1000
+          : 0;
+
+    return alerts.filter((a) => {
+      const withinPeriod =
+        cutoff === 0 || new Date(a.createdAt ?? "").getTime() >= cutoff;
+      const matchStatus =
+        filters.status === "all" ||
+        a.status.toUpperCase() === filters.status.toUpperCase();
+      return withinPeriod && matchStatus;
+    });
+  }, [alerts, filters]);
+
+  const counts = filteredAlerts.reduce(
     (acc, a) => {
       const s = a.status.toUpperCase();
       if (s === "PENDING") acc.pending++;
@@ -128,9 +153,70 @@ export default function AlertsPage() {
 
   const activeCount = counts.pending + counts.dispatched;
 
+  const periodOptions = [
+    { value: "24h", label: "Últimas 24h" },
+    { value: "7d", label: "7 dias" },
+    { value: "all", label: "Todos" },
+  ] as const;
+
+  const statusOptions = [
+    { value: "all", label: "Qualquer status" },
+    { value: "PENDING", label: "Recebido" },
+    { value: "DISPATCHED", label: "Em atendimento" },
+    { value: "COMPLETED", label: "Concluído" },
+    { value: "CANCELLED", label: "Cancelado" },
+  ] as const;
+
   return (
     <div className="min-h-screen p-6 md:p-10 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* ⑰ — Filtros persistidos como pílulas */}
+        <div className="flex flex-wrap items-center gap-2">
+          {periodOptions.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => setFilters({ period: o.value })}
+              className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
+              style={{
+                borderColor:
+                  filters.period === o.value
+                    ? "var(--primary)"
+                    : "var(--border)",
+                backgroundColor:
+                  filters.period === o.value ? "var(--primary)" : "transparent",
+                color:
+                  filters.period === o.value
+                    ? "white"
+                    : "var(--muted-foreground)",
+              }}
+            >
+              {o.label}
+            </button>
+          ))}
+          <span className="mx-1 h-4 w-px bg-border" />
+          {statusOptions.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => setFilters({ status: o.value })}
+              className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
+              style={{
+                borderColor:
+                  filters.status === o.value
+                    ? "var(--primary)"
+                    : "var(--border)",
+                backgroundColor:
+                  filters.status === o.value ? "var(--primary)" : "transparent",
+                color:
+                  filters.status === o.value
+                    ? "white"
+                    : "var(--muted-foreground)",
+              }}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
@@ -188,10 +274,12 @@ export default function AlertsPage() {
             <div className="flex items-center justify-center h-48 text-sm animate-pulse text-muted-foreground">
               Carregando alertas...
             </div>
-          ) : alerts.length === 0 ? (
+          ) : filteredAlerts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-2 text-muted-foreground">
               <CheckCircle2 size={32} style={{ color: "#16a34a" }} />
-              <p className="text-sm font-medium">Nenhum alerta registrado.</p>
+              <p className="text-sm font-medium">
+                Nenhum alerta com este filtro.
+              </p>
             </div>
           ) : (
             <table className="w-full text-sm">
@@ -211,7 +299,7 @@ export default function AlertsPage() {
                 </tr>
               </thead>
               <tbody>
-                {alerts.map((alert, i) => {
+                {filteredAlerts.map((alert, i) => {
                   const s = alert.status.toUpperCase();
                   const isActive = s === "PENDING" || s === "DISPATCHED";
                   return (
@@ -220,7 +308,7 @@ export default function AlertsPage() {
                       className="transition-colors hover:bg-muted/30"
                       style={{
                         borderBottom:
-                          i < alerts.length - 1
+                          i < filteredAlerts.length - 1
                             ? "1px solid var(--border)"
                             : undefined,
                         backgroundColor: isActive
