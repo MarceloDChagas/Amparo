@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertTriangle,
+  FilePlus,
+  FileText,
+  MapPin,
+  Route,
+  Shield,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -10,22 +20,34 @@ interface RecentActivityProps {
   userNames?: Record<string, string>;
 }
 
-// Rótulos humanos para cada recurso da API
-const RESOURCE_LABELS: Record<string, string> = {
-  occurrences: "ocorrência",
-  users: "usuário",
-  aggressors: "agressor",
-  "emergency-alerts": "alerta de emergência",
-  "emergency-contacts": "contato de emergência",
-  "check-ins": "deslocamento",
-  notes: "anotação",
-  documents: "documento",
-  notifications: "notificação",
-  "patrol-routes": "rota de patrulha",
-  "safe-locations": "local seguro",
+// ── Ícone por recurso ────────────────────────────────────────────────────────
+const RESOURCE_ICON: Record<string, React.ElementType> = {
+  "emergency-alerts": AlertTriangle,
+  occurrences: FileText,
+  aggressors: Shield,
+  "check-ins": MapPin,
+  users: UserPlus,
+  "patrol-routes": Route,
+  notifications: FilePlus,
+  documents: FilePlus,
+  notes: FilePlus,
 };
 
-// Rota de listagem no dashboard para cada recurso
+// ── Cor semântica por recurso ─────────────────────────────────────────────────
+const RESOURCE_COLOR: Record<string, string> = {
+  "emergency-alerts": "#dc2626",
+  occurrences: "#ea580c",
+  aggressors: "#b91c1c",
+  "check-ins": "#0891b2",
+  users: "#2563eb",
+  "patrol-routes": "#16a34a",
+  "emergency-contacts": "#7c3aed",
+  notifications: "#d97706",
+  documents: "#64748b",
+  notes: "#64748b",
+};
+
+// ── Rota de listagem ─────────────────────────────────────────────────────────
 const RESOURCE_ROUTES: Record<string, string> = {
   occurrences: "/occurrences",
   users: "/users",
@@ -36,39 +58,14 @@ const RESOURCE_ROUTES: Record<string, string> = {
   "patrol-routes": "/patrol-routes",
 };
 
-// Recursos com página de detalhe (/rota/[id])
 const DETAIL_ROUTES = new Set(["users", "emergency-alerts", "check-ins"]);
 
-// Cor semântica por recurso
-function actionAccent(segment: string, action: string): string {
-  const byResource: Record<string, string> = {
-    "emergency-alerts": "#dc2626",
-    occurrences: "#ea580c",
-    aggressors: "#b91c1c",
-    "emergency-contacts": "#7c3aed",
-    "check-ins": "#0891b2",
-    users: "#2563eb",
-    documents: "#64748b",
-    notes: "#64748b",
-    notifications: "#d97706",
-    "patrol-routes": "#16a34a",
-    "safe-locations": "#0d9488",
-  };
-  if (byResource[segment]) return byResource[segment];
-  const a = action.toUpperCase();
-  if (a === "DELETE") return "#dc2626";
-  if (a === "PUT" || a === "PATCH") return "#d97706";
-  return "var(--primary)";
-}
-
-// Extrai segmento e id do path da URL (ex: /check-ins/abc → { segment: "check-ins", id: "abc" })
+// ── Helpers ──────────────────────────────────────────────────────────────────
 function parseResource(resource: string): { segment: string; id?: string } {
-  const path = resource.split("?")[0];
-  const parts = path.split("/").filter(Boolean);
+  const parts = resource.split("?")[0].split("/").filter(Boolean);
   return { segment: parts[0] ?? resource, id: parts[1] };
 }
 
-// Monta href para o item (listagem ou detalhe quando disponível)
 function buildLink(segment: string, id?: string): string | null {
   const base = RESOURCE_ROUTES[segment];
   if (!base) return null;
@@ -79,30 +76,81 @@ function buildLink(segment: string, id?: string): string | null {
   return base;
 }
 
+const RESOURCE_LABELS: Record<string, string> = {
+  occurrences: "ocorrência",
+  users: "usuário",
+  aggressors: "agressor",
+  "emergency-alerts": "alerta de emergência",
+  "emergency-contacts": "contato de emergência",
+  "check-ins": "deslocamento",
+  notes: "anotação",
+  documents: "documento",
+  notifications: "notificações",
+  "patrol-routes": "rota de patrulha",
+};
+
 function describeActivity(action: string, segment: string): string {
   const method = action.toUpperCase();
+  // leitura de notificações é o caso mais ruidoso — tratar separadamente
+  if (segment === "notifications" && (method === "PATCH" || method === "PUT")) {
+    return "Marcou notificações como lidas";
+  }
   const label = RESOURCE_LABELS[segment] ?? segment.replace(/-/g, " ");
-  if (method === "POST") return `Novo(a) ${label} registrado(a)`;
-  if (method === "DELETE") return `${label} removido(a)`;
-  if (method === "PUT" || method === "PATCH") return `${label} atualizado(a)`;
+  if (method === "POST")
+    return `${label.charAt(0).toUpperCase() + label.slice(1)} criado(a)`;
+  if (method === "DELETE")
+    return `${label.charAt(0).toUpperCase() + label.slice(1)} removido(a)`;
+  if (method === "PUT" || method === "PATCH")
+    return `${label.charAt(0).toUpperCase() + label.slice(1)} atualizado(a)`;
   return label;
+}
+
+// Exibe apenas o primeiro nome para economizar espaço
+function shortName(full: string): string {
+  return full.split(" ")[0];
 }
 
 function relativeTime(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
   const m = Math.floor(diff / 60_000);
   if (m < 1) return "agora";
-  if (m < 60) return `há ${m}min`;
+  if (m < 60) return `${m}min`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `há ${h}h`;
+  if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
-  if (d < 7) return `há ${d}d`;
+  if (d < 7) return `${d}d`;
   return new Date(date).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
   });
 }
 
+// ── Agrupamento de eventos consecutivos idênticos ───────────────────────────
+interface GroupedLog {
+  representative: AuditLog;
+  count: number;
+}
+
+function groupConsecutive(logs: AuditLog[]): GroupedLog[] {
+  const groups: GroupedLog[] = [];
+  for (const log of logs) {
+    const { segment } = parseResource(log.resource);
+    const prev = groups[groups.length - 1];
+    if (
+      prev &&
+      parseResource(prev.representative.resource).segment === segment &&
+      prev.representative.action === log.action &&
+      prev.representative.userId === log.userId
+    ) {
+      prev.count++;
+    } else {
+      groups.push({ representative: log, count: 1 });
+    }
+  }
+  return groups;
+}
+
+// ── Componente ───────────────────────────────────────────────────────────────
 export const RecentActivity: React.FC<RecentActivityProps> = ({
   activities = [],
   userNames = {},
@@ -110,9 +158,8 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [allActivities, setAllActivities] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Força re-render a cada 30s para atualizar os tempos relativos
   const [, setTick] = useState(0);
+
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 30_000);
     return () => clearInterval(id);
@@ -131,12 +178,13 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
     setExpanded((v) => !v);
   }
 
-  const displayed = expanded ? allActivities : activities;
+  const raw = expanded ? allActivities : activities;
+  const displayed = groupConsecutive(raw);
 
   return (
-    <div className="p-6 rounded-2xl border border-border h-fit bg-card shadow-sm">
+    <div className="rounded-2xl border border-border bg-card shadow-sm h-fit">
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border">
         <span className="text-sm font-semibold text-foreground">
           Atividade recente
         </span>
@@ -152,68 +200,87 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
       </div>
 
       {activities.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Nenhuma atividade ainda. Ações dos usuários aparecerão aqui em tempo
-          real.
+        <p className="px-5 py-6 text-sm text-muted-foreground">
+          Nenhuma atividade ainda.
         </p>
       ) : (
-        <div className={expanded ? "max-h-[30rem] overflow-y-auto pr-1" : ""}>
-          <ol className="relative" aria-label="Histórico de atividades">
-            {/* Linha vertical da timeline */}
-            <div
-              aria-hidden="true"
-              className="absolute left-[7px] top-2 bottom-2 w-px bg-border"
-            />
+        <ol
+          className={`divide-y divide-border ${expanded ? "max-h-[32rem] overflow-y-auto" : ""}`}
+          aria-label="Histórico de atividades"
+        >
+          {displayed.map(({ representative: activity, count }, i) => {
+            const { segment, id } = parseResource(activity.resource);
+            const accent = RESOURCE_COLOR[segment] ?? "var(--primary)";
+            const href = buildLink(
+              segment,
+              id ?? activity.resourceId ?? undefined,
+            );
+            const description = describeActivity(activity.action, segment);
+            const userName = activity.userId
+              ? (userNames[activity.userId] ?? null)
+              : null;
+            const time = relativeTime(activity.createdAt);
+            const Icon = RESOURCE_ICON[segment] ?? FileText;
 
-            {displayed.map((activity, i) => {
-              const { segment, id } = parseResource(activity.resource);
-              const accent = actionAccent(segment, activity.action);
-              const href = buildLink(
-                segment,
-                id ?? activity.resourceId ?? undefined,
-              );
-              const description = describeActivity(activity.action, segment);
-              const userName = activity.userId
-                ? (userNames[activity.userId] ?? null)
-                : null;
-              const time = relativeTime(activity.createdAt);
-
-              const content = (
-                <>
-                  <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
-                    {description}
-                  </p>
-                  <p className="text-xs mt-0.5 text-muted-foreground">
-                    {userName ? `${userName} · ` : ""}
-                    {time}
-                  </p>
-                </>
-              );
-
-              return (
-                <li
-                  key={activity.id || i}
-                  className="flex gap-4 pb-5 last:pb-0 group"
+            const inner = (
+              <div className="flex items-start gap-3 px-5 py-3.5 group">
+                {/* Ícone colorido */}
+                <div
+                  className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                  style={{ backgroundColor: `${accent}18`, color: accent }}
+                  aria-hidden="true"
                 >
-                  {/* Dot colorido */}
-                  <div
-                    aria-hidden="true"
-                    className="relative z-10 mt-1 w-3.5 h-3.5 shrink-0 rounded-full ring-2 ring-white dark:ring-gray-900 transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: accent }}
-                  />
+                  <Icon size={13} />
+                </div>
 
-                  {href ? (
-                    <Link href={href} className="flex-1 min-w-0">
-                      {content}
-                    </Link>
-                  ) : (
-                    <div className="flex-1 min-w-0">{content}</div>
+                {/* Texto */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                      {description}
+                      {count > 1 && (
+                        <span
+                          className="ml-1.5 inline-flex items-center rounded-full px-1.5 py-px text-[10px] font-semibold"
+                          style={{
+                            backgroundColor: `${accent}18`,
+                            color: accent,
+                          }}
+                        >
+                          ×{count}
+                        </span>
+                      )}
+                    </p>
+                    <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                      {time}
+                    </span>
+                  </div>
+                  {userName && (
+                    <p className="mt-0.5 text-xs text-muted-foreground truncate">
+                      {shortName(userName)}
+                    </p>
                   )}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+                </div>
+              </div>
+            );
+
+            return (
+              <li key={activity.id || i}>
+                {href ? (
+                  <Link
+                    href={href}
+                    className="block hover:bg-accent/40 transition-colors"
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div className="hover:bg-accent/40 transition-colors">
+                    {inner}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ol>
       )}
     </div>
   );
