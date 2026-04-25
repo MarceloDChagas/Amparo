@@ -8,21 +8,245 @@ import { PrismaService } from "@/infra/database/prisma.service";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
-/**
- * RF16 — Geração de Relatórios Oficiais (MEDIUM)
- * Exportação de dados consolidados em PDF para envio a inquéritos
- * ou apresentação judicial.
- *
- * Endpoints:
- *  GET /reports/occurrences  — Relatório de ocorrências (com filtro de período)
- *  GET /reports/area-analysis — Análise de risco por área (heat map + ocorrências)
- */
+// ── Paleta ────────────────────────────────────────────────────────────────────
+const C = {
+  brand: "#6b2d3e",
+  primary: "#244b7a",
+  danger: "#dc2626",
+  warning: "#d97706",
+  success: "#16a34a",
+  muted: "#6b7280",
+  surface: "#f7f8fa",
+  border: "#e5e7eb",
+  ink: "#111827",
+  inkSoft: "#374151",
+  white: "#ffffff",
+};
+
+// ── Geocodificação reversa (Nominatim OSM) ────────────────────────────────────
+// Máx 1 req/s conforme ToS. Usada apenas para o Top 5 de zonas críticas.
+async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Amparo-Report/1.0 (sistema de proteção à mulher)",
+      },
+    });
+    if (!res.ok) return formatCoords(lat, lng);
+    const data = (await res.json()) as {
+      address?: {
+        suburb?: string;
+        neighbourhood?: string;
+        road?: string;
+        town?: string;
+        city?: string;
+      };
+      display_name?: string;
+    };
+    const a = data.address ?? {};
+    return (
+      a.suburb ??
+      a.neighbourhood ??
+      a.road ??
+      a.town ??
+      a.city ??
+      formatCoords(lat, lng)
+    );
+  } catch {
+    return formatCoords(lat, lng);
+  }
+}
+
+function formatCoords(lat: number, lng: number): string {
+  return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ── Utilitários de desenho PDFKit ─────────────────────────────────────────────
+function badge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  label: string,
+  bg: string,
+  fg = C.white,
+) {
+  const w = doc.widthOfString(label) + 14;
+  doc.roundedRect(x, y, w, 14, 3).fill(bg);
+  doc
+    .fontSize(7.5)
+    .font("Helvetica-Bold")
+    .fillColor(fg)
+    .text(label, x + 7, y + 3.5, { lineBreak: false });
+}
+
+function riskBadge(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  score: number,
+) {
+  if (score >= 6) badge(doc, x, y, `CRÍTICO  ${score.toFixed(1)}`, C.danger);
+  else if (score >= 3)
+    badge(doc, x, y, `ELEVADO  ${score.toFixed(1)}`, C.warning, C.ink);
+  else badge(doc, x, y, `BAIXO  ${score.toFixed(1)}`, C.success);
+}
+
+function kpiCard(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  value: string,
+  label: string,
+  accent: string,
+) {
+  doc.roundedRect(x, y, w, h, 6).fill(C.surface);
+  doc.roundedRect(x, y, 4, h, 2).fill(accent);
+  doc
+    .fontSize(26)
+    .font("Helvetica-Bold")
+    .fillColor(accent)
+    .text(value, x + 14, y + 10, { width: w - 18, lineBreak: false });
+  doc
+    .fontSize(8)
+    .font("Helvetica")
+    .fillColor(C.muted)
+    .text(label, x + 14, y + h - 18, { width: w - 18, lineBreak: false });
+}
+
+// Barra horizontal proporcional
+function barH(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  maxW: number,
+  h: number,
+  value: number,
+  maxValue: number,
+  color: string,
+  label: string,
+) {
+  const barW = maxValue > 0 ? Math.max((value / maxValue) * maxW, 2) : 2;
+  doc.rect(x, y, maxW, h).fill("#f3f4f6");
+  doc.roundedRect(x, y, barW, h, 2).fill(color);
+  doc
+    .fontSize(8)
+    .font("Helvetica")
+    .fillColor(C.inkSoft)
+    .text(label, x - 120, y + 1, {
+      width: 115,
+      align: "right",
+      lineBreak: false,
+    });
+  doc
+    .fontSize(8)
+    .font("Helvetica-Bold")
+    .fillColor(C.ink)
+    .text(String(value), x + barW + 4, y + 1, { lineBreak: false });
+}
+
+// ── Cabeçalho e rodapé ────────────────────────────────────────────────────────
+function drawHeader(
+  doc: PDFKit.PDFDocument,
+  title: string,
+  subtitle?: string,
+  from?: string,
+  to?: string,
+) {
+  // Faixa superior
+  doc.rect(0, 0, doc.page.width, 72).fill(C.brand);
+  doc.rect(0, 68, doc.page.width, 4).fill(C.warning);
+
+  doc
+    .fontSize(18)
+    .font("Helvetica-Bold")
+    .fillColor(C.white)
+    .text("AMPARO", 50, 18);
+  doc
+    .fontSize(8)
+    .font("Helvetica")
+    .fillColor("rgba(255,255,255,0.7)")
+    .text("Sistema de Proteção à Mulher", 50, 40);
+
+  doc
+    .fontSize(13)
+    .font("Helvetica-Bold")
+    .fillColor(C.white)
+    .text(title, 0, 16, {
+      align: "right",
+      width: doc.page.width - 50,
+      lineBreak: false,
+    });
+  if (subtitle) {
+    doc
+      .fontSize(8)
+      .font("Helvetica")
+      .fillColor("rgba(255,255,255,0.75)")
+      .text(subtitle, 0, 34, {
+        align: "right",
+        width: doc.page.width - 50,
+        lineBreak: false,
+      });
+  }
+
+  doc.y = 86;
+  const gerado = `Gerado em ${new Date().toLocaleString("pt-BR")}`;
+  const periodo =
+    from || to
+      ? ` · Período: ${from ? new Date(from).toLocaleDateString("pt-BR") : "início"} → ${to ? new Date(to).toLocaleDateString("pt-BR") : "hoje"}`
+      : "";
+  doc
+    .fontSize(8)
+    .font("Helvetica")
+    .fillColor(C.muted)
+    .text(gerado + periodo, { align: "right" });
+  doc.moveDown(0.6);
+  doc
+    .moveTo(50, doc.y)
+    .lineTo(545, doc.y)
+    .strokeColor(C.border)
+    .lineWidth(0.5)
+    .stroke();
+  doc.moveDown(0.8);
+}
+
+function drawFooter(doc: PDFKit.PDFDocument) {
+  const bottom = doc.page.height - 38;
+  doc
+    .moveTo(50, bottom)
+    .lineTo(545, bottom)
+    .strokeColor(C.border)
+    .lineWidth(0.5)
+    .stroke();
+  doc
+    .fontSize(7.5)
+    .font("Helvetica")
+    .fillColor(C.muted)
+    .text(
+      "Documento gerado automaticamente pelo sistema Amparo · Uso restrito a fins oficiais.",
+      50,
+      bottom + 8,
+      {
+        align: "center",
+        width: 495,
+      },
+    );
+}
+
+// ── Controller ────────────────────────────────────────────────────────────────
 @Controller("reports")
 @UseGuards(AuthGuard("jwt"), RolesGuard)
 @Roles(Role.ADMIN)
 export class ReportController {
   constructor(private readonly prisma: PrismaService) {}
 
+  // ── Relatório de Ocorrências ─────────────────────────────────────────────
   @Get("occurrences")
   async occurrencesReport(
     @Res() res: Response,
@@ -43,272 +267,450 @@ export class ReportController {
       orderBy: { createdAt: "desc" },
     });
 
-    const doc: PDFKit.PDFDocument = new PDFDocument({ margin: 50, size: "A4" });
+    // KPI derivados
+    const total = occurrences.length;
+    const withAggressor = occurrences.filter((o) => o.aggressorId).length;
+    const last30 = occurrences.filter((o) => {
+      const age = Date.now() - new Date(o.createdAt).getTime();
+      return age <= 30 * 24 * 60 * 60 * 1000;
+    }).length;
 
+    // Tendência mensal (últimos 6 meses)
+    const monthlyCounts: Record<string, number> = {};
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      monthlyCounts[
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+      ] = 0;
+    }
+    for (const o of occurrences) {
+      const key = `${new Date(o.createdAt).getFullYear()}-${String(new Date(o.createdAt).getMonth() + 1).padStart(2, "0")}`;
+      if (key in monthlyCounts) monthlyCounts[key]++;
+    }
+
+    const doc: PDFKit.PDFDocument = new PDFDocument({ margin: 50, size: "A4" });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="relatorio-ocorrencias-${Date.now()}.pdf"`,
     );
-
     doc.pipe(res);
 
-    // Cabeçalho
-    this.drawHeader(doc, "Relatório de Ocorrências", from, to);
+    drawHeader(doc, "Relatório de Ocorrências", undefined, from, to);
 
-    // Resumo
+    // ── KPI cards ──
+    const cardW = 148,
+      cardH = 56,
+      gap = 10,
+      startX = 50;
+    kpiCard(
+      doc,
+      startX,
+      doc.y,
+      cardW,
+      cardH,
+      String(total),
+      "Total de ocorrências",
+      C.primary,
+    );
+    kpiCard(
+      doc,
+      startX + cardW + gap,
+      doc.y,
+      cardW,
+      cardH,
+      String(withAggressor),
+      "Com agressor identificado",
+      C.danger,
+    );
+    kpiCard(
+      doc,
+      startX + (cardW + gap) * 2,
+      doc.y,
+      cardW,
+      cardH,
+      String(last30),
+      "Últimos 30 dias",
+      C.warning,
+    );
+    doc.y += cardH + 18;
+
+    // ── Gráfico de tendência mensal ──
     doc
-      .fontSize(11)
-      .fillColor("#444")
-      .text(`Total de ocorrências: ${occurrences.length}`, {
-        continued: false,
-      });
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .fillColor(C.ink)
+      .text("Tendência mensal (últimos 6 meses)");
+    doc.moveDown(0.4);
+
+    const chartStartY = doc.y;
+    const maxCount = Math.max(...Object.values(monthlyCounts), 1);
+    const months = Object.entries(monthlyCounts);
+
+    for (const [monthKey, count] of months) {
+      const [y, m] = monthKey.split("-");
+      const label = new Date(Number(y), Number(m) - 1, 1).toLocaleDateString(
+        "pt-BR",
+        { month: "short", year: "2-digit" },
+      );
+      barH(
+        doc,
+        170,
+        doc.y,
+        360,
+        14,
+        count,
+        maxCount,
+        count === maxCount ? C.danger : C.primary,
+        label,
+      );
+      doc.y += 18;
+    }
+    doc.y = chartStartY + months.length * 18 + 10;
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(545, doc.y)
+      .strokeColor(C.border)
+      .lineWidth(0.5)
+      .stroke();
     doc.moveDown(1.2);
 
-    if (occurrences.length === 0) {
+    // ── Lista de ocorrências ──
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .fillColor(C.ink)
+      .text("Detalhamento");
+    doc.moveDown(0.5);
+
+    if (total === 0) {
       doc
-        .fontSize(10)
-        .fillColor("#666")
-        .text("Nenhuma ocorrência encontrada no período.");
+        .fontSize(9)
+        .font("Helvetica")
+        .fillColor(C.muted)
+        .text("Nenhuma ocorrência no período selecionado.");
     } else {
-      occurrences.forEach((occ, index) => {
-        if (index > 0) doc.moveDown(0.5);
+      for (let i = 0; i < occurrences.length; i++) {
+        const occ = occurrences[i];
 
-        doc
-          .fontSize(10)
-          .fillColor("#1a1a1a")
-          .font("Helvetica-Bold")
-          .text(
-            `#${index + 1} — ${new Date(occ.createdAt).toLocaleDateString("pt-BR")}`,
-            {
-              continued: false,
-            },
-          );
-
-        doc
-          .font("Helvetica")
-          .fillColor("#333")
-          .text(`Descrição: ${occ.description}`)
-          .text(
-            `Localização: ${occ.latitude.toFixed(5)}, ${occ.longitude.toFixed(5)}`,
-          )
-          .text(`ID da vítima: ${occ.userId}`);
-
-        if (occ.aggressor) {
-          doc.text(`Agressor: ${occ.aggressor.name}`);
+        if (doc.y > doc.page.height - 120) {
+          doc.addPage();
+          doc.y = 50;
         }
 
-        // Linha separadora
+        const rowY = doc.y;
+        // fundo alternado
+        if (i % 2 === 0) doc.rect(50, rowY, 495, 50).fill(C.surface);
+
+        // Número e data
         doc
-          .moveTo(50, doc.y + 6)
-          .lineTo(545, doc.y + 6)
-          .strokeColor("#ddd")
-          .lineWidth(0.5)
-          .stroke();
-        doc.moveDown(0.8);
-      });
+          .fontSize(8)
+          .font("Helvetica-Bold")
+          .fillColor(C.muted)
+          .text(`#${i + 1}`, 55, rowY + 5, { width: 25, lineBreak: false });
+        doc
+          .fontSize(8)
+          .font("Helvetica")
+          .fillColor(C.muted)
+          .text(
+            new Date(occ.createdAt).toLocaleDateString("pt-BR"),
+            80,
+            rowY + 5,
+            { lineBreak: false },
+          );
+
+        // Badge de agressor
+        if (occ.aggressor) {
+          badge(doc, 160, rowY + 4, `⚠ ${occ.aggressor.name}`, C.danger);
+        }
+
+        // Descrição
+        doc
+          .fontSize(9)
+          .font("Helvetica")
+          .fillColor(C.inkSoft)
+          .text(occ.description, 55, rowY + 19, {
+            width: 440,
+            lineBreak: false,
+          });
+
+        // Coordenadas discretas (apenas referência, sem destaque)
+        doc
+          .fontSize(7)
+          .font("Helvetica")
+          .fillColor(C.muted)
+          .text(
+            `${occ.latitude.toFixed(4)}, ${occ.longitude.toFixed(4)}`,
+            55,
+            rowY + 36,
+            { lineBreak: false },
+          );
+
+        doc.y = rowY + 52;
+      }
     }
 
-    this.drawFooter(doc);
+    drawFooter(doc);
     doc.end();
   }
 
+  // ── Análise de risco por área ─────────────────────────────────────────────
   @Get("area-analysis")
   async areaAnalysisReport(@Res() res: Response) {
-    const [heatMapCells, occurrences, aggressors] = await Promise.all([
-      this.prisma.heatMapCell.findMany({
-        orderBy: { riskScore: "desc" },
-        take: 20,
-      }),
-      this.prisma.occurrence.count(),
-      this.prisma.aggressor.count(),
-    ]);
+    const [heatMapCells, totalOccurrences, totalAggressors] = await Promise.all(
+      [
+        this.prisma.heatMapCell.findMany({
+          orderBy: { riskScore: "desc" },
+          take: 20,
+        }),
+        this.prisma.occurrence.count(),
+        this.prisma.aggressor.count(),
+      ],
+    );
+
+    // Geocodificação reversa do Top 5 (1 req/s)
+    const geocoded: string[] = [];
+    for (let i = 0; i < Math.min(5, heatMapCells.length); i++) {
+      const c = heatMapCells[i];
+      geocoded.push(await reverseGeocode(c.latitude, c.longitude));
+      if (i < 4) await sleep(1100);
+    }
+    for (let i = 5; i < heatMapCells.length; i++) {
+      geocoded.push(
+        formatCoords(heatMapCells[i].latitude, heatMapCells[i].longitude),
+      );
+    }
+
+    const maxScore = heatMapCells[0]?.riskScore ?? 1;
+    const totalCells = heatMapCells.length;
+    const criticalZones = heatMapCells.filter((c) => c.riskScore >= 6).length;
+    const avgScore = heatMapCells.length
+      ? heatMapCells.reduce((s, c) => s + c.riskScore, 0) / heatMapCells.length
+      : 0;
 
     const doc: PDFKit.PDFDocument = new PDFDocument({ margin: 50, size: "A4" });
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="relatorio-analise-area-${Date.now()}.pdf"`,
     );
-
     doc.pipe(res);
 
-    this.drawHeader(doc, "Análise de Risco por Área");
+    drawHeader(
+      doc,
+      "Análise de Risco por Área",
+      "Zonas críticas · heatmap · distribuição geográfica",
+    );
 
-    // Sumário estatístico
+    // ── KPI cards ──
+    const cardW = 110,
+      cardH = 56,
+      gap = 10,
+      startX = 50;
+    kpiCard(
+      doc,
+      startX,
+      doc.y,
+      cardW,
+      cardH,
+      String(totalOccurrences),
+      "Ocorrências totais",
+      C.primary,
+    );
+    kpiCard(
+      doc,
+      startX + cardW + gap,
+      doc.y,
+      cardW,
+      cardH,
+      String(totalAggressors),
+      "Agressores cadastrados",
+      C.danger,
+    );
+    kpiCard(
+      doc,
+      startX + (cardW + gap) * 2,
+      doc.y,
+      cardW,
+      cardH,
+      String(totalCells),
+      "Zonas mapeadas",
+      C.warning,
+    );
+    kpiCard(
+      doc,
+      startX + (cardW + gap) * 3,
+      doc.y,
+      cardW,
+      cardH,
+      String(criticalZones),
+      "Zonas críticas",
+      C.danger,
+    );
+    doc.y += cardH + 18;
+
+    // ── Gráfico de barras: Top 10 zonas por score ──
     doc
-      .fontSize(12)
-      .fillColor("#1a1a1a")
+      .fontSize(10)
       .font("Helvetica-Bold")
-      .text("Resumo Geral");
+      .fillColor(C.ink)
+      .text("Top 10 zonas por score de risco");
     doc.moveDown(0.4);
-    doc
-      .fontSize(10)
-      .font("Helvetica")
-      .fillColor("#333")
-      .text(`Total de ocorrências registradas: ${occurrences}`)
-      .text(`Total de agressores cadastrados: ${aggressors}`)
-      .text(`Células de risco mapeadas: ${heatMapCells.length}`);
-    doc.moveDown(1.5);
 
-    // Tabela de zonas de risco
-    doc
-      .fontSize(12)
-      .fillColor("#1a1a1a")
-      .font("Helvetica-Bold")
-      .text("Zonas de Maior Risco (Top 20)");
-    doc.moveDown(0.6);
-
-    if (heatMapCells.length === 0) {
-      doc
-        .fontSize(10)
-        .fillColor("#666")
-        .font("Helvetica")
-        .text("Nenhuma zona de risco mapeada.");
-    } else {
-      // Cabeçalho da tabela
-      const tableTop = doc.y;
-      const col = {
-        rank: 50,
-        lat: 90,
-        lng: 175,
-        intensity: 260,
-        score: 350,
-        date: 420,
-      };
-
-      doc
-        .fontSize(9)
-        .font("Helvetica-Bold")
-        .fillColor("#fff")
-        .rect(50, tableTop, 495, 16)
-        .fill("#555");
-
-      doc
-        .fillColor("#fff")
-        .text("#", col.rank, tableTop + 4, { width: 30, align: "center" })
-        .text("Latitude", col.lat, tableTop + 4, { width: 80 })
-        .text("Longitude", col.lng, tableTop + 4, { width: 80 })
-        .text("Ocorrências", col.intensity, tableTop + 4, { width: 85 })
-        .text("Score de risco", col.score, tableTop + 4, { width: 65 })
-        .text("Última ocorr.", col.date, tableTop + 4, { width: 80 });
-
-      let rowY = tableTop + 18;
-
-      heatMapCells.forEach((cell, i) => {
-        const bg = i % 2 === 0 ? "#f9f9f9" : "#ffffff";
-        doc.rect(50, rowY, 495, 15).fill(bg);
-
-        doc
-          .fontSize(8)
-          .font("Helvetica")
-          .fillColor("#222")
-          .text(String(i + 1), col.rank, rowY + 4, {
-            width: 30,
-            align: "center",
-          })
-          .text(cell.latitude.toFixed(4), col.lat, rowY + 4, { width: 80 })
-          .text(cell.longitude.toFixed(4), col.lng, rowY + 4, { width: 80 })
-          .text(String(cell.intensity), col.intensity, rowY + 4, { width: 85 })
-          .text(cell.riskScore.toFixed(2), col.score, rowY + 4, { width: 65 })
-          .text(
-            new Date(cell.lastOccurrence).toLocaleDateString("pt-BR"),
-            col.date,
-            rowY + 4,
-            { width: 80 },
-          );
-
-        rowY += 15;
-      });
-
-      doc
-        .rect(50, tableTop, 495, rowY - tableTop)
-        .strokeColor("#ccc")
-        .lineWidth(0.5)
-        .stroke();
-      doc.y = rowY + 10;
-    }
-
-    this.drawFooter(doc);
-    doc.end();
-  }
-
-  private drawHeader(
-    doc: PDFKit.PDFDocument,
-    title: string,
-    from?: string,
-    to?: string,
-  ) {
-    // Barra de cabeçalho
-    doc.rect(0, 0, doc.page.width, 80).fill("#6b2d3e");
-
-    doc
-      .fontSize(20)
-      .fillColor("#fff")
-      .font("Helvetica-Bold")
-      .text("AMPARO", 50, 22);
-
-    doc
-      .fontSize(10)
-      .font("Helvetica")
-      .fillColor("rgba(255,255,255,0.8)")
-      .text("Sistema de Proteção à Mulher", 50, 46);
-
-    doc
-      .fontSize(14)
-      .fillColor("#fff")
-      .font("Helvetica-Bold")
-      .text(title, 50, 22, { align: "right", width: doc.page.width - 100 });
-
-    doc.y = 100;
-    doc.x = 50;
-
-    // Data de geração
-    const geradoEm = `Gerado em: ${new Date().toLocaleString("pt-BR")}`;
-    const periodo =
-      from || to
-        ? `Período: ${from ? new Date(from).toLocaleDateString("pt-BR") : "início"} até ${to ? new Date(to).toLocaleDateString("pt-BR") : "hoje"}`
-        : null;
-
-    doc
-      .fontSize(9)
-      .fillColor("#888")
-      .font("Helvetica")
-      .text(geradoEm, { align: "right" });
-
-    if (periodo) {
-      doc.text(periodo, { align: "right" });
+    const top10 = heatMapCells.slice(0, 10);
+    for (let i = 0; i < top10.length; i++) {
+      const c = top10[i];
+      const loc =
+        i < geocoded.length
+          ? geocoded[i]
+          : formatCoords(c.latitude, c.longitude);
+      const color =
+        c.riskScore >= 6 ? C.danger : c.riskScore >= 3 ? C.warning : C.success;
+      barH(
+        doc,
+        200,
+        doc.y,
+        280,
+        13,
+        c.riskScore,
+        maxScore,
+        color,
+        `${i + 1}. ${loc.length > 22 ? loc.slice(0, 20) + "…" : loc}`,
+      );
+      riskBadge(doc, 488, doc.y - 1, c.riskScore);
+      doc.y += 18;
     }
 
     doc
       .moveTo(50, doc.y + 4)
       .lineTo(545, doc.y + 4)
-      .strokeColor("#ddd")
-      .lineWidth(1)
-      .stroke();
-
-    doc.moveDown(1.2);
-    doc.font("Helvetica").fillColor("#333").fontSize(10);
-  }
-
-  private drawFooter(doc: PDFKit.PDFDocument) {
-    const bottom = doc.page.height - 40;
-    doc
-      .moveTo(50, bottom)
-      .lineTo(545, bottom)
-      .strokeColor("#ddd")
+      .strokeColor(C.border)
       .lineWidth(0.5)
       .stroke();
+    doc.moveDown(1.4);
 
+    // ── Tabela completa (sem lat/lng em destaque) ──
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .fillColor(C.ink)
+      .text("Detalhamento completo das zonas");
+    doc.moveDown(0.6);
+
+    // Cabeçalho da tabela
+    const tTop = doc.y;
+    const col = { rank: 55, local: 80, intens: 340, score: 395, date: 450 };
+    doc.rect(50, tTop, 495, 16).fill(C.primary);
     doc
       .fontSize(8)
-      .fillColor("#aaa")
+      .font("Helvetica-Bold")
+      .fillColor(C.white)
+      .text("#", col.rank, tTop + 4, {
+        width: 20,
+        align: "center",
+        lineBreak: false,
+      })
+      .text("Localidade / Referência", col.local, tTop + 4, {
+        width: 255,
+        lineBreak: false,
+      })
+      .text("Ocorr.", col.intens, tTop + 4, {
+        width: 50,
+        align: "right",
+        lineBreak: false,
+      })
+      .text("Risco", col.score, tTop + 4, {
+        width: 50,
+        align: "center",
+        lineBreak: false,
+      })
+      .text("Últ. registro", col.date, tTop + 4, {
+        width: 90,
+        lineBreak: false,
+      });
+
+    let rowY = tTop + 18;
+
+    for (let i = 0; i < heatMapCells.length; i++) {
+      const cell = heatMapCells[i];
+      const loc =
+        i < geocoded.length
+          ? geocoded[i]
+          : formatCoords(cell.latitude, cell.longitude);
+      const bg = i % 2 === 0 ? C.surface : C.white;
+
+      if (rowY > doc.page.height - 80) {
+        doc.addPage();
+        rowY = 60;
+      }
+
+      doc.rect(50, rowY, 495, 17).fill(bg);
+      doc
+        .fontSize(8)
+        .font("Helvetica")
+        .fillColor(C.ink)
+        .text(String(i + 1), col.rank, rowY + 4, {
+          width: 20,
+          align: "center",
+          lineBreak: false,
+        })
+        .text(
+          loc.length > 38 ? loc.slice(0, 36) + "…" : loc,
+          col.local,
+          rowY + 4,
+          { width: 255, lineBreak: false },
+        )
+        .text(String(cell.intensity), col.intens, rowY + 4, {
+          width: 50,
+          align: "right",
+          lineBreak: false,
+        });
+
+      riskBadge(doc, col.score, rowY + 3, cell.riskScore);
+
+      doc
+        .fontSize(8)
+        .font("Helvetica")
+        .fillColor(C.ink)
+        .text(
+          new Date(cell.lastOccurrence).toLocaleDateString("pt-BR"),
+          col.date,
+          rowY + 4,
+          { width: 90, lineBreak: false },
+        );
+
+      rowY += 17;
+    }
+
+    doc
+      .rect(50, tTop, 495, rowY - tTop)
+      .strokeColor(C.border)
+      .lineWidth(0.5)
+      .stroke();
+    doc.y = rowY + 10;
+
+    // ── Nota de rodapé analítica ──
+    doc.moveDown(1);
+    doc.roundedRect(50, doc.y, 495, 38, 4).fill("#fef3c7");
+    doc
+      .fontSize(8)
+      .font("Helvetica-Bold")
+      .fillColor("#92400e")
+      .text("Interpretação do Score de Risco", 60, doc.y + 6);
+    doc
+      .fontSize(7.5)
+      .font("Helvetica")
+      .fillColor("#78350f")
       .text(
-        "Documento gerado automaticamente pelo sistema Amparo. Uso restrito a fins oficiais.",
-        50,
-        bottom + 8,
-        { align: "center", width: 495 },
+        `Score ≥ 6 (CRÍTICO): requer patrulhamento prioritário.  Score 3–5.9 (ELEVADO): monitoramento regular.  Score < 3 (BAIXO): acompanhamento periódico.  Média atual do mapeamento: ${avgScore.toFixed(2)}.`,
+        60,
+        doc.y + 16,
+        { width: 475, lineBreak: false },
       );
+    doc.y += 44;
+
+    drawFooter(doc);
+    doc.end();
   }
 }
