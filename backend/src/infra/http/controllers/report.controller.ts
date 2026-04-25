@@ -386,7 +386,6 @@ export class ReportController {
       const ROW = 46;
       for (let i = 0; i < occurrences.length; i++) {
         if (y + ROW > doc.page.height - 60) {
-          drawFooter(doc);
           doc.addPage();
           y = MARGIN;
         }
@@ -607,7 +606,6 @@ export class ReportController {
 
     for (let i = 0; i < cells.length; i++) {
       if (y + 16 > doc.page.height - 60) {
-        drawFooter(doc);
         doc.addPage();
         y = MARGIN;
       }
@@ -658,7 +656,6 @@ export class ReportController {
 
     // ── Nota interpretativa ────────────────────────────────────────────────
     if (y + 40 > doc.page.height - 60) {
-      drawFooter(doc);
       doc.addPage();
       y = MARGIN;
     }
