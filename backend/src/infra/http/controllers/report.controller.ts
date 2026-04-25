@@ -151,8 +151,10 @@ function drawFooter(doc: PDFKit.PDFDocument) {
       "Documento gerado automaticamente pelo sistema Amparo · Uso restrito a fins oficiais.",
       MARGIN,
       bottom + 8,
-      { align: "center", width: CONTENT_W },
+      { align: "center", width: CONTENT_W, lineBreak: false },
     );
+  // Impede o PDFKit de criar uma página extra por overflow após o footer
+  doc.y = MARGIN;
 }
 
 /** KPI card. Retorna x + w (para encadear side-by-side). */
