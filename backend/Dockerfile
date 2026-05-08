@@ -4,7 +4,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY . .
 RUN npx prisma generate
@@ -19,9 +19,10 @@ ENV NODE_ENV production
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/prisma.config.js ./
 
 COPY --from=builder /app/prisma ./prisma
-RUN npm ci --only=production
+RUN npm ci --only=production --ignore-scripts
 RUN npx prisma generate
 
 USER node
