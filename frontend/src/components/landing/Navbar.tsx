@@ -54,6 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
   return (
     <nav
       className="fixed top-0 w-full z-40 transition-all duration-200"
+      // ② — nav wraps the emergency banner so it stays in the same fixed layer
       style={{
         backgroundColor: scrolled
           ? "rgba(255,255,255,0.98)"
@@ -66,6 +67,17 @@ export const Navbar: React.FC<NavbarProps> = ({ scrolled }) => {
         paddingBottom: scrolled ? "0.75rem" : "0.95rem",
       }}
     >
+      {/* ② — Faixa de emergência 190: único uso justificado de var(--emergency) fora do app da vítima */}
+      <a
+        href="tel:190"
+        className="flex w-full items-center justify-center gap-2 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+        style={{ backgroundColor: "var(--emergency)" }}
+        aria-label="Em risco imediato — ligue 190"
+      >
+        <span aria-hidden="true">🚨</span>
+        Em risco imediato?{" "}
+        <span className="underline underline-offset-2">Ligue 190</span>
+      </a>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent">

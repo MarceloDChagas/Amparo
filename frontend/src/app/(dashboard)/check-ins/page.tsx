@@ -12,9 +12,10 @@ import {
   ShieldAlert,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { usePersistedFilters } from "@/hooks/use-persisted-filters";
 import { CheckIn, checkInService } from "@/services/check-in-service";
 
 // ── Estágios de escalonamento ────────────────────────────────────────────────
@@ -144,6 +145,27 @@ function LateCheckInCard({
 export default function LateCheckInsPage() {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [loading, setLoading] = useState(true);
+  // ⑰ — filtros persistidos
+  const { filters, setFilters } = usePersistedFilters(
+    "amparo:filters:check-ins",
+    {
+      period: "24h",
+      status: "all",
+    },
+  );
+
+  const filteredCheckIns = useMemo(() => {
+    const now = Date.now();
+    const cutoff =
+      filters.period === "24h"
+        ? now - 24 * 60 * 60 * 1000
+        : filters.period === "7d"
+          ? now - 7 * 24 * 60 * 60 * 1000
+          : 0;
+    return checkIns.filter((c) => {
+      return cutoff === 0 || new Date(c.startTime ?? "").getTime() >= cutoff;
+    });
+  }, [checkIns, filters.period]);
 
   const load = useCallback(async () => {
     try {
@@ -186,8 +208,37 @@ export default function LateCheckInsPage() {
     }
   };
 
+  const periodOptions = [
+    { value: "24h", label: "Últimas 24h" },
+    { value: "7d", label: "7 dias" },
+    { value: "all", label: "Todos" },
+  ] as const;
+
   return (
     <div className="space-y-6">
+      {/* ⑰ — Filtros persistidos */}
+      <div className="flex flex-wrap gap-2">
+        {periodOptions.map((o) => (
+          <button
+            key={o.value}
+            onClick={() => setFilters({ period: o.value })}
+            className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
+            style={{
+              borderColor:
+                filters.period === o.value ? "var(--primary)" : "var(--border)",
+              backgroundColor:
+                filters.period === o.value ? "var(--primary)" : "transparent",
+              color:
+                filters.period === o.value
+                  ? "white"
+                  : "var(--muted-foreground)",
+            }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <div>
@@ -234,7 +285,7 @@ export default function LateCheckInsPage() {
         <div className="text-center py-12 text-muted-foreground text-sm">
           Carregando...
         </div>
-      ) : checkIns.length === 0 ? (
+      ) : filteredCheckIns.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-[16px] border border-border bg-card py-16 text-center">
           <CheckCircle2 className="h-10 w-10 text-green-400 mb-3" />
           <p className="font-semibold text-foreground">
@@ -246,7 +297,7 @@ export default function LateCheckInsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {checkIns.map((c) => (
+          {filteredCheckIns.map((c) => (
             <LateCheckInCard
               key={c.id}
               checkIn={c}

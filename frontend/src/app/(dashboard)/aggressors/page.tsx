@@ -120,9 +120,6 @@ export default function AggressorsPage() {
             agressor{aggressors.length !== 1 ? "es" : ""} cadastrado
             {aggressors.length !== 1 ? "s" : ""}
           </span>
-          <span className="ml-2 text-xs font-medium border-l border-border pl-3 text-muted-foreground">
-            CPF mascarado por padrão
-          </span>
         </div>
 
         <Link href="/aggressors/create">
@@ -144,7 +141,7 @@ export default function AggressorsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>CPF (mascarado)</TableHead>
+                <TableHead>CPF</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>

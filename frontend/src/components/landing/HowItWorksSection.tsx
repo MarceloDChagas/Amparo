@@ -48,31 +48,41 @@ export const HowItWorksSection: React.FC = () => (
         </p>
       </div>
 
+      {/* ⑥ — numeração grande (64px) de baixa opacidade, conectada por seta sutil */}
       <div className="relative grid gap-4 md:grid-cols-3">
-        <div className="absolute left-[33.33%] right-[33.33%] top-[2.8rem] z-0 hidden h-px md:block bg-border" />
+        <div className="absolute left-[calc(33.33%+1.5rem)] right-[calc(33.33%+1.5rem)] top-[1.8rem] z-0 hidden md:flex items-center justify-center pointer-events-none">
+          <span className="text-border text-xl select-none">──→──→</span>
+        </div>
         {steps.map((step, i) => (
           <div
             key={step.number}
-            className={`relative z-10 rounded-[1.75rem] border border-border p-6 shadow-sm ${
+            className={`relative z-10 rounded-[1.75rem] border border-border p-6 pt-5 shadow-sm overflow-hidden ${
               i === 1 ? "bg-secondary" : i === 2 ? "bg-accent" : "bg-card"
             }`}
           >
-            <div
-              className="mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold text-accent-foreground bg-accent"
-              style={{ border: "1px solid var(--ring)" }}
+            {/* número grande de baixa opacidade como watermark de fundo */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-1 select-none font-black tabular-nums leading-none"
+              style={{
+                fontSize: "64px",
+                color: "var(--primary)",
+                opacity: 0.07,
+                lineHeight: 1,
+              }}
             >
               {step.number}
-            </div>
+            </span>
             <p
-              className="text-xs font-medium mb-2"
+              className="text-xs font-medium mb-2 relative z-10"
               style={{ color: "var(--chart-2)" }}
             >
               {step.tag}
             </p>
-            <h3 className="text-base font-semibold mb-3 text-foreground">
+            <h3 className="text-base font-semibold mb-3 text-foreground relative z-10">
               {step.title}
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground relative z-10">
               {step.description}
             </p>
           </div>

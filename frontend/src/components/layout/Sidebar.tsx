@@ -1,25 +1,15 @@
 "use client";
 
-/**
- * Sidebar do Dashboard Operacional.
- *
- * NRF10 — Acessibilidade:
- *   - <nav> com aria-label identifica a região para leitores de tela
- *   - aria-current="page" no link ativo
- *   - Cada link tem label visível + ícone (nunca só ícone)
- *
- * NRF09 — Usabilidade Sob Estresse: min-h-11 garante área clicável de 44px.
- * RN04 — Ícone de "Agressores" em vermelho (destructive) sinaliza dado sensível.
- */
+// see: /design-system — NRF09, NRF10, RN04
 import {
   AlertTriangle,
   Bell,
   FileText,
   Home,
+  Lock,
   LogOut,
   Navigation,
   Route,
-  ShieldAlert,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,19 +19,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
-// Cor neutra para ícones — diferenciação vem do estado ativo, não da cor
 const iconNeutral = "rgba(249, 250, 251, 0.55)";
 
-const routes = [
+const operationRoutes = [
   { label: "Dashboard", icon: Home, href: "/dashboard", color: iconNeutral },
-  { label: "Usuários", icon: Users, href: "/users", color: iconNeutral },
-  // RN04 — vermelho reservado para seção de dado sensível/restrito
-  {
-    label: "Agressores",
-    icon: ShieldAlert,
-    href: "/aggressors",
-    color: "var(--destructive)",
-  },
   {
     label: "Alertas",
     icon: AlertTriangle,
@@ -60,6 +41,17 @@ const routes = [
     href: "/occurrences",
     color: iconNeutral,
   },
+];
+
+const cadastroRoutes = [
+  { label: "Usuários", icon: Users, href: "/users", color: iconNeutral },
+  // RN04 — âmbar (dado restrito) em vez de vermelho (reservado para alerta ativo)
+  {
+    label: "Agressores",
+    icon: Lock,
+    href: "/aggressors",
+    color: "var(--warning)",
+  },
   {
     label: "Rotas de Patrulha",
     icon: Route,
@@ -74,85 +66,135 @@ const routes = [
   },
 ];
 
+function NavGroup({
+  label,
+  routes,
+  pathname,
+}: {
+  label: string;
+  routes: typeof operationRoutes;
+  pathname: string;
+}) {
+  return (
+    <div className="mb-4">
+      <p
+        className="mb-1 px-3 text-[9px] font-semibold uppercase tracking-[0.1em]"
+        style={{ color: "rgba(249,250,251,0.35)" }}
+      >
+        {label}
+      </p>
+      <ul className="space-y-1 list-none p-0 m-0">
+        {routes.map((route) => {
+          const isActive = pathname === route.href;
+          return (
+            <li key={route.href}>
+              <Link
+                href={route.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "group flex w-full min-h-11 cursor-pointer items-center justify-start rounded-xl p-3 text-sm transition",
+                )}
+                style={{
+                  fontWeight: isActive ? 600 : 400,
+                  borderLeft: isActive
+                    ? "2px solid rgba(255,255,255,0.55)"
+                    : "2px solid transparent",
+                  color: isActive
+                    ? "rgba(255,255,255,0.95)"
+                    : "rgba(249, 250, 251, 0.55)",
+                  paddingLeft: "10px",
+                }}
+              >
+                <route.icon
+                  className="mr-3 h-5 w-5 shrink-0"
+                  aria-hidden="true"
+                  style={{ color: route.color }}
+                />
+                {route.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   return (
     <div
-      className="flex h-full flex-col space-y-4 py-4 text-primary-foreground"
+      className="flex h-full flex-col py-4 text-primary-foreground"
       style={{
         backgroundColor: "var(--surface-emphasis)",
         borderRight: "1px solid var(--ring)",
       }}
     >
       <div className="px-3 py-2 flex-1">
+        {/* ⑱ — subtítulo "painel institucional" removido */}
         <Link
           href="/dashboard"
           className="flex items-center pl-3 mb-6"
           aria-label="Amparo — Painel institucional"
         >
-          <div>
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "rgba(249, 250, 251, 0.72)" }}
-            >
-              Painel institucional
-            </p>
-            <h1
-              className="text-2xl font-bold"
-              style={{ fontFamily: "var(--font-brand)" }}
-            >
-              amparo
-            </h1>
-          </div>
+          <h1
+            className="text-2xl"
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontWeight: 800,
+              color: "#c4705a",
+              letterSpacing: "0.02em",
+            }}
+          >
+            amparo
+          </h1>
         </Link>
 
-        {/* NRF10 — <nav> identifica a região de navegação principal para leitores de tela */}
         <nav aria-label="Navegação principal">
-          <ul className="space-y-1 list-none p-0 m-0">
-            {routes.map((route) => {
-              const isActive = pathname === route.href;
-
-              return (
-                <li key={route.href}>
-                  <Link
-                    href={route.href}
-                    // NRF10 — aria-current="page" informa o link ativo
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      // NRF09 — min-h-11 garante área clicável de 44px
-                      "group flex w-full min-h-11 cursor-pointer items-center justify-start rounded-xl p-3 text-sm font-medium transition",
-                    )}
-                    style={{
-                      backgroundColor: isActive
-                        ? "rgba(255,255,255,0.12)"
-                        : "transparent",
-                      color: isActive
-                        ? "var(--primary-foreground)"
-                        : "rgba(249, 250, 251, 0.72)",
-                    }}
-                  >
-                    <route.icon
-                      className="mr-3 h-5 w-5 shrink-0"
-                      aria-hidden="true"
-                      style={{ color: route.color }}
-                    />
-                    {route.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <NavGroup
+            label="Operação"
+            routes={operationRoutes}
+            pathname={pathname}
+          />
+          <NavGroup
+            label="Cadastros"
+            routes={cadastroRoutes}
+            pathname={pathname}
+          />
         </nav>
       </div>
 
-      <div className="px-3 py-2">
+      {/* ⑯ — identidade do operador + Sair com borda visível */}
+      <div
+        className="px-3 py-2 border-t"
+        style={{ borderColor: "rgba(249,250,251,0.12)" }}
+      >
+        {user && (
+          <div className="px-3 mb-3">
+            <p
+              className="text-xs font-semibold truncate"
+              style={{ color: "rgba(249,250,251,0.85)" }}
+            >
+              {user.name}
+            </p>
+            <p
+              className="text-[10px] truncate"
+              style={{ color: "rgba(249,250,251,0.40)" }}
+            >
+              {user.role}
+            </p>
+          </div>
+        )}
         <Button
           onClick={logout}
           variant="ghost"
           className="w-full min-h-11 justify-start rounded-xl"
-          style={{ color: "rgba(249, 250, 251, 0.72)" }}
+          style={{
+            color: "rgba(249, 250, 251, 0.85)",
+            border: "1px solid rgba(249,250,251,0.18)",
+          }}
           aria-label="Sair da conta"
         >
           <LogOut className="h-5 w-5 mr-3" aria-hidden="true" />

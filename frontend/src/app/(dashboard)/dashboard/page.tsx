@@ -31,6 +31,40 @@ const OccurrencesMap = dynamic(
   },
 );
 
+// ⑮ — delta histórico: snapshot diário em localStorage para calcular "vs. ontem"
+const STATS_KEY = "amparo:dashboard:stats";
+
+interface StatsSnapshot {
+  users: number;
+  aggressors: number;
+  occurrences: number;
+  activeCheckIns: number;
+  date: string;
+}
+
+function loadPreviousStats(): StatsSnapshot | null {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    if (!raw) return null;
+    const parsed: StatsSnapshot = JSON.parse(raw);
+    const today = new Date().toISOString().slice(0, 10);
+    return parsed.date !== today ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStatsSnapshot(s: Omit<StatsSnapshot, "date">) {
+  try {
+    localStorage.setItem(
+      STATS_KEY,
+      JSON.stringify({ ...s, date: new Date().toISOString().slice(0, 10) }),
+    );
+  } catch {
+    // localStorage indisponível — ignorar
+  }
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState({
     users: 0,
@@ -38,6 +72,8 @@ export default function DashboardPage() {
     occurrences: 0,
     activeCheckIns: 0,
   });
+  // inicializado com lazy init para evitar setState síncrono dentro de useEffect
+  const [previousStats] = useState<StatsSnapshot | null>(loadPreviousStats);
   const [activities, setActivities] = useState<AuditLog[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [activeAlert, setActiveAlert] = useState<EmergencyAlert | null>(null);
@@ -63,12 +99,16 @@ export default function DashboardPage() {
           emergencyAlertService.getActive(),
           checkInService.getAllActive(),
         ]);
-        setStats({
+
+        const newStats = {
           users: users.length,
           aggressors: aggressors.length,
           occurrences: occurrencesData.length,
           activeCheckIns: checkIns.length,
-        });
+        };
+
+        setStats(newStats);
+        saveStatsSnapshot(newStats);
         setCurrentTime(Date.now());
         setActivities(recentLogs);
         setActiveAlert(alert);
@@ -102,7 +142,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <DashboardStats stats={stats} />
+            <DashboardStats stats={stats} previous={previousStats} />
             <ProximityAlert alert={activeAlert} />
             {activeCheckIns
               .filter(

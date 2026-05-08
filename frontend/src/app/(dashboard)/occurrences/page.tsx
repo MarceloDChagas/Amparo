@@ -3,7 +3,7 @@
 import { FileDown, Flame, List, Map } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePersistedFilters } from "@/hooks/use-persisted-filters";
 import { HeatMapCell, heatMapService } from "@/services/heat-map-service";
 import { Occurrence, occurrenceService } from "@/services/occurrence-service";
 import { reportService } from "@/services/report-service";
@@ -38,6 +39,27 @@ export default function OccurrencesPage() {
   const [loading, setLoading] = useState(true);
   const [exportingOcc, setExportingOcc] = useState(false);
   const [exportingArea, setExportingArea] = useState(false);
+  // ⑰ — filtros persistidos
+  const { filters, setFilters } = usePersistedFilters(
+    "amparo:filters:occurrences",
+    {
+      period: "24h",
+      status: "all",
+    },
+  );
+
+  const filteredOccurrences = useMemo(() => {
+    const now = Date.now();
+    const cutoff =
+      filters.period === "24h"
+        ? now - 24 * 60 * 60 * 1000
+        : filters.period === "7d"
+          ? now - 7 * 24 * 60 * 60 * 1000
+          : 0;
+    return occurrences.filter((o) => {
+      return cutoff === 0 || new Date(o.createdAt ?? "").getTime() >= cutoff;
+    });
+  }, [occurrences, filters.period]);
 
   useEffect(() => {
     loadData();
@@ -83,8 +105,37 @@ export default function OccurrencesPage() {
     }
   }
 
+  const periodOptions = [
+    { value: "24h", label: "Últimas 24h" },
+    { value: "7d", label: "7 dias" },
+    { value: "all", label: "Todos" },
+  ] as const;
+
   return (
     <div className="space-y-5">
+      {/* ⑰ — Filtros persistidos */}
+      <div className="flex flex-wrap gap-2">
+        {periodOptions.map((o) => (
+          <button
+            key={o.value}
+            onClick={() => setFilters({ period: o.value })}
+            className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
+            style={{
+              borderColor:
+                filters.period === o.value ? "var(--primary)" : "var(--border)",
+              backgroundColor:
+                filters.period === o.value ? "var(--primary)" : "transparent",
+              color:
+                filters.period === o.value
+                  ? "white"
+                  : "var(--muted-foreground)",
+            }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
       {/* Stat + ação */}
       <div className="flex items-center justify-between">
         <div
@@ -167,14 +218,14 @@ export default function OccurrencesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {occurrences.length === 0 ? (
+                  {filteredOccurrences.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center h-24">
                         Nenhuma ocorrência encontrada.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    occurrences.map((occurrence) => (
+                    filteredOccurrences.map((occurrence) => (
                       <TableRow key={occurrence.id}>
                         <TableCell>{occurrence.description}</TableCell>
                         <TableCell>

@@ -178,7 +178,14 @@ export function CheckInTab() {
   };
 
   if (isLoading) {
-    return <div className="text-white text-center mt-12">Carregando...</div>;
+    return (
+      <div
+        className="text-center mt-12 text-sm"
+        style={{ color: "rgba(90,53,69,0.55)" }}
+      >
+        Carregando...
+      </div>
+    );
   }
 
   return (
@@ -196,30 +203,25 @@ export function CheckInTab() {
         style={{ backgroundColor: "rgba(13, 148, 136, 0.13)" }}
       />
 
-      {/* Sub-tabs: Manual / Agendado */}
+      {/* Sub-tabs: Manual / Agendado — estilo underline, espelhando o tab principal */}
       <div
-        className="w-full p-1 rounded-full flex mb-3 relative z-10"
-        style={{
-          backgroundColor: "rgba(13,148,136,0.12)",
-          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
-        }}
+        className="w-full flex mb-4 relative z-10"
+        style={{ borderBottom: "1px solid rgba(180,140,160,0.22)" }}
       >
         {(["MANUAL", "SCHEDULE"] as SubTab[]).map((t) => (
           <button
             key={t}
             onClick={() => setSubTab(t)}
-            className="flex-1 py-2 text-xs font-medium rounded-full transition-all"
-            style={
-              subTab === t
-                ? {
-                    backgroundColor: "white",
-                    color: "#0d9488",
-                    boxShadow: "0 1px 4px rgba(13,148,136,0.2)",
-                  }
-                : { color: "rgba(255,255,255,0.65)" }
-            }
+            className="flex-1 pb-2.5 text-sm font-semibold transition-colors text-center"
+            style={{
+              color: subTab === t ? "#5a9e8a" : "rgba(90,53,69,0.42)",
+              borderBottom:
+                subTab === t ? "2px solid #5a9e8a" : "2px solid transparent",
+              marginBottom: "-1px",
+              letterSpacing: "0.01em",
+            }}
           >
-            {t === "MANUAL" ? "Check-in manual" : "Agendamento inteligente"}
+            {t === "MANUAL" ? "Manual" : "Agendamento"}
           </button>
         ))}
       </div>
@@ -265,9 +267,9 @@ export function CheckInTab() {
               }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all"
               style={{
-                backgroundColor: "rgba(13,148,136,0.18)",
-                color: "#5eead4",
-                border: "1px solid rgba(13,148,136,0.3)",
+                backgroundColor: "rgba(90,158,138,0.10)",
+                color: "#5a9e8a",
+                border: "1px solid rgba(90,158,138,0.25)",
               }}
             >
               <Plus className="h-4 w-4" />
@@ -286,27 +288,45 @@ export function CheckInTab() {
                   <div
                     className="rounded-2xl p-4 space-y-3"
                     style={{
-                      backgroundColor: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "rgba(255,255,255,0.52)",
+                      border: "1px solid rgba(180,140,160,0.18)",
+                      backdropFilter: "blur(8px)",
                     }}
                   >
-                    <p className="text-xs font-semibold text-white/80 uppercase tracking-wide">
-                      Novo agendamento (AM-154)
+                    <p
+                      className="text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: "rgba(90,53,69,0.65)" }}
+                    >
+                      Novo agendamento
                     </p>
 
                     {scheduleError && (
-                      <div className="flex items-center gap-2 text-xs text-red-400">
+                      <div
+                        className="flex items-center gap-2 text-xs rounded-xl px-3 py-2"
+                        style={{
+                          backgroundColor: "rgba(220,38,38,0.08)",
+                          color: "#dc2626",
+                        }}
+                      >
                         <AlertTriangle className="h-3 w-3 shrink-0" />
                         {scheduleError}
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/60">
+                    <div className="space-y-1.5">
+                      <label
+                        className="text-xs"
+                        style={{ color: "rgba(90,53,69,0.65)" }}
+                      >
                         Nome do destino
                       </label>
                       <input
-                        className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white placeholder-white/30 border border-white/10 outline-none focus:border-teal-400"
+                        className="w-full rounded-xl px-3 py-2 text-sm outline-none"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.70)",
+                          border: "1px solid rgba(180,140,160,0.25)",
+                          color: "#3a2530",
+                        }}
                         placeholder="Ex: Trabalho, Casa da mãe…"
                         value={form.name}
                         onChange={(e) =>
@@ -315,12 +335,20 @@ export function CheckInTab() {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/60">
+                    <div className="space-y-1.5">
+                      <label
+                        className="text-xs"
+                        style={{ color: "rgba(90,53,69,0.65)" }}
+                      >
                         Endereço (opcional)
                       </label>
                       <input
-                        className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white placeholder-white/30 border border-white/10 outline-none focus:border-teal-400"
+                        className="w-full rounded-xl px-3 py-2 text-sm outline-none"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.70)",
+                          border: "1px solid rgba(180,140,160,0.25)",
+                          color: "#3a2530",
+                        }}
                         placeholder="Rua, número…"
                         value={form.destinationAddress}
                         onChange={(e) =>
@@ -332,13 +360,21 @@ export function CheckInTab() {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/60">
+                    <div className="space-y-1.5">
+                      <label
+                        className="text-xs"
+                        style={{ color: "rgba(90,53,69,0.65)" }}
+                      >
                         Horário esperado de chegada
                       </label>
                       <input
                         type="datetime-local"
-                        className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white border border-white/10 outline-none focus:border-teal-400"
+                        className="w-full rounded-xl px-3 py-2 text-sm outline-none"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.70)",
+                          border: "1px solid rgba(180,140,160,0.25)",
+                          color: "#3a2530",
+                        }}
                         value={form.expectedArrivalAt}
                         onChange={(e) =>
                           setForm((f) => ({
@@ -349,15 +385,23 @@ export function CheckInTab() {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/60">
+                    <div className="space-y-1.5">
+                      <label
+                        className="text-xs"
+                        style={{ color: "rgba(90,53,69,0.65)" }}
+                      >
                         Tolerância (min)
                       </label>
                       <input
                         type="number"
                         min={1}
                         max={120}
-                        className="w-full rounded-xl px-3 py-2 text-sm bg-white/10 text-white border border-white/10 outline-none focus:border-teal-400"
+                        className="w-full rounded-xl px-3 py-2 text-sm outline-none"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.70)",
+                          border: "1px solid rgba(180,140,160,0.25)",
+                          color: "#3a2530",
+                        }}
                         value={form.windowMinutes}
                         onChange={(e) =>
                           setForm((f) => ({
@@ -375,13 +419,11 @@ export function CheckInTab() {
                       style={{
                         backgroundColor:
                           userLat !== null
-                            ? "rgba(16,185,129,0.2)"
-                            : "rgba(255,255,255,0.08)",
+                            ? "rgba(90,158,138,0.12)"
+                            : "rgba(255,255,255,0.55)",
                         color:
-                          userLat !== null
-                            ? "#6ee7b7"
-                            : "rgba(255,255,255,0.5)",
-                        border: `1px solid ${userLat !== null ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.1)"}`,
+                          userLat !== null ? "#5a9e8a" : "rgba(90,53,69,0.5)",
+                        border: `1px solid ${userLat !== null ? "rgba(90,158,138,0.30)" : "rgba(180,140,160,0.25)"}`,
                       }}
                     >
                       <MapPin className="h-3 w-3" />
@@ -395,7 +437,7 @@ export function CheckInTab() {
                       disabled={submitting}
                       className="w-full py-3 rounded-2xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
                       style={{
-                        backgroundColor: "rgba(13,148,136,0.8)",
+                        backgroundColor: "#5a9e8a",
                         color: "white",
                         opacity: submitting ? 0.6 : 1,
                       }}
@@ -418,7 +460,10 @@ export function CheckInTab() {
                 <Loader2 className="h-5 w-5 animate-spin text-teal-400" />
               </div>
             ) : schedules.length === 0 ? (
-              <div className="text-center py-8 text-sm text-white/40">
+              <div
+                className="text-center py-8 text-sm"
+                style={{ color: "rgba(90,53,69,0.45)" }}
+              >
                 Nenhum agendamento ainda.
                 <br />
                 <span className="text-xs">
@@ -432,16 +477,23 @@ export function CheckInTab() {
                     key={s.id}
                     className="rounded-2xl p-3"
                     style={{
-                      backgroundColor: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      backgroundColor: "rgba(255,255,255,0.52)",
+                      border: "1px solid rgba(180,140,160,0.18)",
+                      backdropFilter: "blur(8px)",
                     }}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p
+                          className="text-sm font-medium truncate"
+                          style={{ color: "#3a2530" }}
+                        >
                           {s.name}
                         </p>
-                        <p className="text-xs text-white/50 flex items-center gap-1 mt-0.5">
+                        <p
+                          className="text-xs flex items-center gap-1 mt-0.5"
+                          style={{ color: "rgba(90,53,69,0.55)" }}
+                        >
                           <Clock className="h-3 w-3" />
                           {new Date(s.expectedArrivalAt).toLocaleString(
                             "pt-BR",
@@ -457,7 +509,10 @@ export function CheckInTab() {
                           </span>
                         </p>
                         {s.destinationAddress && (
-                          <p className="text-xs text-white/40 truncate mt-0.5">
+                          <p
+                            className="text-xs truncate mt-0.5"
+                            style={{ color: "rgba(90,53,69,0.40)" }}
+                          >
                             {s.destinationAddress}
                           </p>
                         )}
@@ -479,9 +534,9 @@ export function CheckInTab() {
                         onClick={() => void handleConfirmArrival(s.id)}
                         className="mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all"
                         style={{
-                          backgroundColor: "rgba(16,185,129,0.15)",
-                          color: "#6ee7b7",
-                          border: "1px solid rgba(16,185,129,0.25)",
+                          backgroundColor: "rgba(90,158,138,0.12)",
+                          color: "#5a9e8a",
+                          border: "1px solid rgba(90,158,138,0.25)",
                         }}
                       >
                         <CheckCircle2 className="h-3 w-3" />
@@ -490,7 +545,13 @@ export function CheckInTab() {
                     )}
 
                     {s.status === "ALERTED" && (
-                      <div className="mt-2 flex items-center gap-2 text-xs text-red-400 bg-red-400/10 rounded-xl px-3 py-2">
+                      <div
+                        className="mt-2 flex items-center gap-2 text-xs rounded-xl px-3 py-2"
+                        style={{
+                          backgroundColor: "rgba(220,38,38,0.08)",
+                          color: "#dc2626",
+                        }}
+                      >
                         <AlertTriangle className="h-3 w-3 shrink-0" />
                         Alerta de emergência disparado automaticamente
                       </div>

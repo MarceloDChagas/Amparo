@@ -16,7 +16,6 @@ import {
 import { CheckInTab } from "@/components/emergency/CheckInTab";
 import { DocumentsTab } from "@/components/emergency/DocumentsTab";
 import { useGetEmergencyContacts } from "@/data/hooks/use-get-emergency-contacts";
-import { colors } from "@/styles/colors";
 
 export default function UserAppPage() {
   const searchParams = useSearchParams();
@@ -72,46 +71,45 @@ export default function UserAppPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="mt-4 px-4 flex justify-center w-full z-10"
+            className="mt-3 px-6 flex w-full z-10"
+            style={{ borderBottom: "1px solid rgba(180,140,160,0.22)" }}
           >
-            <div
-              className="p-1 rounded-full flex w-full max-w-xs"
+            <button
+              onClick={() => setActiveSecondaryTab("EMERGENCY")}
+              className="flex-1 pb-2.5 text-sm font-semibold transition-colors text-center"
               style={{
-                backgroundColor: "rgba(180,140,160,0.18)",
-                boxShadow: "inset 0 1px 3px rgba(58,37,48,0.08)",
+                color:
+                  activeSecondaryTab === "EMERGENCY"
+                    ? "#dc2626"
+                    : "rgba(90,53,69,0.42)",
+                borderBottom:
+                  activeSecondaryTab === "EMERGENCY"
+                    ? "2px solid #dc2626"
+                    : "2px solid transparent",
+                marginBottom: "-1px",
+                letterSpacing: "0.01em",
               }}
             >
-              <button
-                onClick={() => setActiveSecondaryTab("EMERGENCY")}
-                className={`flex-1 py-3 text-xs font-medium rounded-full transition-all`}
-                style={
-                  activeSecondaryTab === "EMERGENCY"
-                    ? {
-                        backgroundColor: "white",
-                        color: "#c4705a",
-                        boxShadow: "0 1px 4px rgba(196,112,90,0.2)",
-                      }
-                    : { color: "#7a5565" }
-                }
-              >
-                Emergência
-              </button>
-              <button
-                onClick={() => setActiveSecondaryTab("CHECKIN")}
-                className={`flex-1 py-3 text-xs font-medium rounded-full transition-all`}
-                style={
+              Emergência
+            </button>
+            <button
+              onClick={() => setActiveSecondaryTab("CHECKIN")}
+              className="flex-1 pb-2.5 text-sm font-semibold transition-colors text-center"
+              style={{
+                color:
                   activeSecondaryTab === "CHECKIN"
-                    ? {
-                        backgroundColor: "white",
-                        color: "#5a9e8a",
-                        boxShadow: "0 1px 4px rgba(90,158,138,0.2)",
-                      }
-                    : { color: "#3a2530" }
-                }
-              >
-                Trajeto seguro
-              </button>
-            </div>
+                    ? "#5a9e8a"
+                    : "rgba(90,53,69,0.42)",
+                borderBottom:
+                  activeSecondaryTab === "CHECKIN"
+                    ? "2px solid #5a9e8a"
+                    : "2px solid transparent",
+                marginBottom: "-1px",
+                letterSpacing: "0.01em",
+              }}
+            >
+              Trajeto seguro
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -141,13 +139,13 @@ export default function UserAppPage() {
                   {hasNoContacts && (
                     <Link
                       href="/app/contacts"
-                      className="w-full max-w-xs mb-2 flex items-center gap-3 rounded-xl bg-amber-500/15 border border-amber-400/30 px-4 py-3 transition-colors hover:bg-amber-500/20"
+                      className="w-full max-w-xs mb-2 flex items-center gap-3 rounded-xl bg-amber-100 border border-amber-300 px-4 py-3 transition-colors hover:bg-amber-200/80"
                     >
                       <AlertTriangle
                         size={18}
-                        className="shrink-0 text-amber-400"
+                        className="shrink-0 text-amber-700"
                       />
-                      <p className="text-xs text-amber-200 leading-snug">
+                      <p className="text-xs text-amber-900 leading-snug">
                         <span className="font-semibold">
                           Cadastre ao menos 1 contato
                         </span>{" "}

@@ -1,22 +1,29 @@
 import React from "react";
 
+// ⑦ — fontes com link verificável para reforçar credibilidade institucional
 const stats = [
   {
     value: "3 em cada 10",
     label: "mulheres brasileiras relatam já ter sofrido violência doméstica",
     source: "DataSenado · 2023",
+    sourceHref:
+      "https://www12.senado.leg.br/institucional/datasenado/pesquisa?p=violencia-domestica-e-familiar-contra-a-mulher-2023",
   },
   {
     value: "45%",
     label:
       "das mulheres vítimas de violência não tomaram providência após o episódio mais grave",
     source: "FBSP/Datafolha · 2023",
+    sourceHref:
+      "https://forumseguranca.org.br/publicacoes_posts/violencia-contra-a-mulher-datafolha-2023/",
   },
   {
     value: "43%",
     label:
       "das mulheres relatam violência física, sexual ou psicológica por parceiro íntimo ao longo da vida",
     source: "FBSP/Datafolha · 2023",
+    sourceHref:
+      "https://forumseguranca.org.br/publicacoes_posts/violencia-contra-a-mulher-datafolha-2023/",
   },
 ];
 
@@ -63,7 +70,14 @@ export const ImpactSection: React.FC = () => (
             <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
               {s.label}
             </p>
-            <p className="text-xs text-muted-foreground">{s.source}</p>
+            <a
+              href={s.sourceHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:opacity-70 transition-opacity"
+            >
+              {s.source} ↗
+            </a>
           </div>
         ))}
       </div>

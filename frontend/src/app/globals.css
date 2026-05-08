@@ -104,6 +104,7 @@
   /* Tokens semânticos de status — RF01, RF03, NRF09 */
   /* Vermelho RESERVADO para emergência (RN01/RF01). Nunca usar decorativamente. */
   --emergency: #dc2626;
+  --emergency-glow: rgba(220, 38, 38, 0.35);
   --emergency-foreground: #ffffff;
   --emergency-soft: #fef2f2;
   /* Âmbar para estados de atenção (check-in atrasando, alertas de nível médio) */
@@ -140,7 +141,7 @@
   --secondary:           rgba(255, 255, 255, 0.40);
   --secondary-foreground:#3a2530;
   --muted:               rgba(180, 140, 160, 0.18);
-  --muted-foreground:    #7a5565;
+  --muted-foreground:    #5a3545;
   --accent:              #7ab5a0;
   --accent-foreground:   #ffffff;
   --border:              rgba(180, 140, 160, 0.25);
@@ -227,6 +228,21 @@
   }
 }
 
+/* Pulsação do glow vermelho no estado idle do botão de emergência */
+@keyframes emergency-glow-idle {
+  0%,
+  100% {
+    box-shadow: 0 0 44px rgba(220, 38, 38, 0.30);
+  }
+  50% {
+    box-shadow: 0 0 70px rgba(220, 38, 38, 0.55);
+  }
+}
+
+.emergency-blob-idle {
+  animation: emergency-glow-idle 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 @keyframes pulse-active {
   0% {
     transform: scale(1);
@@ -279,4 +295,15 @@
   0%, 100% { border-radius: 42% 58% 55% 45% / 58% 42% 62% 38%; }
   40%       { border-radius: 55% 45% 42% 58% / 45% 55% 42% 58%; }
   70%       { border-radius: 48% 52% 60% 40% / 62% 38% 48% 52%; }
+}
+
+/* ⑳ — Wordmark canônico: única fonte de verdade para a marca "amparo".
+ * Usar .amparo-mark em vez de declarar font/weight/case inline por componente.
+ * Isso garante reprodução correta em parceiros (gov.br, imprensa, integrações). */
+.amparo-mark {
+  font-family: var(--font-brand), "Nunito", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
 }
