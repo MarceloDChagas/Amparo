@@ -22,11 +22,14 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma.config.js ./
 
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 RUN npm ci --only=production --ignore-scripts
+RUN npm install -g prisma@7.4.0
 RUN npx prisma generate
+RUN chmod +x ./scripts/docker-start.sh
 
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["sh", "./scripts/docker-start.sh"]
