@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { UserForm } from "./user-form";
 
@@ -21,23 +21,39 @@ jest.mock("sonner", () => ({
 }));
 
 describe("UserForm", () => {
-  it("renders the form", () => {
-    render(<UserForm />);
-    const elements = screen.getAllByText(/create user/i);
-    expect(elements.length).toBeGreaterThan(0);
+  beforeEach(() => {
+    mockMutate.mockClear();
   });
 
-  // Basic interaction test to see if mock functions are called
-  // (Assuming your mock UI components allow this interaction)
-  it("submits the form", () => {
+  it("renders the form", () => {
     render(<UserForm />);
-    // Add logic here to simulate filling out the form
-    // and clicking the submit button.
-    // This depends heavily on how your UI components are mocked.
+    expect(
+      screen.getByRole("button", { name: /criar usuário/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
+  });
 
-    // Example (if components are mocked simply):
+  it("submits the form", async () => {
     render(<UserForm />);
-    fireEvent.click(screen.getByRole("button", { name: /create user/i }));
-    // expect(mockMutate).toHaveBeenCalled();
+
+    fireEvent.input(screen.getByLabelText(/nome/i), {
+      target: { value: "Maria Silva" },
+    });
+    fireEvent.input(screen.getByLabelText(/cpf/i), {
+      target: { value: "529.982.247-25" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /criar usuário/i }));
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        { name: "Maria Silva", cpf: "52998224725" },
+        expect.objectContaining({
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        }),
+      );
+    });
   });
 });

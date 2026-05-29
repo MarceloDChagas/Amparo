@@ -49,7 +49,9 @@ describe("EmergencyButton", () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
     jest.useRealTimers();
     jest.clearAllMocks();
   });
@@ -102,12 +104,12 @@ describe("EmergencyButton", () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it("should show 'SEGURE...' text while pressing", () => {
+  it("should show countdown text while pressing", () => {
     render(<EmergencyButton />);
     const button = screen.getByRole("button");
 
     fireEvent.mouseDown(button);
 
-    expect(screen.getByText(/SEGURE.../i)).toBeInTheDocument();
+    expect(screen.getByText(/2s/i)).toBeInTheDocument();
   });
 });
