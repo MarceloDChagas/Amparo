@@ -129,24 +129,24 @@
  * Ativado via data-surface="victim" no layout da rota (user).
  */
 [data-surface="victim"] {
-  --background:          #f0e4f5;
-  --foreground:          #3a2530;
-  --card:                rgba(255, 255, 255, 0.55);
-  --card-foreground:     #3a2530;
+  --background:          #f7f0fa;
+  --foreground:          #2d1a24;
+  --card:                rgba(255, 255, 255, 0.9);
+  --card-foreground:     #2d1a24;
   --popover:             #ffffff;
-  --popover-foreground:  #3a2530;
+  --popover-foreground:  #2d1a24;
   /* Salmão/terracota — ações normais (não emergência) */
-  --primary:             #c4705a;
+  --primary:             #b85d47;
   --primary-foreground:  #ffffff;
-  --secondary:           rgba(255, 255, 255, 0.40);
-  --secondary-foreground:#3a2530;
-  --muted:               rgba(180, 140, 160, 0.18);
-  --muted-foreground:    #5a3545;
-  --accent:              #7ab5a0;
+  --secondary:           rgba(255, 255, 255, 0.82);
+  --secondary-foreground:#2d1a24;
+  --muted:               rgba(168, 130, 149, 0.2);
+  --muted-foreground:    #4f2f3e;
+  --accent:              #4d8a74;
   --accent-foreground:   #ffffff;
-  --border:              rgba(180, 140, 160, 0.25);
-  --input:               rgba(180, 140, 160, 0.30);
-  --ring:                rgba(196, 112, 90, 0.50);
+  --border:              rgba(132, 93, 113, 0.35);
+  --input:               rgba(132, 93, 113, 0.4);
+  --ring:                rgba(184, 93, 71, 0.5);
 }
 
 .dark {

@@ -31,7 +31,7 @@ export default function UserLayout({
         data-surface="victim"
         style={{
           background:
-            "radial-gradient(ellipse at top left, #ede0f5, #f5d4c0 70%)",
+            "radial-gradient(ellipse at top left, #faf3fc 0%, #f6ece5 72%)",
         }}
       >
         <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
@@ -49,7 +49,7 @@ export default function UserLayout({
       data-surface="victim"
       style={{
         background:
-          "radial-gradient(ellipse at top left, #ede0f5, #f5d4c0 70%)",
+          "radial-gradient(ellipse at top left, #faf3fc 0%, #f6ece5 72%)",
       }}
     >
       {children}
