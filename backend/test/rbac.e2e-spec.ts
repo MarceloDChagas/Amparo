@@ -8,7 +8,7 @@ import request from "supertest";
 import { App } from "supertest/types"; // Import App type
 
 import { Role } from "@/core/domain/enums/role.enum";
-import { UserRepository } from "@/core/domain/repositories/user.repository";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { JwtStrategy } from "@/infra/http/strategies/jwt.strategy";
@@ -74,7 +74,7 @@ describe("RBAC (e2e)", () => {
         JwtStrategy,
         RolesGuard,
         {
-          provide: UserRepository,
+          provide: USER_REPOSITORY,
           useValue: mockUserRepository,
         },
         // Override ConfigService to return test-secret
@@ -96,7 +96,9 @@ describe("RBAC (e2e)", () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it("/test-rbac/public (GET) - allow anonymous", () => {

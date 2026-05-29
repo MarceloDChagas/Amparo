@@ -3,14 +3,17 @@ import { AuthGuard } from "@nestjs/passport";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 
-import { UserRepository } from "@/core/domain/repositories/user.repository";
+import {
+  PASSWORD_HASHER_PORT,
+  TOKEN_SERVICE_PORT,
+} from "@/core/ports/auth.ports";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
 import { DeleteUserUseCase } from "@/core/use-cases/user/delete-user.use-case";
 import { GetUserUseCase } from "@/core/use-cases/user/get-user.use-case";
 import { UpdateUserUseCase } from "@/core/use-cases/user/update-user.use-case";
 import { UserController } from "@/infra/http/controllers/user.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
-import { AuthService } from "@/infra/services/auth.service";
 
 describe("UserController (e2e)", () => {
   let app: INestApplication;
@@ -25,24 +28,26 @@ describe("UserController (e2e)", () => {
     findByCpf: jest.fn(),
   };
 
-  const mockAuthService = {
-    login: jest.fn().mockReturnValue({ access_token: "mock_token" }),
-    hashPassword: jest.fn().mockResolvedValue("hashed_password"),
+  const mockPasswordHasher = {
+    hash: jest.fn().mockResolvedValue("hashed_password"),
+    compare: jest.fn(),
+  };
+
+  const mockTokenService = {
+    sign: jest.fn().mockReturnValue("mock_token"),
   };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
-        // User use cases inject "UserRepository" string token
         GetUserUseCase,
         UpdateUserUseCase,
         DeleteUserUseCase,
-        { provide: "UserRepository", useValue: mockUserRepository },
-        // RegisterUserUseCase injects UserRepository (class token) and AuthService (class token)
+        { provide: USER_REPOSITORY, useValue: mockUserRepository },
         RegisterUserUseCase,
-        { provide: UserRepository, useValue: mockUserRepository },
-        { provide: AuthService, useValue: mockAuthService },
+        { provide: PASSWORD_HASHER_PORT, useValue: mockPasswordHasher },
+        { provide: TOKEN_SERVICE_PORT, useValue: mockTokenService },
       ],
     })
       .overrideGuard(AuthGuard("jwt"))
@@ -58,7 +63,9 @@ describe("UserController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it("/users (GET)", async () => {
@@ -91,6 +98,7 @@ describe("UserController (e2e)", () => {
     mockUserRepository.findByEmail.mockResolvedValue(null);
     mockUserRepository.findByCpf.mockResolvedValue(null);
     mockUserRepository.create.mockResolvedValue(createdUser);
+    mockUserRepository.findById.mockResolvedValue(createdUser);
 
     return request(app.getHttpServer())
       .post("/users")
