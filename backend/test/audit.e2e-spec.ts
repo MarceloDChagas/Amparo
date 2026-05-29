@@ -1,5 +1,5 @@
 import { INestApplication } from "@nestjs/common";
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtModule, JwtService } from "@nestjs/jwt";
@@ -10,7 +10,7 @@ import request from "supertest";
 import { App } from "supertest/types";
 
 import { Role } from "@/core/domain/enums/role.enum";
-import { UserRepository } from "@/core/domain/repositories/user.repository";
+import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 import { PrismaService } from "@/infra/database/prisma.service";
 import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
@@ -25,6 +25,12 @@ class TestAuditController {
   @Roles(Role.ADMIN)
   index() {
     return "ok";
+  }
+
+  @Post()
+  @Roles(Role.ADMIN)
+  create() {
+    return { ok: true };
   }
 }
 
@@ -68,7 +74,7 @@ describe("Audit Logging (e2e)", () => {
         JwtStrategy,
         RolesGuard,
         {
-          provide: UserRepository,
+          provide: USER_REPOSITORY,
           useValue: mockUserRepository,
         },
         {
@@ -107,9 +113,9 @@ describe("Audit Logging (e2e)", () => {
     });
 
     await request(app.getHttpServer())
-      .get("/test-audit")
+      .post("/test-audit")
       .set("Authorization", `Bearer ${token}`)
-      .expect(200);
+      .expect(201);
 
     // Give some time for the fire-and-forget log to be saved
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -121,7 +127,7 @@ describe("Audit Logging (e2e)", () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           userId: "admin-id",
-          action: "GET",
+          action: "POST",
           resource: "/test-audit",
         }),
       }),

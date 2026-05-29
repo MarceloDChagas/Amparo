@@ -14,6 +14,7 @@ import { GetAlertHistoryUseCase } from "@/core/use-cases/get-alert-history.use-c
 import { GetAllEmergencyAlertsUseCase } from "@/core/use-cases/get-all-emergency-alerts.use-case";
 import { GetEmergencyAlertByIdUseCase } from "@/core/use-cases/get-emergency-alert-by-id.use-case";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
+import { UpdateAlertStatusUseCase } from "@/core/use-cases/update-alert-status.use-case";
 import { EmergencyAlertController } from "@/infra/http/controllers/emergency-alert.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
@@ -25,6 +26,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     findActive: jest.fn(),
     findAll: jest.fn(),
     findById: jest.fn(),
+    updateStatus: jest.fn(),
   };
 
   const mockAlertEventRepository = {
@@ -58,6 +60,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
         GetAllEmergencyAlertsUseCase,
         GetEmergencyAlertByIdUseCase,
         GetAlertHistoryUseCase,
+        UpdateAlertStatusUseCase,
       ],
     })
       .overrideGuard(AuthGuard("jwt"))
