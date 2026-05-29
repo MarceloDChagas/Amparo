@@ -37,6 +37,18 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
+  private async runWithRetryIfAvailable<T>(fn: () => Promise<T>): Promise<T> {
+    const prismaWithRetry = this.prisma as PrismaService & {
+      withRetry?: <R>(run: () => Promise<R>) => Promise<R>;
+    };
+
+    if (typeof prismaWithRetry.withRetry === "function") {
+      return prismaWithRetry.withRetry(fn);
+    }
+
+    return fn();
+  }
+
   async create(user: User): Promise<User> {
     const data: PrismaUserCreateInput = {
       email: user.email,
@@ -59,7 +71,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.prisma.withRetry(() =>
+    const user = await this.runWithRetryIfAvailable(() =>
       this.prisma.user.findUnique({ where: { email } }),
     );
     if (!user) return null;
@@ -68,7 +80,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async findByCpf(cpf: string): Promise<User | null> {
     const cpfHash = this.encryptionService.hash(cpf);
-    const user = await this.prisma.withRetry(() =>
+    const user = await this.runWithRetryIfAvailable(() =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
       this.prisma.user.findUnique({ where: { cpfHash } as any }),
     );
@@ -77,7 +89,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const user = await this.prisma.withRetry(() =>
+    const user = await this.runWithRetryIfAvailable(() =>
       this.prisma.user.findUnique({ where: { id } }),
     );
     if (!user) return null;

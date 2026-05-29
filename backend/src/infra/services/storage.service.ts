@@ -45,16 +45,15 @@ export class StorageService implements OnModuleInit {
           this.logger.log(`Bucket "${this.bucket}" já existe.`);
         }
         return;
-      } catch (error) {
+      } catch {
         this.logger.warn(
           `Tentativa ${attempt}/${retries} de conexão com MinIO falhou. Aguardando ${delayMs}ms...`,
         );
         if (attempt === retries) {
-          this.logger.error(
-            "Não foi possível conectar ao MinIO após todas as tentativas.",
-            error,
+          this.logger.warn(
+            "Não foi possível conectar ao MinIO. O serviço de armazenamento não estará disponível. Continuando com a inicialização da aplicação.",
           );
-          throw error;
+          return;
         }
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         delayMs *= 2;
