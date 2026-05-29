@@ -38,7 +38,10 @@ describe("LoginUseCase", () => {
     userRepositoryMock.findByEmail.mockResolvedValue(null);
 
     await expect(
-      useCase.execute({ email: "missing@amparo.com", password: "pass123" }),
+      useCase.execute({
+        email: "missing@amparo.com",
+        password: "mock-password-missing-user",
+      }),
     ).rejects.toThrow(InvalidCredentialsError);
 
     expect(passwordHasherMock.compare).not.toHaveBeenCalled();
@@ -49,7 +52,7 @@ describe("LoginUseCase", () => {
     const user = new User({
       id: "user-1",
       email: "user@amparo.com",
-      password: "hashed-pass",
+      password: "mock-hashed-password",
       name: "User",
       role: "USER",
     });
@@ -58,7 +61,10 @@ describe("LoginUseCase", () => {
     passwordHasherMock.compare.mockResolvedValue(false);
 
     await expect(
-      useCase.execute({ email: user.email, password: "wrong-pass" }),
+      useCase.execute({
+        email: user.email,
+        password: "mock-password-invalid",
+      }),
     ).rejects.toThrow(InvalidCredentialsError);
 
     expect(tokenServiceMock.sign).not.toHaveBeenCalled();
@@ -68,7 +74,7 @@ describe("LoginUseCase", () => {
     const user = new User({
       id: "user-2",
       email: "user2@amparo.com",
-      password: "hashed-pass",
+      password: "mock-hashed-password",
       name: "User Two",
       role: "ADMIN",
     });
@@ -79,7 +85,7 @@ describe("LoginUseCase", () => {
 
     const result = await useCase.execute({
       email: user.email,
-      password: "correct-pass",
+      password: "mock-password-valid",
     });
 
     expect(tokenServiceMock.sign).toHaveBeenCalledWith({
