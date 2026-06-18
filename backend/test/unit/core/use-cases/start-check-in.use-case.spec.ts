@@ -6,7 +6,7 @@ import {
 } from "@/core/domain/repositories/check-in-repository";
 import { ActiveCheckInAlreadyExistsError } from "@/core/errors/check-in.errors";
 
-import { StartCheckInUseCase } from "./start-check-in.use-case";
+import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 
 describe("StartCheckInUseCase", () => {
   let useCase: StartCheckInUseCase;

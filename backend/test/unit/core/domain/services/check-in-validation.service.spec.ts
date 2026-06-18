@@ -1,5 +1,8 @@
-import { CheckInStatus, DistanceType } from "../enums/distance-type.enum";
-import { CheckInValidationService } from "./check-in-validation.service";
+import {
+  CheckInStatus,
+  DistanceType,
+} from "@/core/domain/enums/distance-type.enum";
+import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
 
 describe("CheckInValidationService", () => {
   let service: CheckInValidationService;

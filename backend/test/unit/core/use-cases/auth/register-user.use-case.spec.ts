@@ -1,6 +1,6 @@
 import { UserAlreadyExistsError } from "@/core/errors/auth.errors";
 
-import { RegisterUserUseCase } from "./register-user.use-case";
+import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
 
 describe("RegisterUserUseCase", () => {
   const userRepositoryMock = {

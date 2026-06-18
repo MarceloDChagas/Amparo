@@ -3,8 +3,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { App } from "supertest/types";
 
-import { AppController } from "./../src/app.controller";
-import { AppService } from "./../src/app.service";
+import { AppController } from "@/app.controller";
+import { AppService } from "@/app.service";
 
 describe("AppController (e2e)", () => {
   let app: INestApplication<App>;

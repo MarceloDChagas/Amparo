@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { User } from "@/core/domain/entities/user.entity";
 import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
 
-import { UpdateUserUseCase } from "./update-user.use-case";
+import { UpdateUserUseCase } from "@/core/use-cases/user/update-user.use-case";
 
 describe("UpdateUserUseCase", () => {
   let useCase: UpdateUserUseCase;

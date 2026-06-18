@@ -6,7 +6,7 @@ import {
   InvalidAlertStatusTransitionError,
 } from "@/core/errors/emergency-alert.errors";
 
-import { UpdateAlertStatusUseCase } from "./update-alert-status.use-case";
+import { UpdateAlertStatusUseCase } from "@/core/use-cases/update-alert-status.use-case";
 
 describe("UpdateAlertStatusUseCase", () => {
   const alertRepositoryMock = {
