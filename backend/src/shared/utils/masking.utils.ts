@@ -47,7 +47,7 @@ export class MaskingUtils {
     if (!user || !domain) return email;
 
     if (user.length <= 3) {
-      return `${user[0]}***@${domain}`;
+      return `${user}***@${domain}`;
     }
 
     // Show first 3 chars, mask the rest until @
