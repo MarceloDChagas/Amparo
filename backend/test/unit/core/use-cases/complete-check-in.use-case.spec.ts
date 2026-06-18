@@ -13,7 +13,7 @@ import { CheckInValidationService } from "@/core/domain/services/check-in-valida
 import { ActiveCheckInNotFoundError } from "@/core/errors/check-in.errors";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 
-import { CompleteCheckInUseCase } from "./complete-check-in.use-case";
+import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
 
 describe("CompleteCheckInUseCase", () => {
   let useCase: CompleteCheckInUseCase;

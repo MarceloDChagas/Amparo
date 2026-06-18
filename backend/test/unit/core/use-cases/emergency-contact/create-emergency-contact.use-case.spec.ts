@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
 import { EmergencyContactLimitExceededError } from "@/core/errors/emergency-contact.errors";
 
-import { CreateEmergencyContactUseCase } from "./create-emergency-contact.use-case";
+import { CreateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/create-emergency-contact.use-case";
 
 describe("CreateEmergencyContactUseCase", () => {
   let useCase: CreateEmergencyContactUseCase;

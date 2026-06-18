@@ -2,7 +2,7 @@ import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
 import { AlertStatus } from "@/core/domain/enums/alert-status.enum";
 import { EmergencyAlertNotFoundError } from "@/core/errors/emergency-alert.errors";
 
-import { ResolveEmergencyAlertUseCase } from "./resolve-emergency-alert.use-case";
+import { ResolveEmergencyAlertUseCase } from "@/core/use-cases/resolve-emergency-alert.use-case";
 
 describe("ResolveEmergencyAlertUseCase", () => {
   const alertRepositoryMock = {

@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
 
-import { GetEmergencyContactUseCase } from "./get-emergency-contact.use-case";
+import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/get-emergency-contact.use-case";
 
 describe("GetEmergencyContactUseCase", () => {
   let useCase: GetEmergencyContactUseCase;

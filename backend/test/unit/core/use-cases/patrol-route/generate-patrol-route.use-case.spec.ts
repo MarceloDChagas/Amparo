@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import type { HeatMapCell } from "@/core/domain/entities/heat-map-cell.entity";
 
-import { GeneratePatrolRouteUseCase } from "./generate-patrol-route.use-case";
+import { GeneratePatrolRouteUseCase } from "@/core/use-cases/patrol-route/generate-patrol-route.use-case";
 
 /**
  * AM-81 — Testar rotas geradas em diferentes cenários de densidade

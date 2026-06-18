@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { DeleteEmergencyContactUseCase } from "./delete-emergency-contact.use-case";
+import { DeleteEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/delete-emergency-contact.use-case";
 
 describe("DeleteEmergencyContactUseCase", () => {
   let useCase: DeleteEmergencyContactUseCase;

@@ -1,7 +1,7 @@
 import { User } from "@/core/domain/entities/user.entity";
 import { InvalidCredentialsError } from "@/core/errors/auth.errors";
 
-import { LoginUseCase } from "./login.use-case";
+import { LoginUseCase } from "@/core/use-cases/auth/login.use-case";
 
 describe("LoginUseCase", () => {
   const userRepositoryMock = {
