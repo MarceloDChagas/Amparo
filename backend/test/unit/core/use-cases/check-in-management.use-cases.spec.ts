@@ -19,6 +19,8 @@ import { GetCheckInSchedulesUseCase } from "@/core/use-cases/get-check-in-schedu
 import { MonitorCheckInUseCase } from "@/core/use-cases/monitor-check-in.use-case";
 import { PurgeLocationDataUseCase } from "@/core/use-cases/purge-location-data.use-case";
 
+// Valida o ciclo de vida do check-in agendado: destino seguro, confirmação de chegada,
+// escalonamento, monitoramento (gera alerta após a janela de tolerância) e purga de dados.
 describe("Check-in management use cases", () => {
   const now = new Date("2026-06-17T12:00:00.000Z");
 
@@ -102,6 +104,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("DefineCheckInSafeLocationUseCase", () => {
+    // Garante que cria o agendamento com destino e horário esperado de chegada.
     it("creates a schedule with destination and expected arrival", async () => {
       const schedule = makeSchedule();
       const data = {
@@ -123,6 +126,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("ConfirmCheckInArrivalUseCase", () => {
+    // Garante erro quando o agendamento não existe.
     it("throws when schedule does not exist", async () => {
       scheduleRepository.findById.mockResolvedValue(null);
 
@@ -135,6 +139,7 @@ describe("Check-in management use cases", () => {
       expect(scheduleRepository.markAsArrived).not.toHaveBeenCalled();
     });
 
+    // Garante que não confirma chegada de agendamento de outro usuário (isolamento).
     it("throws when schedule belongs to another user", async () => {
       scheduleRepository.findById.mockResolvedValue(
         makeSchedule({ userId: "other-user" }),
@@ -149,6 +154,7 @@ describe("Check-in management use cases", () => {
       expect(scheduleRepository.markAsArrived).not.toHaveBeenCalled();
     });
 
+    // Garante que o dono confirma a chegada e o agendamento é marcado como ARRIVED.
     it("marks schedule as arrived for its owner", async () => {
       const arrived = makeSchedule({ status: "ARRIVED", arrivedAt: now });
       scheduleRepository.findById.mockResolvedValue(makeSchedule());
@@ -168,6 +174,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("GetCheckInSchedulesUseCase", () => {
+    // Garante que retorna os agendamentos do usuário.
     it("returns schedules owned by a user", async () => {
       const schedules = [makeSchedule()];
       scheduleRepository.findByUserId.mockResolvedValue(schedules);
@@ -180,6 +187,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("EscalateCheckInUseCase", () => {
+    // Garante erro ao escalonar check-in inexistente.
     it("throws when check-in does not exist", async () => {
       checkInRepository.findById.mockResolvedValue(null);
 
@@ -189,6 +197,7 @@ describe("Check-in management use cases", () => {
       expect(checkInRepository.updateEscalation).not.toHaveBeenCalled();
     });
 
+    // Garante que o estágio de escalonamento inicia em 1 quando ainda não definido.
     it("increments an unset escalation stage from zero", async () => {
       checkInRepository.findById.mockResolvedValue(makeCheckIn());
 
@@ -201,6 +210,7 @@ describe("Check-in management use cases", () => {
       );
     });
 
+    // Garante que no estágio máximo o check-in não é mais escalonado.
     it("returns unchanged check-in at max escalation stage", async () => {
       const maxStage = makeCheckIn({ escalationStage: 4 });
       checkInRepository.findById.mockResolvedValue(maxStage);
@@ -213,6 +223,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("MonitorCheckInUseCase", () => {
+    // Garante que dentro da janela de tolerância nenhum alerta é gerado.
     it("ignores expired schedules while still inside tolerance window", async () => {
       scheduleRepository.findPendingExpired.mockResolvedValue([
         makeSchedule({
@@ -230,6 +241,7 @@ describe("Check-in management use cases", () => {
       expect(scheduleRepository.markAsAlerted).not.toHaveBeenCalled();
     });
 
+    // Garante que após a janela de tolerância gera alerta e marca o agendamento como ALERTED.
     it("creates an emergency alert and marks schedule as alerted after tolerance window", async () => {
       scheduleRepository.findPendingExpired.mockResolvedValue([makeSchedule()]);
 
@@ -250,6 +262,7 @@ describe("Check-in management use cases", () => {
       );
     });
 
+    // Garante o uso de um endereço de fallback quando o agendamento não tem endereço.
     it("uses a fallback address when schedule has no destination address", async () => {
       scheduleRepository.findPendingExpired.mockResolvedValue([
         makeSchedule({
@@ -270,6 +283,7 @@ describe("Check-in management use cases", () => {
       );
     });
 
+    // Garante resiliência: se um alerta falha, os agendamentos seguintes continuam sendo processados.
     it("keeps processing later schedules when alert creation fails", async () => {
       scheduleRepository.findPendingExpired.mockResolvedValue([
         makeSchedule({ id: "schedule-1" }),
@@ -294,6 +308,7 @@ describe("Check-in management use cases", () => {
   });
 
   describe("PurgeLocationDataUseCase", () => {
+    // Garante que remove dados de localização anteriores ao período de retenção (LGPD).
     it("removes location tracking data older than retention period", async () => {
       checkInRepository.deleteCreatedBefore.mockResolvedValue(2);
       scheduleRepository.deleteCreatedBefore.mockResolvedValue(3);

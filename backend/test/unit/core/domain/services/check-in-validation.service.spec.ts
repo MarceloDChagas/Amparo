@@ -4,6 +4,7 @@ import {
 } from "@/core/domain/enums/distance-type.enum";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
 
+// Valida o serviço que classifica a chegada como ON_TIME ou LATE conforme a tolerância por distância.
 describe("CheckInValidationService", () => {
   let service: CheckInValidationService;
 
@@ -11,7 +12,9 @@ describe("CheckInValidationService", () => {
     service = new CheckInValidationService();
   });
 
+  // Distância curta: tolerância de 10 minutos.
   describe("SHORT distance (10 minutes tolerance)", () => {
+    // Chegada exatamente no horário → ON_TIME.
     it("should return ON_TIME when arrival is exactly on expected time", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:00:00Z");
@@ -23,6 +26,7 @@ describe("CheckInValidationService", () => {
       expect(result).toBe(CheckInStatus.ON_TIME);
     });
 
+    // Atraso dentro da tolerância (5 min) → ON_TIME.
     it("should return ON_TIME when arrival is within tolerance (e.g. 5 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:05:00Z");
@@ -34,6 +38,7 @@ describe("CheckInValidationService", () => {
       expect(result).toBe(CheckInStatus.ON_TIME);
     });
 
+    // Atraso exatamente no limite (10 min) → ainda ON_TIME (fronteira).
     it("should return ON_TIME when arrival is exactly at tolerance limit (10 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:10:00Z");
@@ -45,6 +50,7 @@ describe("CheckInValidationService", () => {
       expect(result).toBe(CheckInStatus.ON_TIME);
     });
 
+    // Atraso acima do limite (11 min) → LATE (fronteira).
     it("should return LATE when arrival is beyond tolerance limit (11 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:11:00Z");
@@ -57,7 +63,9 @@ describe("CheckInValidationService", () => {
     });
   });
 
+  // Distância média: tolerância de 30 minutos.
   describe("MEDIUM distance (30 minutes tolerance)", () => {
+    // Atraso no limite (30 min) → ON_TIME (fronteira).
     it("should return ON_TIME when arrival is exactly at tolerance limit (30 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:30:00Z");
@@ -69,6 +77,7 @@ describe("CheckInValidationService", () => {
       expect(result).toBe(CheckInStatus.ON_TIME);
     });
 
+    // Atraso acima do limite (31 min) → LATE (fronteira).
     it("should return LATE when arrival is beyond tolerance limit (31 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T10:31:00Z");
@@ -81,7 +90,9 @@ describe("CheckInValidationService", () => {
     });
   });
 
+  // Distância longa: tolerância de 60 minutos.
   describe("LONG distance (60 minutes tolerance)", () => {
+    // Atraso no limite (60 min) → ON_TIME (fronteira).
     it("should return ON_TIME when arrival is exactly at tolerance limit (60 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T11:00:00Z");
@@ -93,6 +104,7 @@ describe("CheckInValidationService", () => {
       expect(result).toBe(CheckInStatus.ON_TIME);
     });
 
+    // Atraso acima do limite (61 min) → LATE (fronteira).
     it("should return LATE when arrival is beyond tolerance limit (61 mins late)", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T11:01:00Z");
@@ -105,7 +117,9 @@ describe("CheckInValidationService", () => {
     });
   });
 
+  // Chegada antecipada.
   describe("Early arrivals", () => {
+    // Chegar antes do esperado → ON_TIME.
     it("should return ON_TIME when arrival is before expected time", () => {
       const expected = new Date("2026-01-01T10:00:00Z");
       const actual = new Date("2026-01-01T09:30:00Z");

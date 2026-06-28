@@ -34,6 +34,21 @@ class TestAuditController {
   }
 }
 
+const waitFor = async (
+  predicate: () => boolean,
+  timeoutMs = 2000,
+  intervalMs = 10,
+): Promise<void> => {
+  const start = Date.now();
+  while (!predicate()) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error("Condition not met within timeout");
+    }
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+};
+
+// Valida que o interceptor de auditoria registra um log ao acessar uma rota protegida.
 describe("Audit Logging (e2e)", () => {
   let app: INestApplication<App>;
   let jwtService: JwtService;
@@ -105,6 +120,7 @@ describe("Audit Logging (e2e)", () => {
     await app.close();
   });
 
+  // Garante que ação de admin em rota protegida gera log de auditoria com usuário, ação e recurso.
   it("should create an audit log when accessing a protected route", async () => {
     const token = jwtService.sign({
       sub: "admin-id",
@@ -117,14 +133,14 @@ describe("Audit Logging (e2e)", () => {
       .set("Authorization", `Bearer ${token}`)
       .expect(201);
 
-    // Give some time for the fire-and-forget log to be saved
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Verify that create was called
+    // Wait for the fire-and-forget log to be persisted — resolves as soon as
+    // it is written instead of always blocking for a fixed delay.
+    await waitFor(
+      () => mockPrismaService.auditLog.create.mock.calls.length > 0,
+    );
 
     expect(mockPrismaService.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           userId: "admin-id",
           action: "POST",

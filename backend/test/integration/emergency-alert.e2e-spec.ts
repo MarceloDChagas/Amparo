@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { INestApplication } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Test, TestingModule } from "@nestjs/testing";
@@ -18,6 +18,7 @@ import { UpdateAlertStatusUseCase } from "@/core/use-cases/update-alert-status.u
 import { EmergencyAlertController } from "@/infra/http/controllers/emergency-alert.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
+// Valida o fluxo HTTP de alertas com use cases reais: criação, registro de eventos e histórico.
 describe("EmergencyAlertController (e2e) + Event History", () => {
   let app: INestApplication;
 
@@ -81,6 +82,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     }
   });
 
+  // Garante que GET de eventos retorna o histórico do alerta.
   it("Scenario 1: Get events history successfully", async () => {
     const mockEvents = [
       {
@@ -108,6 +110,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     );
   });
 
+  // Garante que criar alerta de usuário registra um evento CREATED com a mensagem correta.
   it("Scenario 2: Creating alert records CREATED event", async () => {
     mockEmergencyAlertRepository.create.mockResolvedValue(undefined);
 
@@ -129,6 +132,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     expect(savedEvent?.message).toBe("Chamado originado pelo usuário");
   });
 
+  // Garante que criar alerta anônimo registra evento CREATED com mensagem de origem anônima.
   it("Scenario 3: Creating anonymous alert records CREATED event", async () => {
     mockEmergencyAlertRepository.create.mockResolvedValue(undefined);
 
@@ -148,6 +152,7 @@ describe("EmergencyAlertController (e2e) + Event History", () => {
     expect(savedEvent?.message).toBe("Chamado originado anonimamente");
   });
 
+  // Garante que ao criar alerta os contatos são notificados (porta de notificação chamada).
   it("Scenario 4: Notifying contacts records NOTIFICATION_SENT event", async () => {
     mockEmergencyAlertRepository.create.mockResolvedValue(undefined);
     mockEmergencyAlertNotificationPort.notify.mockResolvedValue(undefined);

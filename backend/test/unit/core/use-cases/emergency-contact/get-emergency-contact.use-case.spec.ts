@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
-
 import { GetEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/get-emergency-contact.use-case";
 
+// Valida as consultas de contato de emergência (por id, todos e por usuário).
 describe("GetEmergencyContactUseCase", () => {
   let useCase: GetEmergencyContactUseCase;
 
@@ -29,6 +29,7 @@ describe("GetEmergencyContactUseCase", () => {
     );
   });
 
+  // Garante que buscar por id retorna o contato correspondente.
   it("should get an emergency contact by id", async () => {
     const contact = new EmergencyContact({
       id: "contact-id",
@@ -52,6 +53,7 @@ describe("GetEmergencyContactUseCase", () => {
     expect(result).toEqual(contact);
   });
 
+  // Garante que buscar por id inexistente retorna null.
   it("should return null if contact not found", async () => {
     mockEmergencyContactRepository.findById.mockResolvedValue(null);
 
@@ -63,6 +65,7 @@ describe("GetEmergencyContactUseCase", () => {
     expect(result).toBeNull();
   });
 
+  // Garante que a listagem geral retorna todos os contatos.
   it("should get all emergency contacts", async () => {
     const contacts = [
       new EmergencyContact({
@@ -95,6 +98,7 @@ describe("GetEmergencyContactUseCase", () => {
     expect(result).toEqual(contacts);
   });
 
+  // Garante que buscar por usuário retorna apenas os contatos daquele usuário.
   it("should get emergency contacts by user id", async () => {
     const contacts = [
       new EmergencyContact({

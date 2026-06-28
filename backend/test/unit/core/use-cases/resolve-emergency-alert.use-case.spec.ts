@@ -1,9 +1,9 @@
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
 import { AlertStatus } from "@/core/domain/enums/alert-status.enum";
 import { EmergencyAlertNotFoundError } from "@/core/errors/emergency-alert.errors";
-
 import { ResolveEmergencyAlertUseCase } from "@/core/use-cases/resolve-emergency-alert.use-case";
 
+// Valida o encerramento de um alerta (transição para COMPLETED e registro do evento).
 describe("ResolveEmergencyAlertUseCase", () => {
   const alertRepositoryMock = {
     create: jest.fn(),
@@ -27,6 +27,7 @@ describe("ResolveEmergencyAlertUseCase", () => {
     );
   });
 
+  // Garante erro quando o alerta não existe (nada é atualizado nem registrado).
   it("should throw EmergencyAlertNotFoundError when alert does not exist", async () => {
     alertRepositoryMock.findById.mockResolvedValue(null);
 
@@ -38,6 +39,7 @@ describe("ResolveEmergencyAlertUseCase", () => {
     expect(recordAlertEventMock.execute).not.toHaveBeenCalled();
   });
 
+  // Garante que encerra o alerta (COMPLETED) e registra evento com quem resolveu.
   it("should complete alert and return updated entity", async () => {
     const existing = EmergencyAlert.create(
       { latitude: -23.55, longitude: -46.63, userId: "user-1" },

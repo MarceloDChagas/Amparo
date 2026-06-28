@@ -15,7 +15,7 @@ import { UpdateUserUseCase } from "@/core/use-cases/user/update-user.use-case";
 import { UserController } from "@/infra/http/controllers/user.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
-describe("UserController (e2e)", () => {
+describe("UserController (integration)", () => {
   let app: INestApplication;
 
   const mockUserRepository = {
@@ -50,8 +50,18 @@ describe("UserController (e2e)", () => {
         { provide: TOKEN_SERVICE_PORT, useValue: mockTokenService },
       ],
     })
+      // Inject an authenticated user so routes that rely on `req.user`
+      // (e.g. DELETE /users/me) resolve the identity deterministically.
       .overrideGuard(AuthGuard("jwt"))
-      .useValue({ canActivate: () => true })
+      .useValue({
+        canActivate: (context: {
+          switchToHttp: () => { getRequest: () => { user?: { id: string } } };
+        }) => {
+          const req = context.switchToHttp().getRequest();
+          req.user = { id: "self-user-id" };
+          return true;
+        },
+      })
       .overrideGuard(RolesGuard)
       .useValue({ canActivate: () => true })
       .compile();
@@ -62,18 +72,19 @@ describe("UserController (e2e)", () => {
     jest.clearAllMocks();
   });
 
-  afterAll(async () => {
-    if (app) {
-      await app.close();
-    }
+  afterEach(async () => {
+    await app.close();
   });
 
-  it("/users (GET)", async () => {
+  // Garante que a listagem retorna lista vazia quando não há usuários.
+  it("GET /users returns an empty list when there are no users", async () => {
     mockUserRepository.findByRole.mockResolvedValue([]);
-    return request(app.getHttpServer()).get("/users").expect(200).expect([]);
+
+    await request(app.getHttpServer()).get("/users").expect(200).expect([]);
   });
 
-  it("/users (POST)", async () => {
+  // Garante que criar usuário retorna a resposta com CPF mascarado e sem dados sensíveis.
+  it("POST /users creates a user and returns a masked response", async () => {
     const userData = {
       name: "John Doe",
       cpf: "12345678901",
@@ -84,15 +95,8 @@ describe("UserController (e2e)", () => {
       id: "1",
       ...userData,
       role: "VICTIM",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const expectedResponse = {
-      id: "1",
-      name: "John Doe",
-      cpf: "123.***.***-01",
-      createdAt: createdUser.createdAt.toISOString(),
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     };
 
     mockUserRepository.findByEmail.mockResolvedValue(null);
@@ -100,77 +104,82 @@ describe("UserController (e2e)", () => {
     mockUserRepository.create.mockResolvedValue(createdUser);
     mockUserRepository.findById.mockResolvedValue(createdUser);
 
-    return request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post("/users")
       .send(userData)
       .expect(201)
-      .expect(expectedResponse);
+      .expect({
+        id: "1",
+        name: "John Doe",
+        cpf: "123.***.***-01",
+        createdAt: createdUser.createdAt.toISOString(),
+      });
   });
 
-  it("/users/:id (GET)", async () => {
-    const userId = "1";
-    const userData = {
-      id: userId,
-      name: "John Doe",
+  // Garante que buscar usuário por id retorna resposta com CPF mascarado.
+  it("GET /users/:id returns a masked user response", async () => {
+    const createdAt = new Date("2026-01-01T00:00:00.000Z");
+    mockUserRepository.findById.mockResolvedValue({
+      id: "user-2",
+      name: "Joana",
       cpf: "12345678901",
-      email: "john.doe@example.com",
+      email: "joana@amparo.local",
       password: "hashed_password",
-      role: "VICTIM",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const expectedResponse = {
-      id: userId,
-      name: "John Doe",
+      role: "USER",
+      createdAt,
+      updatedAt: createdAt,
+    });
+
+    await request(app.getHttpServer()).get("/users/user-2").expect(200).expect({
+      id: "user-2",
+      name: "Joana",
       cpf: "123.***.***-01",
-      createdAt: userData.createdAt.toISOString(),
-    };
-
-    mockUserRepository.findById.mockResolvedValue(userData);
-
-    return request(app.getHttpServer())
-      .get(`/users/${userId}`)
-      .expect(200)
-      .expect(expectedResponse);
+      createdAt: createdAt.toISOString(),
+    });
   });
 
-  it("/users/:id (PUT)", async () => {
-    const userId = "1";
-    const updateData = {
-      name: "Updated Name",
-    };
+  // Garante que atualizar usuário retorna resposta com CPF mascarado.
+  it("PUT /users/:id updates a user and returns a masked response", async () => {
     const updatedUser = {
-      id: userId,
+      id: "1",
       name: "Updated Name",
       cpf: "12345678901",
       email: "john.doe@example.com",
       password: "hashed_password",
       role: "VICTIM",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const expectedResponse = {
-      id: userId,
-      name: "Updated Name",
-      cpf: "123.***.***-01",
-      createdAt: updatedUser.createdAt.toISOString(),
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-02T00:00:00.000Z"),
     };
 
     mockUserRepository.update.mockResolvedValue(updatedUser);
 
-    return request(app.getHttpServer())
-      .put(`/users/${userId}`)
-      .send(updateData)
+    await request(app.getHttpServer())
+      .put("/users/1")
+      .send({ name: "Updated Name" })
       .expect(200)
-      .expect(expectedResponse);
+      .expect({
+        id: "1",
+        name: "Updated Name",
+        cpf: "123.***.***-01",
+        createdAt: updatedUser.createdAt.toISOString(),
+      });
   });
 
-  it("/users/:id (DELETE)", async () => {
-    const userId = "1";
-
+  // Garante que admin remove um usuário pelo id.
+  it("DELETE /users/:id removes a user by id", async () => {
     mockUserRepository.delete.mockResolvedValue(undefined);
 
-    return request(app.getHttpServer()).delete(`/users/${userId}`).expect(200);
+    await request(app.getHttpServer()).delete("/users/1").expect(200);
+
+    expect(mockUserRepository.delete).toHaveBeenCalledWith("1");
+  });
+
+  // Garante que /users/me remove a própria conta do usuário autenticado.
+  it("DELETE /users/me removes the authenticated user", async () => {
+    mockUserRepository.delete.mockResolvedValue(undefined);
+
+    await request(app.getHttpServer()).delete("/users/me").expect(204);
+
+    expect(mockUserRepository.delete).toHaveBeenCalledWith("self-user-id");
   });
 });

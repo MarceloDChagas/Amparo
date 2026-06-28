@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
-
 import { UpdateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/update-emergency-contact.use-case";
 
+// Valida a atualização de um contato de emergência.
 describe("UpdateEmergencyContactUseCase", () => {
   let useCase: UpdateEmergencyContactUseCase;
 
@@ -27,6 +27,7 @@ describe("UpdateEmergencyContactUseCase", () => {
     );
   });
 
+  // Garante que atualizar repassa id e dados parciais ao repositório e devolve o contato atualizado.
   it("should update an emergency contact", async () => {
     const updatedContact = new EmergencyContact({
       id: "contact-id",

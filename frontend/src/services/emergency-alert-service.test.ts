@@ -3,6 +3,7 @@ import {
   emergencyAlertService,
 } from "@/services/emergency-alert-service";
 
+// Valida o serviço de alertas no frontend: tratamento de 404, erros e parsing de respostas.
 describe("emergencyAlertService", () => {
   const fetchMock = jest.fn();
 
@@ -20,6 +21,7 @@ describe("emergencyAlertService", () => {
     localStorage.clear();
   });
 
+  // Garante que getAll trata 404 como lista vazia e envia o token de autorização.
   it("should return [] when getAll receives 404", async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 404 });
 
@@ -36,6 +38,7 @@ describe("emergencyAlertService", () => {
     );
   });
 
+  // Garante que getActive trata 404 como ausência de alerta ativo (null).
   it("should return null when getActive receives 404", async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 404 });
 
@@ -44,6 +47,7 @@ describe("emergencyAlertService", () => {
     expect(result).toBeNull();
   });
 
+  // Garante que getById lança erro em falhas que não sejam 404 (ex.: 500).
   it("should throw when getById fails with non-404 error", async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 500 });
 
@@ -52,6 +56,7 @@ describe("emergencyAlertService", () => {
     );
   });
 
+  // Garante que updateStatus propaga a mensagem de erro vinda do backend.
   it("should use backend message on updateStatus failure", async () => {
     fetchMock.mockResolvedValue({
       ok: false,
@@ -65,6 +70,7 @@ describe("emergencyAlertService", () => {
     ).rejects.toThrow("Transição inválida");
   });
 
+  // Garante que getEvents trata corpo vazio como lista vazia.
   it("should return [] when getEvents returns empty body", async () => {
     fetchMock.mockResolvedValue({
       ok: true,

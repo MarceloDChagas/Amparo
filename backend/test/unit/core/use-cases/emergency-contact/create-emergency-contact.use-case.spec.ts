@@ -2,9 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
 import { EmergencyContactLimitExceededError } from "@/core/errors/emergency-contact.errors";
-
 import { CreateEmergencyContactUseCase } from "@/core/use-cases/emergency-contact/create-emergency-contact.use-case";
 
+// Valida a criação de contato de emergência e a regra de no máximo 3 contatos por usuária.
 describe("CreateEmergencyContactUseCase", () => {
   let useCase: CreateEmergencyContactUseCase;
 
@@ -31,6 +31,7 @@ describe("CreateEmergencyContactUseCase", () => {
     jest.clearAllMocks();
   });
 
+  // Garante que o contato é criado quando a usuária tem menos de 3 contatos.
   it("should create an emergency contact when user has less than 3 contacts", async () => {
     const contactData = new EmergencyContact({
       id: "contact-id",
@@ -58,6 +59,7 @@ describe("CreateEmergencyContactUseCase", () => {
     expect(result).toEqual(contactData);
   });
 
+  // Garante que ao já existir 3 contatos a criação é bloqueada com erro de limite.
   it("should throw EmergencyContactLimitExceededError when user already has 3 contacts", async () => {
     const contactData = new EmergencyContact({
       id: "contact-id-4",

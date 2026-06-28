@@ -1,8 +1,8 @@
 import { User } from "@/core/domain/entities/user.entity";
 import { InvalidCredentialsError } from "@/core/errors/auth.errors";
-
 import { LoginUseCase } from "@/core/use-cases/auth/login.use-case";
 
+// Valida o caso de uso de login (autenticação e emissão de token).
 describe("LoginUseCase", () => {
   const userRepositoryMock = {
     create: jest.fn(),
@@ -34,6 +34,7 @@ describe("LoginUseCase", () => {
     );
   });
 
+  // Garante falha (sem comparar senha nem assinar token) quando o e-mail não existe.
   it("should fail when user is not found", async () => {
     userRepositoryMock.findByEmail.mockResolvedValue(null);
 
@@ -48,6 +49,7 @@ describe("LoginUseCase", () => {
     expect(tokenServiceMock.sign).not.toHaveBeenCalled();
   });
 
+  // Garante falha (sem emitir token) quando a senha não confere.
   it("should fail when password does not match", async () => {
     const user = new User({
       id: "user-1",
@@ -70,6 +72,7 @@ describe("LoginUseCase", () => {
     expect(tokenServiceMock.sign).not.toHaveBeenCalled();
   });
 
+  // Garante que credenciais válidas retornam token e dados públicos do usuário.
   it("should return access token and public user data on success", async () => {
     const user = new User({
       id: "user-2",

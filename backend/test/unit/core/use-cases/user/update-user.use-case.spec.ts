@@ -2,9 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import { User } from "@/core/domain/entities/user.entity";
 import { USER_REPOSITORY } from "@/core/ports/user-repository.ports";
-
 import { UpdateUserUseCase } from "@/core/use-cases/user/update-user.use-case";
 
+// Valida a atualização dos dados de um usuário.
 describe("UpdateUserUseCase", () => {
   let useCase: UpdateUserUseCase;
 
@@ -26,10 +26,7 @@ describe("UpdateUserUseCase", () => {
     useCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
   });
 
-  it("should be defined", () => {
-    expect(useCase).toBeDefined();
-  });
-
+  // Garante que atualizar repassa id e dados ao repositório e devolve o usuário atualizado.
   it("should update a user successfully", async () => {
     const userId = "1";
     const userData: Partial<User> = { name: "Updated Name" };

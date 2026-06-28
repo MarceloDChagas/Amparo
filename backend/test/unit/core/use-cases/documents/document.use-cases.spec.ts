@@ -4,6 +4,7 @@ import { CreateDocumentUseCase } from "@/core/use-cases/documents/create-documen
 import { DeleteDocumentUseCase } from "@/core/use-cases/documents/delete-document.use-case";
 import { ListDocumentsUseCase } from "@/core/use-cases/documents/list-documents.use-case";
 
+// Valida os casos de uso de documentos (criar, listar e remover do storage + banco).
 describe("Document use cases", () => {
   const documentRepository = {
     create: jest.fn(),
@@ -24,6 +25,7 @@ describe("Document use cases", () => {
     jest.clearAllMocks();
   });
 
+  // Garante que não cria documento para usuário inexistente.
   it("throws when creating a document for a missing user", async () => {
     userRepository.findById.mockResolvedValue(null);
 
@@ -41,12 +43,15 @@ describe("Document use cases", () => {
     expect(documentRepository.create).not.toHaveBeenCalled();
   });
 
+  // Garante que campos opcionais não informados são persistidos como null.
   it("creates a document with nullable optional fields", async () => {
     userRepository.findById.mockResolvedValue({ id: "user-1" });
-    documentRepository.create.mockImplementation(async (document: Document) => ({
-      ...document,
-      id: "document-1",
-    }));
+    documentRepository.create.mockImplementation(
+      async (document: Document) => ({
+        ...document,
+        id: "document-1",
+      }),
+    );
 
     const result = await new CreateDocumentUseCase(
       documentRepository as never,
@@ -73,6 +78,7 @@ describe("Document use cases", () => {
     );
   });
 
+  // Garante que a listagem retorna os documentos do usuário informado.
   it("lists documents by user", async () => {
     const documents = [{ id: "document-1" }];
     documentRepository.findByUserId.mockResolvedValue(documents);
@@ -85,6 +91,7 @@ describe("Document use cases", () => {
     expect(documentRepository.findByUserId).toHaveBeenCalledWith("user-1");
   });
 
+  // Garante que remover documento inexistente lança erro e não toca no storage.
   it("throws when deleting a missing document", async () => {
     documentRepository.findById.mockResolvedValue(null);
 
@@ -98,6 +105,7 @@ describe("Document use cases", () => {
     expect(documentRepository.delete).not.toHaveBeenCalled();
   });
 
+  // Garante a ordem correta: apaga o objeto no storage antes do registro no banco.
   it("deletes storage object before deleting document record", async () => {
     documentRepository.findById.mockResolvedValue({
       id: "document-1",

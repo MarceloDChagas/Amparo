@@ -20,11 +20,13 @@ jest.mock("sonner", () => ({
   },
 }));
 
+// Valida o formulário de criação de usuário (renderização e submissão com CPF sanitizado).
 describe("UserForm", () => {
   beforeEach(() => {
     mockMutate.mockClear();
   });
 
+  // Garante que o formulário renderiza os campos de nome/CPF e o botão de criar.
   it("renders the form", () => {
     render(<UserForm />);
     expect(
@@ -34,6 +36,7 @@ describe("UserForm", () => {
     expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
   });
 
+  // Garante que ao submeter o mutate é chamado com o CPF sem máscara (só dígitos).
   it("submits the form", async () => {
     render(<UserForm />);
 

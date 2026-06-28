@@ -4,6 +4,7 @@ import { DeleteAggressorUseCase } from "@/core/use-cases/aggressor/delete-aggres
 import { GetAggressorUseCase } from "@/core/use-cases/aggressor/get-aggressor.use-case";
 import { UpdateAggressorUseCase } from "@/core/use-cases/aggressor/update-aggressor.use-case";
 
+// Valida os casos de uso de CRUD de agressor (criar, buscar, listar, atualizar, remover).
 describe("Aggressor use cases", () => {
   const aggressorRepository = {
     create: jest.fn(),
@@ -17,6 +18,7 @@ describe("Aggressor use cases", () => {
     jest.clearAllMocks();
   });
 
+  // Garante que criar persiste o agressor no repositório e devolve a entidade.
   it("creates an aggressor", async () => {
     const aggressor = new Aggressor({
       id: "aggressor-1",
@@ -31,6 +33,7 @@ describe("Aggressor use cases", () => {
     expect(aggressorRepository.create).toHaveBeenCalledWith(aggressor);
   });
 
+  // Garante que buscar por id delega ao repositório com o id correto.
   it("returns an aggressor by id", async () => {
     const aggressor = { id: "aggressor-1" };
     aggressorRepository.findById.mockResolvedValue(aggressor);
@@ -41,6 +44,7 @@ describe("Aggressor use cases", () => {
     expect(aggressorRepository.findById).toHaveBeenCalledWith("aggressor-1");
   });
 
+  // Garante que a listagem retorna todos os agressores cadastrados.
   it("returns all aggressors", async () => {
     const aggressors = [{ id: "aggressor-1" }, { id: "aggressor-2" }];
     aggressorRepository.findAll.mockResolvedValue(aggressors);
@@ -51,6 +55,7 @@ describe("Aggressor use cases", () => {
     expect(aggressorRepository.findAll).toHaveBeenCalledTimes(1);
   });
 
+  // Garante que atualizar repassa id e dados parciais ao repositório.
   it("updates an aggressor", async () => {
     const updated = { id: "aggressor-1", name: "Updated" };
     aggressorRepository.update.mockResolvedValue(updated);
@@ -65,6 +70,7 @@ describe("Aggressor use cases", () => {
     });
   });
 
+  // Garante que remover delega a exclusão ao repositório pelo id.
   it("deletes an aggressor", async () => {
     aggressorRepository.delete.mockResolvedValue(undefined);
 

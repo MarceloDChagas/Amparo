@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# manual verification artifacts (ad-hoc scripts/screenshots, not part of the suite)
+verify-*.mjs
+verify-*.png
+
 # next.js
 /.next/
 /out/

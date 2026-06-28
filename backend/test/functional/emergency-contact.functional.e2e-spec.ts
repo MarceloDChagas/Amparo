@@ -11,6 +11,7 @@ import { UpdateEmergencyContactUseCase } from "@/core/use-cases/emergency-contac
 import { EmergencyContactController } from "@/infra/http/controllers/emergency-contact.controller";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
+// Valida a camada HTTP de contatos de emergência (use cases mockados): erro de limite e mascaramento.
 describe("EmergencyContactController (functional)", () => {
   let app: INestApplication;
 
@@ -70,6 +71,7 @@ describe("EmergencyContactController (functional)", () => {
     await app.close();
   });
 
+  // Garante que o erro de limite de contatos é mapeado para 400 com a mensagem ao usuário.
   it("POST /emergency-contacts returns 400 when limit is exceeded", async () => {
     createEmergencyContactUseCaseMock.execute.mockRejectedValue(
       new EmergencyContactLimitExceededError(),
@@ -91,6 +93,7 @@ describe("EmergencyContactController (functional)", () => {
     );
   });
 
+  // Garante que a listagem aplica mascaramento de telefone e e-mail na resposta HTTP.
   it("GET /emergency-contacts applies phone and email masking", async () => {
     const createdAt = new Date("2026-01-01T00:00:00.000Z");
     const updatedAt = new Date("2026-01-02T00:00:00.000Z");

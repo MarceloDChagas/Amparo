@@ -5,9 +5,9 @@ import {
   CheckInRepository,
 } from "@/core/domain/repositories/check-in-repository";
 import { ActiveCheckInAlreadyExistsError } from "@/core/errors/check-in.errors";
-
 import { StartCheckInUseCase } from "@/core/use-cases/start-check-in.use-case";
 
+// Valida o início de um check-in (criação com status ACTIVE e bloqueio de duplicidade).
 describe("StartCheckInUseCase", () => {
   let useCase: StartCheckInUseCase;
   let checkInRepositoryMock: jest.Mocked<CheckInRepository>;
@@ -36,6 +36,7 @@ describe("StartCheckInUseCase", () => {
     );
   });
 
+  // Garante que cria o check-in com as coordenadas e status ACTIVE e registra auditoria.
   it("should start a check-in successfully with coordinates", async () => {
     checkInRepositoryMock.findActiveByUserId.mockResolvedValue(null);
     checkInRepositoryMock.create.mockResolvedValue({
@@ -70,6 +71,7 @@ describe("StartCheckInUseCase", () => {
     expect(auditLoggerMock.log).toHaveBeenCalled();
   });
 
+  // Garante que não é possível iniciar um novo check-in se já existe um ACTIVE.
   it("should throw ActiveCheckInAlreadyExistsError if user already has an ACTIVE check-in", async () => {
     checkInRepositoryMock.findActiveByUserId.mockResolvedValue(
       {} as CheckInRecord,

@@ -4,6 +4,23 @@ import { Occurrence } from "@/core/domain/entities/occurrence.entity";
 import { CreateOccurrenceUseCase } from "@/core/use-cases/occurrence/create-occurrence.use-case";
 import { GetOccurrenceUseCase } from "@/core/use-cases/occurrence/get-occurrence.use-case";
 
+// Drains the microtask queue until `predicate` holds, so tests wait for the
+// fire-and-forget side effects deterministically — regardless of how deep the
+// promise chain that logs the error is — instead of guessing how many
+// `await Promise.resolve()` ticks are needed.
+const flushUntil = async (
+  predicate: () => boolean,
+  ticks = 50,
+): Promise<void> => {
+  for (let i = 0; i < ticks && !predicate(); i++) {
+    await Promise.resolve();
+  }
+};
+
+const errorMock = () => Logger.prototype.error as jest.Mock;
+const wasLogged = (fragment: string) =>
+  errorMock().mock.calls.some((call) => String(call[0]).includes(fragment));
+
 describe("Occurrence use cases", () => {
   const occurrenceRepository = {
     create: jest.fn(),
@@ -39,6 +56,7 @@ describe("Occurrence use cases", () => {
     jest.restoreAllMocks();
   });
 
+  // Garante que cria a ocorrência e dispara os efeitos colaterais (heat map e notificação).
   it("creates an occurrence and starts async side effects", async () => {
     occurrenceRepository.create.mockResolvedValue(occurrence);
     heatMapRepository.upsertFromOccurrence.mockResolvedValue(undefined);
@@ -54,8 +72,8 @@ describe("Occurrence use cases", () => {
       heatMapRepository as never,
     ).execute(occurrence);
 
-    await Promise.resolve();
-
+    // The side-effect calls are dispatched synchronously inside execute(),
+    // so they are observable immediately after it resolves.
     expect(result).toEqual(occurrence);
     expect(occurrenceRepository.create).toHaveBeenCalledWith(occurrence);
     expect(heatMapRepository.upsertFromOccurrence).toHaveBeenCalledWith(
@@ -67,6 +85,7 @@ describe("Occurrence use cases", () => {
     );
   });
 
+  // Garante que falha no heat map não derruba a criação (erro é apenas logado).
   it("does not fail creation when heat map update rejects", async () => {
     occurrenceRepository.create.mockResolvedValue(occurrence);
     heatMapRepository.upsertFromOccurrence.mockRejectedValue(
@@ -85,13 +104,14 @@ describe("Occurrence use cases", () => {
         heatMapRepository as never,
       ).execute(occurrence),
     ).resolves.toEqual(occurrence);
-    await Promise.resolve();
+    await flushUntil(() => wasLogged("Falha ao atualizar heat map"));
 
     expect(Logger.prototype.error).toHaveBeenCalledWith(
       expect.stringContaining("Falha ao atualizar heat map"),
     );
   });
 
+  // Garante que falha no envio de notificações é logada sem rejeitar a criação.
   it("logs async notification failures without rejecting creation", async () => {
     occurrenceRepository.create.mockResolvedValue(occurrence);
     heatMapRepository.upsertFromOccurrence.mockResolvedValue(undefined);
@@ -106,8 +126,7 @@ describe("Occurrence use cases", () => {
         heatMapRepository as never,
       ).execute(occurrence),
     ).resolves.toEqual(occurrence);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushUntil(() => wasLogged("Failed to send emergency notifications"));
 
     expect(Logger.prototype.error).toHaveBeenCalledWith(
       expect.stringContaining("Failed to send emergency notifications"),
@@ -115,6 +134,7 @@ describe("Occurrence use cases", () => {
     );
   });
 
+  // Garante que a listagem retorna todas as ocorrências.
   it("returns all occurrences", async () => {
     occurrenceRepository.findAll.mockResolvedValue([occurrence]);
 
