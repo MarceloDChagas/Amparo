@@ -131,21 +131,23 @@
 [data-surface="victim"] {
   --background:          #f7f0fa;
   --foreground:          #2d1a24;
-  --card:                rgba(255, 255, 255, 0.9);
+  --card:                rgba(255, 255, 255, 0.92);
   --card-foreground:     #2d1a24;
   --popover:             #ffffff;
   --popover-foreground:  #2d1a24;
   /* Salmão/terracota — ações normais (não emergência) */
   --primary:             #b85d47;
   --primary-foreground:  #ffffff;
-  --secondary:           rgba(255, 255, 255, 0.82);
+  --secondary:           rgba(255, 255, 255, 0.88);
   --secondary-foreground:#2d1a24;
-  --muted:               rgba(168, 130, 149, 0.2);
-  --muted-foreground:    #4f2f3e;
+  /* muted-foreground mais escuro para garantir contraste WCAG AA (≥4.5:1)
+   * contra o fundo lavanda/pêssego (#faf3fc → #f6ece5). */
+  --muted:               rgba(168, 130, 149, 0.18);
+  --muted-foreground:    #4a2535;
   --accent:              #4d8a74;
   --accent-foreground:   #ffffff;
-  --border:              rgba(132, 93, 113, 0.35);
-  --input:               rgba(132, 93, 113, 0.4);
+  --border:              rgba(132, 93, 113, 0.40);
+  --input:               rgba(132, 93, 113, 0.45);
   --ring:                rgba(184, 93, 71, 0.5);
 }
 
@@ -295,6 +297,20 @@
   0%, 100% { border-radius: 42% 58% 55% 45% / 58% 42% 62% 38%; }
   40%       { border-radius: 55% 45% 42% 58% / 45% 55% 42% 58%; }
   70%       { border-radius: 48% 52% 60% 40% / 62% 38% 48% 52%; }
+}
+
+/* Leaflet — previne que o preflight do Tailwind (max-width:100%; display:block)
+ * quebre o carregamento dos tiles do mapa.
+ * img.leaflet-tile tem dimensões fixas em pixels; max-width:100% as colapsa. */
+.leaflet-container img.leaflet-tile,
+.leaflet-container img {
+  max-width: none !important;
+  max-height: none !important;
+  display: inline !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* ⑳ — Wordmark canônico: única fonte de verdade para a marca "amparo".

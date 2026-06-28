@@ -63,6 +63,21 @@ function StatusBadge({ status }: { status: AlertStatusType }) {
       color: "var(--muted-foreground)",
       border: "var(--border)",
     },
+    ACTIVE: {
+      label: "Ativo",
+      icon: <AlertTriangle size={11} aria-hidden="true" />,
+      bg: "color-mix(in srgb, var(--destructive) 12%, transparent)",
+      color: "var(--destructive)",
+      border: "color-mix(in srgb, var(--destructive) 35%, transparent)",
+      pulse: true,
+    },
+    RESOLVED: {
+      label: "Resolvido",
+      icon: <CheckCircle2 size={11} aria-hidden="true" />,
+      bg: "#16a34a18",
+      color: "#16a34a",
+      border: "#16a34a40",
+    },
   };
 
   const c = config[s] ?? config.PENDING;
@@ -118,6 +133,9 @@ export default function AlertsPage() {
     };
 
     void loadAlerts();
+    // Poll so newly triggered alerts appear without a manual reload.
+    const interval = setInterval(() => void loadAlerts(), 10_000);
+    return () => clearInterval(interval);
   }, []);
 
   const filteredAlerts = useMemo(() => {
@@ -337,8 +355,15 @@ export default function AlertsPage() {
                             className="text-muted-foreground shrink-0"
                           />
                           <span className="truncate">
-                            {alert.address ||
-                              `${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}`}
+                            {(() => {
+                              const isRealAddr =
+                                alert.address?.trim() &&
+                                !alert.address.startsWith("ALERTA");
+                              if (isRealAddr) return alert.address;
+                              if (alert.latitude !== 0 || alert.longitude !== 0)
+                                return `${alert.latitude.toFixed(4)}, ${alert.longitude.toFixed(4)}`;
+                              return "Localização não capturada";
+                            })()}
                           </span>
                         </span>
                       </td>
