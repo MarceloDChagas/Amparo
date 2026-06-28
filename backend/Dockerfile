@@ -26,10 +26,12 @@ COPY --from=builder /app/scripts ./scripts
 RUN npm ci --only=production --ignore-scripts
 RUN npm install -g prisma@7.4.0
 RUN npx prisma generate
+RUN sed -i 's/\r$//' ./scripts/docker-start.sh || true
 RUN chmod +x ./scripts/docker-start.sh
 
+RUN apk add --no-cache bash
 USER node
 
 EXPOSE 3000
 
-CMD ["sh", "./scripts/docker-start.sh"]
+CMD ["bash", "./scripts/docker-start.sh"]
