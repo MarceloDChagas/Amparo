@@ -3,10 +3,18 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { useCreateEmergencyAlert } from "@/hooks/use-emergency-alert";
+import {
+  getBestPosition,
+  PositionResult,
+  watchBestPosition,
+} from "@/lib/geolocation";
 import { useAuth } from "@/presentation/hooks/useAuth";
 
 const HOLD_DURATION = 2000;
 const TICK_INTERVAL = 20;
+// A pre-warmed fix this tight is good enough to dispatch instantly; otherwise we
+// spend a short, stall-bounded budget converging toward the 5 m target.
+const EMERGENCY_FAST_FIX_M = 15;
 
 export function EmergencyButton() {
   const { user } = useAuth();
@@ -14,12 +22,27 @@ export function EmergencyButton() {
   const [progress, setProgress] = useState(0);
   const [earlyRelease, setEarlyRelease] = useState(false);
   // ⑨ — rastreia se o alerta foi enviado sem coordenada válida
+  const [isHovered, setIsHovered] = useState(false);
   const [geoFailed, setGeoFailed] = useState(false);
   const [locationDescription, setLocationDescription] = useState("");
   const [locationSubmitted, setLocationSubmitted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const earlyReleaseTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Pre-warm GPS while the tab is open so a filtered, precise fix is ready the
+  // instant the button is triggered. The Kalman filter inside watchBestPosition
+  // fuses the stream of fixes, so livePositionRef converges toward a few metres.
+  const livePositionRef = useRef<PositionResult | null>(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handle = watchBestPosition((pos) => {
+      livePositionRef.current = pos;
+      setGpsAccuracy(Math.round(pos.accuracy));
+    });
+    return () => handle.stop();
+  }, []);
 
   const {
     mutate: createAlert,
@@ -33,24 +56,30 @@ export function EmergencyButton() {
       return;
     }
 
-    if (!navigator.geolocation) {
-      toast.error("Geolocalização não suportada pelo seu navegador.");
+    const send = (lat: number, lng: number) =>
+      createAlert({ latitude: lat, longitude: lng, userId: user.id });
+
+    // If the pre-warm already converged to a tight fix, dispatch immediately.
+    const live = livePositionRef.current;
+    if (live && live.accuracy <= EMERGENCY_FAST_FIX_M) {
+      send(live.latitude, live.longitude);
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        createAlert({ latitude, longitude, userId: user.id });
-      },
-      (error) => {
-        console.error("Erro ao obter localização:", error);
-        // NRF05 — fallback: alerta enviado sem coordenada; ⑨ — sinalizar para pedir localização manual
-        setGeoFailed(true);
-        createAlert({ latitude: 0, longitude: 0, userId: user.id });
-      },
-      { timeout: 8000, maximumAge: 10000, enableHighAccuracy: true },
-    );
+    // Otherwise spend a short, stall-bounded budget improving the fix, always
+    // falling back to the pre-warmed position so we never lose a usable fix.
+    getBestPosition(5, 8_000)
+      .then((pos) => send(pos.latitude, pos.longitude))
+      .catch(() => {
+        // NRF05 — fallback: usa a última posição conhecida; só então desiste.
+        if (livePositionRef.current) {
+          const { latitude, longitude } = livePositionRef.current;
+          send(latitude, longitude);
+        } else {
+          setGeoFailed(true);
+          send(0, 0);
+        }
+      });
   }, [user, createAlert]);
 
   const handlePressEnd = useCallback(() => {
@@ -135,9 +164,38 @@ export function EmergencyButton() {
 
   return (
     <div className="flex flex-col items-center">
+      {/* Rótulo acima do botão para deixar claro que é acionável */}
+      {!isSuccess && !isPending && !isPressing && (
+        <p
+          className="mb-1 text-xs font-bold tracking-widest uppercase text-center"
+          style={{ color: "rgba(180,40,40,0.75)", letterSpacing: "0.12em" }}
+          aria-hidden="true"
+        >
+          Botão de Emergência
+        </p>
+      )}
+      {/* GPS accuracy indicator — visible while idle */}
+      {!isSuccess && !isPending && !isPressing && gpsAccuracy !== null && (
+        <p
+          className="mb-2 text-[10px] font-medium text-center"
+          style={{
+            color:
+              gpsAccuracy <= 5
+                ? "rgba(22,163,74,0.85)"
+                : gpsAccuracy <= 20
+                  ? "rgba(202,138,4,0.85)"
+                  : "rgba(220,38,38,0.70)",
+          }}
+          aria-label={`Precisão do GPS: ${gpsAccuracy} metros`}
+        >
+          GPS ±{gpsAccuracy}m
+        </p>
+      )}
       <div
         className="relative mb-2 flex items-center justify-center"
         style={{ width: `${CONTAINER}px`, height: `${CONTAINER}px` }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* NRF10 — role="progressbar" comunica o progresso do hold para leitores de tela */}
         <svg
@@ -179,7 +237,7 @@ export function EmergencyButton() {
 
         <div
           aria-hidden="true"
-          className={`absolute transition-all duration-300 ${!isPressing && !isPending ? "emergency-blob-idle" : ""}`}
+          className={`absolute transition-all duration-300 ${isHovered && !isPressing && !isPending ? "emergency-blob-idle" : ""}`}
           style={{
             width: "220px",
             height: "220px",
@@ -218,9 +276,12 @@ export function EmergencyButton() {
             transform: `translate(-50%, -50%) ${isPressing ? "scale(0.93)" : "scale(1)"}`,
             borderRadius: blobShape,
             backgroundColor: innerBg,
+            border: isSuccess
+              ? "3px solid rgba(22,163,74,0.7)"
+              : "3px solid rgba(255,255,255,0.55)",
             boxShadow: isPressing
-              ? "0 0 32px rgba(192, 57, 43, 0.6)"
-              : "0 6px 24px rgba(220, 38, 38, 0.40)",
+              ? "0 0 32px rgba(192, 57, 43, 0.6), 0 0 0 6px rgba(220,38,38,0.18)"
+              : "0 6px 24px rgba(220, 38, 38, 0.45), 0 0 0 4px rgba(220,38,38,0.12)",
             transition:
               "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease",
             cursor: isPending ? "not-allowed" : "pointer",
@@ -278,10 +339,10 @@ export function EmergencyButton() {
       {/* ⑪ — hint idle: visível antes do primeiro toque, some ao pressionar */}
       {!isPressing && !isPending && !isSuccess && (
         <p
-          className="text-xs font-medium text-center"
-          style={{ color: "rgba(90, 53, 69, 0.65)" }}
+          className="text-sm font-semibold text-center"
+          style={{ color: "rgba(160, 40, 40, 0.85)" }}
         >
-          Toque e segure para acionar
+          Toque e segure por 2s para acionar
         </p>
       )}
 

@@ -67,10 +67,10 @@ export function InstructionalCard() {
 
       <p
         className="text-xs leading-snug"
-        style={{ color: "rgba(90,53,69,0.7)", fontWeight: 500 }}
+        style={{ color: "#4a2535", fontWeight: 500 }}
       >
         Mantenha pressionado por{" "}
-        <span style={{ color: "#c4705a", fontWeight: 650 }}>2 segundos</span>{" "}
+        <span style={{ color: "#b85d47", fontWeight: 700 }}>2 segundos</span>{" "}
         para acionar o alerta
       </p>
     </div>
