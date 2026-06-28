@@ -15,6 +15,7 @@ import {
   useGetActiveCheckIn,
   useStartCheckIn,
 } from "@/hooks/use-check-in";
+import { getBestPosition } from "@/lib/geolocation";
 import {
   CheckInSchedule,
   checkInService,
@@ -51,6 +52,8 @@ export function CheckInTab() {
   const { data: activeCheckIn, isLoading } = useGetActiveCheckIn();
   const startCheckIn = useStartCheckIn();
   const completeCheckIn = useCompleteCheckIn();
+  const [gettingLocationStart, setGettingLocationStart] = useState(false);
+  const [gettingLocationComplete, setGettingLocationComplete] = useState(false);
 
   const handleStart = () => {
     const go = (lat?: number, lng?: number) =>
@@ -60,30 +63,22 @@ export function CheckInTab() {
         startLongitude: lng,
       });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => go(p.coords.latitude, p.coords.longitude),
-        () => go(),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
-      );
-    } else {
-      go();
-    }
+    setGettingLocationStart(true);
+    getBestPosition(5, 15_000)
+      .then((pos) => go(pos.latitude, pos.longitude))
+      .catch(() => go())
+      .finally(() => setGettingLocationStart(false));
   };
 
   const handleComplete = () => {
     const done = (lat?: number, lng?: number) =>
       completeCheckIn.mutate({ finalLatitude: lat, finalLongitude: lng });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => done(p.coords.latitude, p.coords.longitude),
-        () => done(),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
-      );
-    } else {
-      done();
-    }
+    setGettingLocationComplete(true);
+    getBestPosition(5, 15_000)
+      .then((pos) => done(pos.latitude, pos.longitude))
+      .catch(() => done())
+      .finally(() => setGettingLocationComplete(false));
   };
 
   // ── check-in inteligente (AM-154) ─────────────────────────────────────────
@@ -102,17 +97,18 @@ export function CheckInTab() {
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
 
+  const [gettingLocationCapture, setGettingLocationCapture] = useState(false);
+
   // Obter localização atual para destino
   const captureLocation = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setUserLat(p.coords.latitude);
-        setUserLng(p.coords.longitude);
-      },
-      () => {},
-      { enableHighAccuracy: true, timeout: 5000 },
-    );
+    setGettingLocationCapture(true);
+    getBestPosition(5, 15_000)
+      .then((pos) => {
+        setUserLat(pos.latitude);
+        setUserLng(pos.longitude);
+      })
+      .catch(() => {})
+      .finally(() => setGettingLocationCapture(false));
   };
 
   useEffect(() => {
@@ -214,9 +210,9 @@ export function CheckInTab() {
             onClick={() => setSubTab(t)}
             className="flex-1 pb-2.5 text-sm font-semibold transition-colors text-center"
             style={{
-              color: subTab === t ? "#5a9e8a" : "rgba(90,53,69,0.42)",
+              color: subTab === t ? "#2e7d62" : "#5a3545",
               borderBottom:
-                subTab === t ? "2px solid #5a9e8a" : "2px solid transparent",
+                subTab === t ? "2px solid #2e7d62" : "2px solid transparent",
               marginBottom: "-1px",
               letterSpacing: "0.01em",
             }}
@@ -240,13 +236,15 @@ export function CheckInTab() {
                 selectedDistance={selectedDistance}
                 setSelectedDistance={setSelectedDistance}
                 onStart={handleStart}
-                isPending={startCheckIn.isPending}
+                isPending={startCheckIn.isPending || gettingLocationStart}
+                gettingLocation={gettingLocationStart}
               />
             ) : (
               <CheckInActive
                 expectedArrivalTime={activeCheckIn.expectedArrivalTime}
                 onComplete={handleComplete}
-                isPending={completeCheckIn.isPending}
+                isPending={completeCheckIn.isPending || gettingLocationComplete}
+                gettingLocation={gettingLocationComplete}
               />
             )}
             <CheckInInstructionalCard />
@@ -415,6 +413,7 @@ export function CheckInTab() {
                     {/* Localização capturada */}
                     <button
                       onClick={captureLocation}
+                      disabled={gettingLocationCapture}
                       className="w-full flex items-center gap-2 justify-center py-2 rounded-xl text-xs transition-all"
                       style={{
                         backgroundColor:
@@ -424,12 +423,19 @@ export function CheckInTab() {
                         color:
                           userLat !== null ? "#5a9e8a" : "rgba(90,53,69,0.5)",
                         border: `1px solid ${userLat !== null ? "rgba(90,158,138,0.30)" : "rgba(180,140,160,0.25)"}`,
+                        opacity: gettingLocationCapture ? 0.7 : 1,
                       }}
                     >
-                      <MapPin className="h-3 w-3" />
-                      {userLat !== null
-                        ? `Localização capturada (${userLat.toFixed(4)}, ${userLng?.toFixed(4)})`
-                        : "Capturar localização atual"}
+                      {gettingLocationCapture ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <MapPin className="h-3 w-3" />
+                      )}
+                      {gettingLocationCapture
+                        ? "Obtendo localização precisa…"
+                        : userLat !== null
+                          ? `Localização capturada (${userLat.toFixed(4)}, ${userLng?.toFixed(4)})`
+                          : "Capturar localização atual"}
                     </button>
 
                     <button

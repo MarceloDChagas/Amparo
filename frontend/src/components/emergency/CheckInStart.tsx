@@ -22,6 +22,7 @@ interface CheckInStartProps {
   setSelectedDistance: (val: DistanceType) => void;
   onStart: () => void;
   isPending: boolean;
+  gettingLocation?: boolean;
 }
 
 export function CheckInStart({
@@ -29,6 +30,7 @@ export function CheckInStart({
   setSelectedDistance,
   onStart,
   isPending,
+  gettingLocation = false,
 }: CheckInStartProps) {
   // Identidade teal — diferencia visualmente da tela de Emergência (violeta)
   // Teal semântico: navegação, rota, movimento seguro (não conflita com verde/âmbar/vermelho do countdown)
@@ -85,7 +87,11 @@ export function CheckInStart({
           onClick={onStart}
           disabled={isPending}
           aria-label={
-            isPending ? "Iniciando trajeto seguro" : "Iniciar trajeto seguro"
+            gettingLocation
+              ? "Obtendo localização precisa"
+              : isPending
+                ? "Iniciando trajeto seguro"
+                : "Iniciar trajeto seguro"
           }
           className="absolute z-20 flex flex-col items-center justify-center transition-all duration-300 active:scale-95 select-none"
           style={{
@@ -104,7 +110,11 @@ export function CheckInStart({
             className="text-sm font-bold leading-tight text-center px-3 text-white tracking-wide"
             style={{ whiteSpace: "pre-line" }}
           >
-            {isPending ? "INICIANDO..." : "INICIAR\nTRAJETO"}
+            {gettingLocation
+              ? "GPS..."
+              : isPending
+                ? "INICIANDO..."
+                : "INICIAR\nTRAJETO"}
           </span>
         </button>
       </div>
@@ -112,7 +122,7 @@ export function CheckInStart({
       <div className="mt-6 text-center w-full z-30">
         <Label
           className="text-sm font-medium block mb-2"
-          style={{ color: "rgba(90,53,69,0.7)" }}
+          style={{ color: "#4a2535" }}
         >
           Tempo de deslocamento
         </Label>

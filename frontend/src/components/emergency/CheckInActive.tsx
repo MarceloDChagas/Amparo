@@ -17,6 +17,7 @@ interface CheckInActiveProps {
   expectedArrivalTime: Date | string;
   onComplete: () => void;
   isPending: boolean;
+  gettingLocation?: boolean;
 }
 
 type CheckInPhase = "ACTIVE" | "WARNING" | "OVERDUE";
@@ -94,6 +95,7 @@ export function CheckInActive({
   expectedArrivalTime,
   onComplete,
   isPending,
+  gettingLocation = false,
 }: CheckInActiveProps) {
   const { phase, formatted, isOverdue } =
     useCheckInCountdown(expectedArrivalTime);
@@ -189,7 +191,13 @@ export function CheckInActive({
           <button
             onClick={onComplete}
             disabled={isPending}
-            aria-label={isPending ? "Finalizando trajeto" : config.ariaLabel}
+            aria-label={
+              gettingLocation
+                ? "Obtendo localização precisa"
+                : isPending
+                  ? "Finalizando trajeto"
+                  : config.ariaLabel
+            }
             className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
             style={{
               backgroundColor: isPending
@@ -204,7 +212,11 @@ export function CheckInActive({
               className="text-xl font-bold leading-tight text-center transition-colors duration-700 px-4"
               style={{ color: config.textColor }}
             >
-              {isPending ? "FINALIZANDO..." : config.label}
+              {gettingLocation
+                ? "GPS..."
+                : isPending
+                  ? "FINALIZANDO..."
+                  : config.label}
             </span>
           </button>
         </div>

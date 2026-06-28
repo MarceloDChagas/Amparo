@@ -75,13 +75,13 @@ export function ActionButtons() {
               <div className="flex-1 text-left min-w-0">
                 <div
                   className="text-sm leading-tight"
-                  style={{ fontWeight: 600, color: "#3a2530" }}
+                  style={{ fontWeight: 600, color: "#2d1a24" }}
                 >
                   {label}
                 </div>
                 <div
                   className="text-xs leading-tight mt-0.5"
-                  style={{ color: "rgba(90,53,69,0.55)" }}
+                  style={{ color: "#5a3545" }}
                 >
                   {description}
                 </div>
