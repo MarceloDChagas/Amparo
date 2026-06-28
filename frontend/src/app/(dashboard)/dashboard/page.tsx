@@ -124,16 +124,26 @@ export default function DashboardPage() {
       }
     }
 
-    async function refreshActivity() {
+    // Poll the safety-critical live data so a new emergency alert surfaces for
+    // the operator within seconds, without needing a manual page reload.
+    async function refreshLive() {
       try {
-        setActivities(await auditLogService.getRecent());
+        const [recentLogs, alert, checkIns] = await Promise.all([
+          auditLogService.getRecent(),
+          emergencyAlertService.getActive(),
+          checkInService.getAllActive(),
+        ]);
+        setActivities(recentLogs);
+        setActiveAlert(alert);
+        setActiveCheckIns(checkIns);
+        setCurrentTime(Date.now());
       } catch {
         // silently ignore — não travar o dashboard por falha de polling
       }
     }
 
     loadData();
-    const interval = setInterval(refreshActivity, 15_000);
+    const interval = setInterval(refreshLive, 10_000);
     return () => clearInterval(interval);
   }, []);
 

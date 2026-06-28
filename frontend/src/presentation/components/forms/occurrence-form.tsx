@@ -36,14 +36,20 @@ import { useGetUsers } from "@/data/hooks/use-get-users";
 import { EmergencyAlert } from "@/services/emergency-alert-service";
 
 const formSchema = z.object({
-  description: z.string().min(1, "Description is required."),
+  description: z.string().min(1, "Descrição é obrigatória."),
   latitude: z
     .string()
-    .refine((val) => !isNaN(Number(val)), "Latitude must be a valid number."),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) !== 0,
+      "Latitude inválida — informe uma coordenada real.",
+    ),
   longitude: z
     .string()
-    .refine((val) => !isNaN(Number(val)), "Longitude must be a valid number."),
-  userId: z.string().uuid("Please select a user."),
+    .refine(
+      (val) => !isNaN(Number(val)) && Number(val) !== 0,
+      "Longitude inválida — informe uma coordenada real.",
+    ),
+  userId: z.string().uuid("Selecione um usuário."),
   aggressorId: z.string().optional(),
 });
 
@@ -108,12 +114,9 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Describe what happened..."
-                      {...field}
-                    />
+                    <Textarea placeholder="Descreva o ocorrido..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +131,16 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
                   <FormItem>
                     <FormLabel>Latitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" disabled {...field} />
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="-8.3323"
+                        readOnly={!!selectedAlert}
+                        className={
+                          selectedAlert ? "bg-muted cursor-default" : ""
+                        }
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,7 +153,16 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
                   <FormItem>
                     <FormLabel>Longitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" disabled {...field} />
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="-36.4215"
+                        readOnly={!!selectedAlert}
+                        className={
+                          selectedAlert ? "bg-muted cursor-default" : ""
+                        }
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,20 +175,20 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
               name="userId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User</FormLabel>
+                  <FormLabel>Usuário</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a user" />
+                        <SelectValue placeholder="Selecione um usuário" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {isLoadingUsers ? (
                         <SelectItem value="loading" disabled>
-                          Loading...
+                          Carregando...
                         </SelectItem>
                       ) : (
                         users?.map((user) => (
@@ -188,14 +209,14 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
               name="aggressorId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aggressor</FormLabel>
+                  <FormLabel>Agressor</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an aggressor" />
+                        <SelectValue placeholder="Selecione um agressor" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -204,7 +225,7 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
                       </SelectItem>
                       {isLoadingAggressors ? (
                         <SelectItem value="loading" disabled>
-                          Loading...
+                          Carregando...
                         </SelectItem>
                       ) : (
                         aggressors?.map((aggressor) => (
@@ -221,7 +242,7 @@ export function OccurrenceForm({ selectedAlert }: OccurrenceFormProps) {
             />
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Registering..." : "Register Occurrence"}
+              {isPending ? "Registrando..." : "Registrar Ocorrência"}
             </Button>
           </form>
         </Form>
