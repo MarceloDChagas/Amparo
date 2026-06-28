@@ -196,8 +196,6 @@ export class OverdueCheckInCron {
       userId,
       latitude: 0,
       longitude: 0,
-      address:
-        "ALERTA CRÍTICO: Usuário não confirmou chegada há 45+ minutos e não respondeu às notificações.",
     });
     this.logger.warn(
       `Alerta crítico criado no dashboard para o usuário ${userId} (45min sem confirmação)`,
