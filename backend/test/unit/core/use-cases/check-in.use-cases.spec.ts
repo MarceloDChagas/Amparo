@@ -5,6 +5,7 @@ import { GetAllActiveCheckInsUseCase } from "@/core/use-cases/get-all-active-che
 import { GetCheckInByIdUseCase } from "@/core/use-cases/get-check-in-by-id.use-case";
 import { GetLateCheckInsUseCase } from "@/core/use-cases/get-late-check-ins.use-case";
 
+// Valida os casos de uso de leitura/fechamento de check-in (fechar, ativos, detalhes, atrasados).
 describe("Check-in use-cases (unit)", () => {
   const checkInRepositoryMock = {
     findById: jest.fn(),
@@ -20,6 +21,7 @@ describe("Check-in use-cases (unit)", () => {
   });
 
   describe("CloseCheckInUseCase", () => {
+    // Garante que fechar um check-in inexistente lança erro e não chama closeByAdmin.
     it("throws when check-in does not exist", async () => {
       const useCase = new CloseCheckInUseCase(checkInRepositoryMock as never);
       checkInRepositoryMock.findById.mockResolvedValue(null);
@@ -30,6 +32,7 @@ describe("Check-in use-cases (unit)", () => {
       expect(checkInRepositoryMock.closeByAdmin).not.toHaveBeenCalled();
     });
 
+    // Garante que fecha o check-in pelo admin quando ele existe.
     it("closes check-in when found", async () => {
       const useCase = new CloseCheckInUseCase(checkInRepositoryMock as never);
       const closed = { id: "check-in-1", status: "CANCELLED" };
@@ -45,8 +48,11 @@ describe("Check-in use-cases (unit)", () => {
   });
 
   describe("GetActiveCheckInUseCase", () => {
+    // Garante que retorna o check-in ativo do usuário.
     it("returns active check-in by user", async () => {
-      const useCase = new GetActiveCheckInUseCase(checkInRepositoryMock as never);
+      const useCase = new GetActiveCheckInUseCase(
+        checkInRepositoryMock as never,
+      );
       const active = { id: "active-1", userId: "user-1", status: "ACTIVE" };
 
       checkInRepositoryMock.findActiveByUserId.mockResolvedValue(active);
@@ -59,6 +65,7 @@ describe("Check-in use-cases (unit)", () => {
   });
 
   describe("GetAllActiveCheckInsUseCase", () => {
+    // Garante que lista todos os check-ins ativos.
     it("returns all active check-ins", async () => {
       const useCase = new GetAllActiveCheckInsUseCase(
         checkInRepositoryMock as never,
@@ -73,6 +80,7 @@ describe("Check-in use-cases (unit)", () => {
   });
 
   describe("GetCheckInByIdUseCase", () => {
+    // Garante que lança erro quando os detalhes do check-in não existem.
     it("throws when check-in details are missing", async () => {
       const useCase = new GetCheckInByIdUseCase(checkInRepositoryMock as never);
       checkInRepositoryMock.findDetailedById.mockResolvedValue(null);
@@ -82,6 +90,7 @@ describe("Check-in use-cases (unit)", () => {
       );
     });
 
+    // Garante que retorna os detalhes do check-in quando encontrado.
     it("returns check-in details when found", async () => {
       const useCase = new GetCheckInByIdUseCase(checkInRepositoryMock as never);
       const details = {
@@ -100,8 +109,11 @@ describe("Check-in use-cases (unit)", () => {
   });
 
   describe("GetLateCheckInsUseCase", () => {
+    // Garante que lista todos os check-ins atrasados.
     it("returns all late check-ins", async () => {
-      const useCase = new GetLateCheckInsUseCase(checkInRepositoryMock as never);
+      const useCase = new GetLateCheckInsUseCase(
+        checkInRepositoryMock as never,
+      );
       const late = [{ id: "late-1" }, { id: "late-2" }];
 
       checkInRepositoryMock.findAllLate.mockResolvedValue(late);
