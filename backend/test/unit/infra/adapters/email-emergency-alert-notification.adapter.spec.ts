@@ -1,10 +1,14 @@
 import { Logger } from "@nestjs/common";
 
 import { EmergencyAlert } from "@/core/domain/entities/emergency-alert";
+import {
+  AlertEventType,
+  EventSource,
+} from "@/core/domain/enums/alert-event.enum";
 import { AlertStatus } from "@/core/domain/enums/alert-status.enum";
-import { AlertEventType, EventSource } from "@/core/domain/enums/alert-event.enum";
 import { EmailEmergencyAlertNotificationAdapter } from "@/infra/adapters/email-emergency-alert-notification.adapter";
 
+// Valida o adapter que notifica contatos por e-mail ao disparar um alerta de emergência.
 describe("EmailEmergencyAlertNotificationAdapter", () => {
   const emergencyContactRepository = {
     findByUserId: jest.fn(),
@@ -55,6 +59,7 @@ describe("EmailEmergencyAlertNotificationAdapter", () => {
     jest.restoreAllMocks();
   });
 
+  // Garante que alerta anônimo (sem usuário) não busca contatos nem envia e-mail.
   it("does nothing for anonymous alerts", async () => {
     await makeAdapter().notify(
       new EmergencyAlert(
@@ -69,6 +74,7 @@ describe("EmailEmergencyAlertNotificationAdapter", () => {
     expect(emergencyContactRepository.findByUserId).not.toHaveBeenCalled();
   });
 
+  // Garante que sem contatos cadastrados nada é enviado.
   it("does nothing when user has no emergency contacts", async () => {
     emergencyContactRepository.findByUserId.mockResolvedValue([]);
 
@@ -78,6 +84,7 @@ describe("EmailEmergencyAlertNotificationAdapter", () => {
     expect(emailService.sendEmergencyNotification).not.toHaveBeenCalled();
   });
 
+  // Garante que envia só a contatos com e-mail, registra log de sucesso e o evento do alerta.
   it("sends email only to contacts with email and records success", async () => {
     emergencyContactRepository.findByUserId.mockResolvedValue([
       { name: "Contato 1", email: "contact1@example.com" },
@@ -125,6 +132,7 @@ describe("EmailEmergencyAlertNotificationAdapter", () => {
     });
   });
 
+  // Garante que erros do repositório são logados e engolidos (notify não rejeita).
   it("logs and swallows repository errors", async () => {
     emergencyContactRepository.findByUserId.mockRejectedValue(
       new Error("database unavailable"),

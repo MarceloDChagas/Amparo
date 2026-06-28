@@ -1,7 +1,7 @@
 import { UserAlreadyExistsError } from "@/core/errors/auth.errors";
-
 import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
 
+// Valida o cadastro de usuário (unicidade de e-mail/CPF, hash de senha e emissão de token).
 describe("RegisterUserUseCase", () => {
   const userRepositoryMock = {
     create: jest.fn(),
@@ -33,6 +33,7 @@ describe("RegisterUserUseCase", () => {
     );
   });
 
+  // Garante que e-mail já cadastrado bloqueia o registro antes de checar CPF/criar.
   it("should reject duplicate email", async () => {
     userRepositoryMock.findByEmail.mockResolvedValue({ id: "existing" });
 
@@ -48,6 +49,7 @@ describe("RegisterUserUseCase", () => {
     expect(userRepositoryMock.create).not.toHaveBeenCalled();
   });
 
+  // Garante que CPF já cadastrado (quando informado) bloqueia o registro.
   it("should reject duplicate cpf when provided", async () => {
     userRepositoryMock.findByEmail.mockResolvedValue(null);
     userRepositoryMock.findByCpf.mockResolvedValue({ id: "existing-cpf" });
@@ -64,6 +66,7 @@ describe("RegisterUserUseCase", () => {
     expect(userRepositoryMock.create).not.toHaveBeenCalled();
   });
 
+  // Garante o fluxo feliz: senha é hasheada, usuário é criado com papel USER e token é emitido.
   it("should hash password, create user and issue token", async () => {
     userRepositoryMock.findByEmail.mockResolvedValue(null);
     userRepositoryMock.findByCpf.mockResolvedValue(null);

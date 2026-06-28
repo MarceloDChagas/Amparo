@@ -10,6 +10,7 @@ import { LoginUseCase } from "@/core/use-cases/auth/login.use-case";
 import { RegisterUserUseCase } from "@/core/use-cases/auth/register-user.use-case";
 import { AuthController } from "@/infra/http/controllers/auth.controller";
 
+// Valida a camada HTTP de autenticação: resposta de sucesso e mapeamento de erros para status.
 describe("AuthController (integration)", () => {
   let app: INestApplication;
 
@@ -40,6 +41,7 @@ describe("AuthController (integration)", () => {
     await app.close();
   });
 
+  // Garante que login bem-sucedido retorna 200 com token e dados do usuário.
   it("POST /auth/login returns token payload", async () => {
     loginUseCaseMock.execute.mockResolvedValue({
       access_token: "jwt-token",
@@ -66,6 +68,7 @@ describe("AuthController (integration)", () => {
       });
   });
 
+  // Garante que credenciais inválidas são mapeadas para 401.
   it("POST /auth/login maps invalid credentials to 401", async () => {
     loginUseCaseMock.execute.mockRejectedValue(new InvalidCredentialsError());
 
@@ -77,6 +80,7 @@ describe("AuthController (integration)", () => {
     expect(response.body.message).toBe("Invalid credentials");
   });
 
+  // Garante que usuário duplicado no cadastro é mapeado para 400.
   it("POST /auth/register maps duplicate user to 400", async () => {
     registerUserUseCaseMock.execute.mockRejectedValue(
       new UserAlreadyExistsError("email"),

@@ -1,5 +1,6 @@
 import { authService } from "@/services/auth-service";
 
+// Valida o serviço de autenticação no frontend (login/registro e tratamento de erros da API).
 describe("authService", () => {
   const fetchMock = jest.fn();
 
@@ -12,6 +13,7 @@ describe("authService", () => {
     fetchMock.mockReset();
   });
 
+  // Garante que login bem-sucedido chama /auth/login e devolve o access_token.
   it("should login successfully", async () => {
     fetchMock.mockResolvedValue({
       ok: true,
@@ -38,6 +40,7 @@ describe("authService", () => {
     expect(result.access_token).toBe("token-123");
   });
 
+  // Garante que login com resposta de falha lança erro.
   it("should throw error when login fails", async () => {
     fetchMock.mockResolvedValue({ ok: false });
 
@@ -46,6 +49,7 @@ describe("authService", () => {
     ).rejects.toThrow("Login failed");
   });
 
+  // Garante que erro de cadastro usa a mensagem retornada pela API.
   it("should throw API message when register fails", async () => {
     fetchMock.mockResolvedValue({
       ok: false,
@@ -61,6 +65,7 @@ describe("authService", () => {
     ).rejects.toThrow("Email already registered");
   });
 
+  // Garante uma mensagem de fallback quando o corpo do erro não é JSON válido.
   it("should use fallback error when register response has no body", async () => {
     fetchMock.mockResolvedValue({
       ok: false,

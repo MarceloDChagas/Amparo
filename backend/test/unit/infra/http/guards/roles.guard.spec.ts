@@ -3,6 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { Role } from "@/core/domain/enums/role.enum";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 
+// Valida o guard de autorização por papel (RBAC).
 describe("RolesGuard", () => {
   const makeContext = (user?: { role?: string }) =>
     ({
@@ -13,26 +14,33 @@ describe("RolesGuard", () => {
       }),
     }) as never;
 
+  // Garante que rota sem metadado de papel é liberada.
   it("allows route without role metadata", () => {
     const reflector = {
       getAllAndOverride: jest.fn().mockReturnValue(undefined),
     };
 
-    expect(new RolesGuard(reflector as unknown as Reflector).canActivate(makeContext())).toBe(
-      true,
-    );
+    expect(
+      new RolesGuard(reflector as unknown as Reflector).canActivate(
+        makeContext(),
+      ),
+    ).toBe(true);
   });
 
+  // Garante que rota protegida bloqueia quando não há usuário autenticado.
   it("blocks when authenticated user is missing", () => {
     const reflector = {
       getAllAndOverride: jest.fn().mockReturnValue([Role.ADMIN]),
     };
 
-    expect(new RolesGuard(reflector as unknown as Reflector).canActivate(makeContext())).toBe(
-      false,
-    );
+    expect(
+      new RolesGuard(reflector as unknown as Reflector).canActivate(
+        makeContext(),
+      ),
+    ).toBe(false);
   });
 
+  // Garante que usuário com o papel exigido é liberado.
   it("allows user with a required role", () => {
     const reflector = {
       getAllAndOverride: jest.fn().mockReturnValue([Role.ADMIN]),
@@ -45,6 +53,7 @@ describe("RolesGuard", () => {
     ).toBe(true);
   });
 
+  // Garante que usuário sem o papel exigido é bloqueado.
   it("blocks user without a required role", () => {
     const reflector = {
       getAllAndOverride: jest.fn().mockReturnValue([Role.ADMIN]),

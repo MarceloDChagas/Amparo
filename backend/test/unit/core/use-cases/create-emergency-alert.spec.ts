@@ -2,6 +2,7 @@ import { AlertStatus } from "@/core/domain/enums/alert-status.enum";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 import { RecordAlertEventUseCase } from "@/core/use-cases/record-alert-event.use-case";
 
+// Valida a criação de um alerta de emergência (com usuário e anônimo) e seus efeitos.
 describe("CreateEmergencyAlert", () => {
   const emergencyAlertRepositoryMock = {
     create: jest.fn(),
@@ -30,6 +31,7 @@ describe("CreateEmergencyAlert", () => {
     );
   });
 
+  // Garante que alerta de usuário é persistido (status PENDING), registra evento CREATED e notifica.
   it("should create and notify a user-originated emergency alert", async () => {
     await useCase.execute({
       latitude: -23.5505,
@@ -74,6 +76,7 @@ describe("CreateEmergencyAlert", () => {
     expect(notificationPortMock.notify).toHaveBeenCalledWith(createdAlert);
   });
 
+  // Garante que sem userId o evento marca origem anônima e guarda os dados de local no metadata.
   it("should register anonymous origin metadata when userId is not provided", async () => {
     await useCase.execute({
       latitude: -10,

@@ -11,10 +11,10 @@ import {
 } from "@/core/domain/repositories/check-in-repository";
 import { CheckInValidationService } from "@/core/domain/services/check-in-validation.service";
 import { ActiveCheckInNotFoundError } from "@/core/errors/check-in.errors";
+import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
 import { CreateEmergencyAlert } from "@/core/use-cases/create-emergency-alert";
 
-import { CompleteCheckInUseCase } from "@/core/use-cases/complete-check-in.use-case";
-
+// Valida a conclusão de um check-in: dispara alerta apenas quando há atraso (LATE).
 describe("CompleteCheckInUseCase", () => {
   let useCase: CompleteCheckInUseCase;
   let checkInRepositoryMock: jest.Mocked<CheckInRepository>;
@@ -59,6 +59,7 @@ describe("CompleteCheckInUseCase", () => {
     );
   });
 
+  // Garante que chegada no prazo (ON_TIME) conclui sem disparar alerta de emergência.
   it("should complete check-in ON_TIME successfully without triggering alert", async () => {
     // Arrange
     const activeCheckIn = {
@@ -105,6 +106,7 @@ describe("CompleteCheckInUseCase", () => {
     expect(auditLoggerMock.log).toHaveBeenCalled();
   });
 
+  // Garante que chegada atrasada (LATE) dispara alerta usando as coordenadas de origem.
   it("should complete check-in LATE and trigger EmergencyAlert", async () => {
     // Arrange
     const activeCheckIn = {
@@ -144,6 +146,7 @@ describe("CompleteCheckInUseCase", () => {
     );
   });
 
+  // Garante erro quando não há check-in ativo para o usuário (nada é concluído nem alertado).
   it("should throw ActiveCheckInNotFoundError if no active check-in is found", async () => {
     checkInRepositoryMock.findActiveByUserId.mockResolvedValue(null);
 

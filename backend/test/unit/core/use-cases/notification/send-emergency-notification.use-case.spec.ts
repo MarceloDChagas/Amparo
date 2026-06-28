@@ -2,9 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import { EmergencyContact } from "@/core/domain/entities/emergency-contact.entity";
 import { Occurrence } from "@/core/domain/entities/occurrence.entity";
-
 import { SendEmergencyNotificationUseCase } from "@/core/use-cases/notification/send-emergency-notification.use-case";
 
+// Valida o envio de notificações de emergência aos contatos e a contabilização de sucessos/falhas.
 describe("SendEmergencyNotificationUseCase", () => {
   let useCase: SendEmergencyNotificationUseCase;
 
@@ -38,6 +38,7 @@ describe("SendEmergencyNotificationUseCase", () => {
     jest.clearAllMocks();
   });
 
+  // Garante envio a todos os contatos que têm e-mail e a contagem correta de enviados.
   it("should send notifications to all contacts with email addresses", async () => {
     const userId = "user-1";
     const occurrence = new Occurrence({
@@ -90,6 +91,7 @@ describe("SendEmergencyNotificationUseCase", () => {
     expect(mockEmailService.sendEmergencyNotification).toHaveBeenCalledTimes(2);
   });
 
+  // Garante que contatos sem e-mail são ignorados na contagem de envios.
   it("should skip contacts without email addresses", async () => {
     const userId = "user-1";
     const occurrence = new Occurrence({
@@ -139,6 +141,7 @@ describe("SendEmergencyNotificationUseCase", () => {
     expect(mockEmailService.sendEmergencyNotification).toHaveBeenCalledTimes(1);
   });
 
+  // Garante que falhas de envio são contabilizadas sem interromper os demais contatos.
   it("should handle email sending failures gracefully", async () => {
     const userId = "user-1";
     const occurrence = new Occurrence({
@@ -189,6 +192,7 @@ describe("SendEmergencyNotificationUseCase", () => {
     });
   });
 
+  // Garante que sem contatos cadastrados o resultado é zerado e nenhum e-mail é enviado.
   it("should return zeros when no contacts are found", async () => {
     const userId = "user-1";
     const occurrence = new Occurrence({

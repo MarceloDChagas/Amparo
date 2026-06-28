@@ -5,6 +5,7 @@ import { Occurrence } from "@/core/domain/entities/occurrence.entity";
 import { CalculateHeatMapUseCase } from "@/core/use-cases/heat-map/calculate-heat-map.use-case";
 import { GetHeatMapUseCase } from "@/core/use-cases/heat-map/get-heat-map.use-case";
 
+// Valida o cálculo do mapa de calor (agrupamento em células e risco) e a leitura das células.
 describe("Heat map use cases", () => {
   const heatMapRepository = {
     findAll: jest.fn(),
@@ -21,6 +22,7 @@ describe("Heat map use cases", () => {
     jest.restoreAllMocks();
   });
 
+  // Garante que sem ocorrências o mapa de calor é zerado (replaceAll com lista vazia).
   it("clears the heat map when there are no occurrences", async () => {
     heatMapRepository.replaceAll.mockResolvedValue(undefined);
 
@@ -29,6 +31,7 @@ describe("Heat map use cases", () => {
     expect(heatMapRepository.replaceAll).toHaveBeenCalledWith([]);
   });
 
+  // Garante o agrupamento por célula, o peso extra de agressor identificado e o descarte de ocorrência sem coordenada.
   it("groups occurrences by cell and weights identified aggressors", async () => {
     const older = new Date("2026-01-01T10:00:00.000Z");
     const newer = new Date("2026-01-02T10:00:00.000Z");
@@ -74,6 +77,7 @@ describe("Heat map use cases", () => {
     expect(cells[0].lastOccurrence).toBe(newer);
   });
 
+  // Garante que a leitura retorna todas as células do mapa de calor.
   it("returns all heat map cells", async () => {
     const cells = [new HeatMapCell({ cellKey: "1_1" } as HeatMapCell)];
     heatMapRepository.findAll.mockResolvedValue(cells);

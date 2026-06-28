@@ -2,6 +2,7 @@ import { Note } from "@/core/domain/entities/note.entity";
 import { CreateNoteUseCase } from "@/core/use-cases/notes/create-note.use-case";
 import { GetNotesByUserUseCase } from "@/core/use-cases/notes/get-notes-by-user.use-case";
 
+// Valida os casos de uso de anotações (criar e listar por usuário).
 describe("Note use cases", () => {
   const noteRepository = {
     create: jest.fn(),
@@ -16,6 +17,7 @@ describe("Note use cases", () => {
     jest.clearAllMocks();
   });
 
+  // Garante que não cria anotação para usuário inexistente.
   it("throws when creating a note for a missing user", async () => {
     userRepository.findById.mockResolvedValue(null);
 
@@ -31,6 +33,7 @@ describe("Note use cases", () => {
     expect(noteRepository.create).not.toHaveBeenCalled();
   });
 
+  // Garante que campos opcionais ausentes (título, ocorrência) ficam como null.
   it("creates a note with nullable optional fields", async () => {
     userRepository.findById.mockResolvedValue({ id: "user-1" });
     noteRepository.create.mockImplementation(async (note: Note) => note);
@@ -54,6 +57,7 @@ describe("Note use cases", () => {
     expect(noteRepository.create).toHaveBeenCalledWith(expect.any(Note));
   });
 
+  // Garante que não lista anotações de usuário inexistente.
   it("throws when listing notes for a missing user", async () => {
     userRepository.findById.mockResolvedValue(null);
 
@@ -66,6 +70,7 @@ describe("Note use cases", () => {
     expect(noteRepository.findByUserId).not.toHaveBeenCalled();
   });
 
+  // Garante que a listagem retorna as anotações do usuário informado.
   it("lists notes by user", async () => {
     const notes = [{ id: "note-1" }];
     userRepository.findById.mockResolvedValue({ id: "user-1" });

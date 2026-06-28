@@ -5,9 +5,9 @@ import {
   EmergencyAlertNotFoundError,
   InvalidAlertStatusTransitionError,
 } from "@/core/errors/emergency-alert.errors";
-
 import { UpdateAlertStatusUseCase } from "@/core/use-cases/update-alert-status.use-case";
 
+// Valida a mudança de status do alerta: transições válidas, inválidas e exigência de motivo no cancelamento.
 describe("UpdateAlertStatusUseCase", () => {
   const alertRepositoryMock = {
     create: jest.fn(),
@@ -31,6 +31,7 @@ describe("UpdateAlertStatusUseCase", () => {
     );
   });
 
+  // Garante a transição PENDING → DISPATCHED e o registro do evento com metadata de status.
   it("should update from PENDING to DISPATCHED and register event", async () => {
     alertRepositoryMock.findById.mockResolvedValue(
       EmergencyAlert.create(
@@ -63,6 +64,7 @@ describe("UpdateAlertStatusUseCase", () => {
     });
   });
 
+  // Garante erro quando o alerta não existe.
   it("should throw EmergencyAlertNotFoundError when alert does not exist", async () => {
     alertRepositoryMock.findById.mockResolvedValue(null);
 
@@ -77,6 +79,7 @@ describe("UpdateAlertStatusUseCase", () => {
     expect(recordAlertEventMock.execute).not.toHaveBeenCalled();
   });
 
+  // Garante que transições inválidas (ex.: de COMPLETED para DISPATCHED) são rejeitadas.
   it("should reject invalid transitions", async () => {
     alertRepositoryMock.findById.mockResolvedValue(
       EmergencyAlert.create(
@@ -98,6 +101,7 @@ describe("UpdateAlertStatusUseCase", () => {
     expect(recordAlertEventMock.execute).not.toHaveBeenCalled();
   });
 
+  // Garante que cancelar sem motivo é bloqueado.
   it("should require cancellation reason when moving to CANCELLED", async () => {
     alertRepositoryMock.findById.mockResolvedValue(
       EmergencyAlert.create(
@@ -118,6 +122,7 @@ describe("UpdateAlertStatusUseCase", () => {
     expect(alertRepositoryMock.updateStatus).not.toHaveBeenCalled();
   });
 
+  // Garante que o motivo do cancelamento é persistido no update e no metadata do evento.
   it("should persist cancellation reason in update and event metadata", async () => {
     alertRepositoryMock.findById.mockResolvedValue(
       EmergencyAlert.create(

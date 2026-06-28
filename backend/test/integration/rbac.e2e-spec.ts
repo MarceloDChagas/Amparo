@@ -13,6 +13,7 @@ import { Roles } from "@/infra/http/decorators/roles.decorator";
 import { RolesGuard } from "@/infra/http/guards/roles.guard";
 import { JwtStrategy } from "@/infra/http/strategies/jwt.strategy";
 
+// Controller de teste com rotas pública, de admin e de usuário para exercitar o RBAC ponta a ponta.
 @Controller("test-rbac")
 class TestRbacController {
   @Get("admin")
@@ -35,6 +36,7 @@ class TestRbacController {
   }
 }
 
+// Valida o controle de acesso por papel com JWT real (estratégia + guard reais).
 describe("RBAC (e2e)", () => {
   let app: INestApplication<App>;
   let jwtService: JwtService;
@@ -101,6 +103,7 @@ describe("RBAC (e2e)", () => {
     }
   });
 
+  // Garante que rota pública é acessível sem autenticação.
   it("/test-rbac/public (GET) - allow anonymous", () => {
     return request(app.getHttpServer())
       .get("/test-rbac/public")
@@ -108,10 +111,12 @@ describe("RBAC (e2e)", () => {
       .expect("public");
   });
 
+  // Garante que rota de admin bloqueia acesso anônimo (401).
   it("/test-rbac/admin (GET) - block anonymous", () => {
     return request(app.getHttpServer()).get("/test-rbac/admin").expect(401);
   });
 
+  // Garante que token de admin acessa a rota de admin.
   it("/test-rbac/admin (GET) - allow admin", () => {
     const token = jwtService.sign({
       sub: "admin-id",
@@ -125,6 +130,7 @@ describe("RBAC (e2e)", () => {
       .expect("admin");
   });
 
+  // Garante que token de usuário comum é proibido na rota de admin (403).
   it("/test-rbac/admin (GET) - block user", () => {
     const token = jwtService.sign({
       sub: "user-id",
@@ -137,6 +143,7 @@ describe("RBAC (e2e)", () => {
       .expect(403);
   });
 
+  // Garante que token de usuário acessa a rota de usuário.
   it("/test-rbac/user (GET) - allow user", () => {
     const token = jwtService.sign({
       sub: "user-id",

@@ -7,6 +7,7 @@ import {
 import { GetPatrolRoutesUseCase } from "@/core/use-cases/patrol-route/get-patrol-routes.use-case";
 import { UpdatePatrolRouteStatusUseCase } from "@/core/use-cases/patrol-route/update-patrol-route-status.use-case";
 
+// Valida os casos de uso de gestão de rotas (listar, buscar, atribuir e mudar status com logs).
 describe("Patrol route use cases", () => {
   const patrolRouteRepository = {
     create: jest.fn(),
@@ -18,13 +19,13 @@ describe("Patrol route use cases", () => {
     addLog: jest.fn(),
   };
 
-  const makeRoute = (
-    overrides: Partial<PatrolRoute> = {},
-  ): PatrolRoute =>
+  const makeRoute = (overrides: Partial<PatrolRoute> = {}): PatrolRoute =>
     new PatrolRoute({
       id: "route-1",
       name: "Rota Centro",
-      waypoints: [{ order: 1, latitude: -8.33, longitude: -36.42, riskScore: 7 }],
+      waypoints: [
+        { order: 1, latitude: -8.33, longitude: -36.42, riskScore: 7 },
+      ],
       status: "PENDING",
       assignedTo: null,
       generatedBy: "admin-1",
@@ -45,6 +46,7 @@ describe("Patrol route use cases", () => {
     jest.useRealTimers();
   });
 
+  // Garante que lista todas as rotas.
   it("returns all patrol routes", async () => {
     const routes = [makeRoute()];
     patrolRouteRepository.findAll.mockResolvedValue(routes);
@@ -55,6 +57,7 @@ describe("Patrol route use cases", () => {
     expect(patrolRouteRepository.findAll).toHaveBeenCalledTimes(1);
   });
 
+  // Garante erro ao buscar rota inexistente.
   it("throws when route by id is missing", async () => {
     patrolRouteRepository.findById.mockResolvedValue(null);
 
@@ -63,6 +66,7 @@ describe("Patrol route use cases", () => {
     ).rejects.toThrow(PatrolRouteNotFoundError);
   });
 
+  // Garante que retorna a rota quando encontrada pelo id.
   it("returns route by id", async () => {
     const route = makeRoute();
     patrolRouteRepository.findById.mockResolvedValue(route);
@@ -73,6 +77,7 @@ describe("Patrol route use cases", () => {
     expect(patrolRouteRepository.findById).toHaveBeenCalledWith("route-1");
   });
 
+  // Garante que atribuir a rota troca o agente e registra log ASSIGNED com agente anterior/novo.
   it("assigns route and records assignment log", async () => {
     const existing = makeRoute({ assignedTo: "agent-old" });
     const updated = makeRoute({ assignedTo: "agent-new" });
@@ -104,6 +109,7 @@ describe("Patrol route use cases", () => {
     );
   });
 
+  // Garante erro ao atribuir rota inexistente (não chama assignTo).
   it("throws when assigning a missing route", async () => {
     patrolRouteRepository.findById.mockResolvedValue(null);
 
@@ -117,6 +123,7 @@ describe("Patrol route use cases", () => {
     expect(patrolRouteRepository.assignTo).not.toHaveBeenCalled();
   });
 
+  // Garante, para cada status, o evento de log correto e o campo de data preenchido (ou não).
   it.each([
     ["IN_PROGRESS", "STARTED", "startedAt"],
     ["COMPLETED", "COMPLETED", "completedAt"],
@@ -144,19 +151,26 @@ describe("Patrol route use cases", () => {
         expect.objectContaining({
           status,
           [dateField]:
-            status === "PENDING" ? undefined : new Date("2026-06-17T12:00:00.000Z"),
+            status === "PENDING"
+              ? undefined
+              : new Date("2026-06-17T12:00:00.000Z"),
         }),
       );
-      expect(patrolRouteRepository.addLog).toHaveBeenCalledWith("route-1", event, {
-        performedBy: "admin-1",
-        metadata: {
-          previousStatus: "PENDING",
-          newStatus: status,
+      expect(patrolRouteRepository.addLog).toHaveBeenCalledWith(
+        "route-1",
+        event,
+        {
+          performedBy: "admin-1",
+          metadata: {
+            previousStatus: "PENDING",
+            newStatus: status,
+          },
         },
-      });
+      );
     },
   );
 
+  // Garante erro ao mudar status de rota inexistente (não chama updateStatus).
   it("throws when updating a missing route", async () => {
     patrolRouteRepository.findById.mockResolvedValue(null);
 

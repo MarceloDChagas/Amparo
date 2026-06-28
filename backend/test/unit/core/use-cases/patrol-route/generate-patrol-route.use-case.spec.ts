@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await */
 import { Test, TestingModule } from "@nestjs/testing";
 
 import type { HeatMapCell } from "@/core/domain/entities/heat-map-cell.entity";
-
 import { GeneratePatrolRouteUseCase } from "@/core/use-cases/patrol-route/generate-patrol-route.use-case";
 
 /**
  * AM-81 — Testar rotas geradas em diferentes cenários de densidade
+ *
+ * Valida a geração de rotas de patrulha a partir do mapa de calor: ordenação
+ * por risco (Nearest Neighbor), limite de waypoints, ponto de partida da
+ * viatura, cenários de densidade e registro de logs (GENERATED/ASSIGNED).
  */
 describe("GeneratePatrolRouteUseCase", () => {
   let useCase: GeneratePatrolRouteUseCase;
@@ -82,6 +84,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     );
   });
 
+  // Garante a ordenação dos waypoints por risco (maior primeiro) e ordem sequencial.
   it("deve gerar rota com waypoints ordenados pela lógica Nearest Neighbor", async () => {
     const route = await useCase.execute({
       name: "Rota Centro",
@@ -98,6 +101,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     });
   });
 
+  // Garante que maxWaypoints limita a rota aos N pontos de maior risco.
   it("AM-81: cenário de alta densidade — gera rota com todos os top N pontos", async () => {
     const route = await useCase.execute({
       name: "Rota Alta Densidade",
@@ -111,6 +115,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     expect(Math.max(...risks)).toBe(7.5);
   });
 
+  // Garante que, com posição da viatura, a rota inicia pelo ponto mais próximo dela.
   it("AM-82: com posição da viatura, inicia rota a partir da localização informada", async () => {
     const route = await useCase.execute({
       name: "Rota Viatura A",
@@ -124,6 +129,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     expect(route.waypoints[0].riskScore).toBe(7.5);
   });
 
+  // Garante que mapa de calor vazio resulta em erro adequado (não gera rota).
   it("AM-81: cenário de mapa vazio — lança erro adequado", async () => {
     mockHeatMapRepo.findAll.mockResolvedValueOnce([]);
 
@@ -132,6 +138,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     ).rejects.toThrow("mapa de calor");
   });
 
+  // Garante que com poucas células a rota é gerada apenas com as disponíveis.
   it("AM-81: cenário de baixa densidade — gera rota com células disponíveis", async () => {
     mockHeatMapRepo.findAll.mockResolvedValueOnce([mockCells[0]]);
 
@@ -144,6 +151,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     expect(route.waypoints[0].riskScore).toBe(7.5);
   });
 
+  // Garante o registro do log GENERATED após criar a rota.
   it("AM-84: registra log GENERATED após criar a rota", async () => {
     await useCase.execute({ name: "Rota Log", generatedBy: "admin-id" });
 
@@ -154,6 +162,7 @@ describe("GeneratePatrolRouteUseCase", () => {
     );
   });
 
+  // Garante o registro do log ASSIGNED quando a rota já é criada com um agente atribuído.
   it("AM-84: registra log ASSIGNED quando assignedTo é informado", async () => {
     await useCase.execute({
       name: "Rota Assign",
